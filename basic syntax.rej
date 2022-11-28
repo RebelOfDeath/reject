@@ -1,0 +1,68 @@
+i = 0[;]
+
+~~ if
+when [(]x == 0[)] {
+	~~ do stuff
+} 
+unless when (cond) {
+	~~ do more stuff
+} 
+otherwise {
+	~~ last resort
+	~~ don't use!!!1!
+}
+
+for a given (x) {
+	with case1 {
+		
+	}
+	with case2 {
+	
+	}
+	otherwise {
+	
+	}
+}
+
+~~ while
+as long as (x == 0) {
+	~~ do de ding
+} 
+
+for all (x = 0) where (x < 100) {
+	stop;
+	result in x;
+} (x++);
+
+str x = "hi";
+reg y = {"[ligmaLIGMA]"};
+
+int myCoolInt = 0;
+long bigNum = 9348108572389573289457328;
+dec decimalNum = 0.4 [* 10^10];
+frac fjaskfj = 1/2;
+str hi = "hi";
+char h = 'h';
+str[] arr = ["arr", "matey"];
+complex veryComplexNumberIndeed = (real)z(imaginary);
+matrix matrix = [[1, 1], [2, 2]]; ~~ only dcm types
+bool myVerySuperEpicBooleanValue = true;
+
+dec e = eul;
+dec π = pi;
+
+print(x);
+
+dec myCirclesX = cos(x);
+dec log = log(8, 2);
+
+print(log == 3);
+
+numeral_type max = max(a, b, args);
+
+dec x = 100%;
+numeral_type remainder = mod(4, 6); ~~ or use 4 mod 6
+
+int length = |array|;
+int stringLength = |"hi"|;
+numeral_type absoluteValue = |-1.0|;
