@@ -1,68 +1,60 @@
-i = 0[;]
+#values such as null and false are aliases 
+x = 1
+x = 4/5
 
-~~ if
-when [(]x == 0[)] {
-	~~ do stuff
-} 
-unless when (cond) {
-	~~ do more stuff
-} 
-otherwise {
-	~~ last resort
-	~~ don't use!!!1!
-}
-
-for a given (x) {
-	with case1 {
-		
-	}
-	with case2 {
+# adds two and returns square
+fun twoSquare(x):
+	x += 2
 	
-	}
-	otherwise {
+	#if no return statement is given
+	#the last evaluated value assigned to a variable will be returned
+	#if no local scope variables have been defined and only modifications
+	#have been made to global variables the returned value will be NULL
+	#i.e. boolean 0 = False
+	#return x^2
+
+g(x) = :(x): 3 * (x^2) * 100	# one-liner for fun
+
+fun g(x):
+	return 3 * (x^2) * 10^2
+
+verdeling = normalcdf(l, r, o, p)
+
+#a matrix a numeric 2d array
+#all other instances of array and other dimensionalities of matrices
+#will be treated as such and will not posess the charachteristics of
+#the matrix datatype. a singleton is also a valid matrix. 
+matrix = [[1 1 1] [2 2 2] [3 3 3]]
+
+
+complex_number = #z(3, 2) (3)z(2)
+
+complex_abs = |z(3, 2)|
+
+for x in verdeling:
+	print("x = $x")
 	
-	}
-}
+if x is 10:
+	print("According to my calculations, x is 10!")
 
-~~ while
-as long as (x == 0) {
-	~~ do de ding
-} 
+is_even = even(10)
+is_odd = odd(10)
+modulo = mod(21, 10) # = 1
 
-for all (x = 0) where (x < 100) {
-	stop;
-	result in x;
-} (x++);
+verdeling = filter(even(x), verdeling) # filter based on predicate
+verdeling = filter(:(x): even(x) ? true : false, verdeling)
 
-str x = "hi";
-reg y = {"[ligmaLIGMA]"};
+# ================= plot a graph ===================
+n = 100
+p = 1/6
 
-int myCoolInt = 0;
-long bigNum = 9348108572389573289457328;
-dec decimalNum = 0.4 [* 10^10];
-frac fjaskfj = 1/2;
-str hi = "hi";
-char h = 'h';
-str[] arr = ["arr", "matey"];
-complex veryComplexNumberIndeed = (real)z(imaginary);
-matrix matrix = [[1, 1], [2, 2]]; ~~ only dcm types
-bool myVerySuperEpicBooleanValue = true;
+binom_verdeling = binomcdf(n, p, k) 
+askdfjaslkdfjsa = binomcdf(n, p, :(x): x) # x will be plotted (ig?)
+#the last statement returns a new data type, function_def which can
+#then be utilized to draw graphs of the respective functions
+#this data type in itself is an encapculation of the function type and
+#more specfically the anonymous (lambda) function.
 
-dec e = eul;
-dec π = pi;
-
-print(x);
-
-dec myCirclesX = cos(x);
-dec log = log(8, 2);
-
-print(log == 3);
-
-numeral_type max = max(a, b, args);
-
-dec x = 100%;
-numeral_type remainder = mod(4, 6); ~~ or use 4 mod 6
-
-int length = |array|;
-int stringLength = |"hi"|;
-numeral_type absoluteValue = |-1.0|;
+plot_bars(values, l, r, h, dx)
+plot_bars(values, dx) # l, r and h are inferred from values
+plot_bars(values) # dx is inferred from values
