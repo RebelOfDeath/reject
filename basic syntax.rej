@@ -1,36 +1,57 @@
-#values such as null and false are aliases 
-x = 1
-x = 4/5
+#values such as null and false are aliases for the 0 boolean value
+#every other value besides null, false, and the 0 boolean value are evaluated to be true
 
-# adds two and returns square
-fun twoSquare(x):
-	x += 2
+#the types included in our programming language are a combination of all types present in Python and JavaScript
+#the list of types are as follows:
+#- Number : All numerical values including floats, integers and fractions (This is a simplification container type and under the hood everything will be evaluated to a distinct type)
+#- Collection : This is the same as the python3 array, indexing and slicing are the same as that in python
+#- Character : are a single Unicode symbol ( a string is a collection of characters with its own specific methods )
+#- Matrix : a Matrix is a special type of numeric 2 dimensional collection with its own distinct charachteristics
+#- Complex : a complex number with specific functionalities
+#- Function : A reference to a function definition, defined by the fun keyword and followed by the name and between parantheses the parameters. default values for parameters can be given such as done in python. arguments are seperated by commas.
+#- Lambda : A function definition itself
+
+
+#assignment is achieved through the usage of the character "="
+#the reject programming language evaluates the right hand side before assigning the value to the left hand side
+#the precedence for operations is the same of that used in python
+#the fraction type ( x//y ) is not evaluated to a floating point number but its own distinct type
+#inside the fraction type x is the denomenator and y the numerator
+#this operator, i.e. "//" has the same precedence as the python "/" operator
+
+x = 1 # assignes the value of 1 to the variable named x
+x = 4//5 # this expressions reassigns the value of the fraction 4 over 5 to the variable named x
+x = z(3, 4) # is the reassignment of the complex number (3 + 4i) to the variable named x
+
+# the following is the definition of a function with the name my_fun and the parameters x and y, with y having a default value of 2
+# function in reject are pass by value
+fun my_fun(x, y = 2):
+	x += 2 #adds 2 to the current passed value of x
+	par = x #the variable par is a local scope variable equal to the current value of x
+	x = par + y 
+	x, y = y, x #the right hand side (rhs) precedence of reject allows the simultaneous assignment of multiple variables, here the current values of x and y are swapped
 	
-	#if no return statement is given
-	#the last evaluated value assigned to a variable will be returned
-	#if no local scope variables have been defined and only modifications
-	#have been made to global variables the returned value will be NULL
-	#i.e. boolean 0 = False
-	#return x^2
+	#if no return statement is given the last evaluated value assigned to a variable will be returned
+	#if no local scope variables have been defined and only modifications have been made to global variables the returned value will be null i.e. boolean 0 = false
+	return x^2 # this returns the value of x to the power of 2 from the function
 
-g(x) = :(x): 3 * (x^2) * 100	# one-liner for fun
+g(x) = :(x): 3 * (x^2) * 100	# this is the definition of a lambda type, whre the variables inside between the parantheses in :(): are the parameters of the function much alike the function definition
+# the expression which is then comes after these is evaluated and returned after the values have been provided
+#both lambdas and functions can be called by using the following syntax -> FunctionName(Parameters)
 
-fun g(x):
-	return 3 * (x^2) * 10^2
-
-verdeling = normalcdf(l, r, o, p)
+verdeling = normalcdf(l, r, o, p) # this is an example of calling a function named normalcdf with the parameters l, r, o, p
 
 #a matrix a numeric 2d array
 #all other instances of array and other dimensionalities of matrices
 #will be treated as such and will not posess the charachteristics of
-#the matrix datatype. a singleton is also a valid matrix. 
-matrix = [[1 1 1] [2 2 2] [3 3 3]]
+#the matrix datatype. a singleton is also a valid matrix.
+coll = [1, 2, 4] # this is a definition of an array with three values, namely 1, 2, and 4 
+matrix = {{1, 1, 1}, {2, 2, 2}, {3, 3, 3}} # this is a defintion of a matrix which under the hood is a 2-d array. values (both collections and numerics) are separated by commas)
+# a collection of collections is not the same as a matrix, only collection created using curly brackets ("{}") are valid matrices
 
 
-complex_number = #z(3, 2) (3)z(2)
-
-complex_abs = |z(3, 2)|
-
+complex_abs = |z(3, 2)| #this is an example of a syntactic sugar for calling the abs value function on a collection or Number type
+# the syntax for using this is |Value| where this is equal to calling abs(Value)
 for x in verdeling:
 	print("x = $x")
 	
