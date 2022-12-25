@@ -1,0 +1,14 @@
+/**
+ * Returns the bit-length of the significand of the given number in such a way
+ * that trailing zeros are not counted.
+ * @param a A double precision floating point number
+ */
+declare function bitLength(a: number): number;
+/**
+ * Returns the bit-length of the significand of the given floating point
+ * expansion in such a way that trailing zeros are not counted.
+ * * precondition: subnormals not currently supported
+ * @param a A double precision floating point expansion
+ */
+declare function expBitLength(a: number[]): number;
+export { bitLength, expBitLength };

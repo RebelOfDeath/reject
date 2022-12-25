@@ -1,0 +1,2 @@
+declare function eIsInteger(a: number[]): boolean;
+export { eIsInteger };

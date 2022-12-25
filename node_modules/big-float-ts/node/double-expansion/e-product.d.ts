@@ -1,0 +1,13 @@
+/**
+ * Return the result of multiplying together an array of floating point
+ * expansions.
+ *
+ * * The result is exact in the form of a non-overlapping floating point
+ * expansion.
+ *
+ * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * @param terms an array of multiplicands
+ */
+declare function eProduct(term: number[][]): number[];
+export { eProduct };

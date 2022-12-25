@@ -1,0 +1,5 @@
+declare function eLongDivide(N: number[], D: number[]): {
+    div: number[];
+    rem: number[];
+};
+export { eLongDivide };

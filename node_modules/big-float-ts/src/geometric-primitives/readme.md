@@ -1,0 +1,4 @@
+# Note
+
+These geometric primitives (there is actually only 1 currently) is here mostly
+to showcase the use of the double floating point expansion arithmetic operations.

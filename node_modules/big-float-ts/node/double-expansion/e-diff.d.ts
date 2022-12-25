@@ -1,0 +1,10 @@
+/**
+ * Returns the difference between two floating point expansions, i.e. e - f.
+ *
+ * * see [Shewchuk](https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf)
+ *
+ * @param e a floating point expansion
+ * @param f another floating point expansion
+ */
+declare function eDiff(e: number[], f: number[]): number[];
+export { eDiff };

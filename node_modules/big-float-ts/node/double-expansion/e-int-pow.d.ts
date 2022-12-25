@@ -1,0 +1,6 @@
+/**
+ * Returns a**i, where i is a non-negative integer.
+ * @param a a floating point expansion
+ */
+declare function eIntPow(a: number[], p: number): number[];
+export { eIntPow };

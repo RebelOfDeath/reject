@@ -1,0 +1,8 @@
+/**
+ * Returns a floating point expansion accurate to the given number of bits.
+ * Extraneous bits are discarded.
+ * @param a a floating point expansion
+ * @param l the number of accurate bits to keep
+ */
+declare function eToBitlength(a: number[], l: number): number[];
+export { eToBitlength };

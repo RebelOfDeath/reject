@@ -1,0 +1,29 @@
+{
+  "name": "reject",
+  "version": "1.0.0",
+  "description": "A programming language designed for math geeks",
+  "main": "reject.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RebelOfDeath/reject.git"
+  },
+  "keywords": [
+    "math",
+    "ohm.js"
+  ],
+  "type": "module",
+  "author": "RebelOfDeath & Efnilite",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RebelOfDeath/reject/issues"
+  },
+  "homepage": "https://github.com/RebelOfDeath/reject#readme",
+  "dependencies": {
+    "big-float-ts": "^3.0.2",
+    "bignumber.js": "^9.1.1",
+    "ohm-js": "^16.6.0"
+  }
+}
