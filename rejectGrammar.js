@@ -2,138 +2,131 @@ const ohm = require('ohm-js')
 const grammar = ohm.grammar(`
 Reject {
 
-    Statement = Performable | Assignment | Expression
+    // note that almost all elements in this grammar are lexical rules.
+    // this is to avoid goofy indentation, etc.
+
+    Program = element*
+
+    element = statement | expression
     
-    Performable = Iterative | Return 
+    statement = iterative | return | var | fn
     
-    Assignment = Var | Fn
-    
-    Expression = Logical | Comparator | Cond | Ternary | Invocation | Literal | StorableFormat
+    expression = logical | comparator | cond | ternary | invocation | literal | identifier
 
     // ====================
-
-    Literal = Array | Matrix | Text | Arithmetic | Boolean
-
-    // format for vars, fn names
-    StorableFormat = ~(digit+) #(alnum | "_")+
     
-    Block = (~(nl nl+) Statement)*
-    
-    //blockx = ":" (any ~(space space))*
-    
-    //BlockStatement = #("\    ") "_"
-    
-    // ====================
-
     nl = "\\n" | "\\r" | "\u2028" | "\u2029"
 
     comment = "#" (~nl any)*
     
-    space := nl | "\    " | " " | comment // ignore comments in code
+    space := " " | comment // ignore comments in code
+    
+    // ====================
+
+    literal = array | matrix | text | arithmetic | boolean
+
+    // format for vars, fn names
+    identifier = ~(digit+) #(alnum | "_")+
     
     // ====================
     
-    Boolean = "true" | "false"
+    boolean = "true" | "false"
 
-    Logical = Logical "and" Boolean -- and
-                    | Logical "or" Boolean -- or
-                    | ParLogical
+    logical = logical spaces "and" spaces boolean -- and
+                    | logical spaces "or" spaces boolean -- or
+                    | logicalPar
 
-    ParLogical = "(" Logical ")" -- par
-                    | "!" Logical -- inv
-                    | Boolean
+    logicalPar = "(" spaces logical spaces ")" -- par
+                    | "!" logical -- inv
+                    | boolean
 
     // ====================
 
-    Integer = "-"? digit+
+    integer = "-"? digit+
     
-    Float = "-"? digit* "." Integer+
+    float = "-"? digit* "." integer+
     
-    Fraction = Integer+ "//" Integer+
+    fraction = integer+ "//" integer+
 
-    Number = Fraction | Float | Integer
+    number = fraction | float | integer
 
-    Arithmetic = AddExp
+    arithmetic = exprAdd
 
-    AddExp = AddExp "+" MulExpr -- plus
-                    | AddExp "-" MulExpr -- sub
-                    | MulExpr
+    exprAdd = exprAdd spaces "+" spaces exprMul -- plus
+                    | exprAdd spaces "-" spaces exprMul -- sub
+                    | exprMul
 
-    MulExpr = MulExpr "*" ExpExpr -- mul
-                    | MulExpr "/" ExpExpr -- div
-                    | ExpExpr
+    exprMul = exprMul spaces "*" spaces exprExp -- mul
+                    | exprMul spaces "/" spaces exprExp -- div
+                    | exprExp
 
-    ExpExpr = MulExpr "^" Number -- exp
-                    | ParExpr
+    exprExp = exprExp spaces "^" spaces number -- exp
+                    | exprPar
 
-    ParExpr = "(" AddExp ")" -- par
-                    | Number
-
-    // ====================
-
-    Text = String | Char
-
-    String = "\\"" (~"\\"" any)* "\\""
-
-    Char = "'" any "'"
-
-    // ====================
-    
-    Array = "[" ListOf<Expression, ","> "]"
+    exprPar = "(" spaces exprAdd spaces ")" -- par
+                    | number
 
     // ====================
 
-    Matrix = "{" ListOf<MatrixArgsTypes, ","> "}"
+    text = string | char
 
-    MatrixArgsTypes = Matrix | Number
+    string = "\\"" (~("\\"" | nl) any)* "\\""
+
+    char = "'" (~nl any) "'"
 
     // ====================
     
-    Iterative = "for" ListOf<StorableFormat, ","> "in" Expression ":" Block
+    array = "[" listOf<expression, ","> "]"
 
     // ====================
 
-    Invocation = PipeFnInvoke | FnInvoke
+    matrix = "{" listOf<matrixArgsTypes, ","> "}"
 
-    PipeFnInvoke = "|" Expression "|"
+    matrixArgsTypes = spaces (matrix | number) spaces
+
+    // ====================
     
-    FnInvoke = StorableFormat "(" ListOf<Expression, ","> ")"
+    iterative = "for " spaces listOf<identifier, ","> spaces " in " spaces expression spaces ":" spaces
 
     // ====================
 
-    Fn = "fun " StorableFormat "(" ListOf<FnArg, ","> "):" Block
+    invocation = invocationPipe | invocationFn
 
-    FnArg = Var | StorableFormat
-
-    Return = "return" Expression
-
-    // ====================
-
-    Var = StorableFormat "=" Expression
-
-    // ====================
-
-    Cond = WhenCond | WhenElseCond | ElseCond
-
-    WhenCond = "when" Comparator ":" Block
+    invocationPipe = "|" spaces expression spaces "|"
     
-    WhenElseCond = "else when" Comparator ":" Block
-
-    ElseCond = "else:" Block
+    invocationFn = identifier "(" spaces listOf<expression, ","> spaces ")"
 
     // ====================
 
-    Ternary = Expression "?" Expression ":" Expression
+    fn = "fun " spaces identifier spaces "(" spaces listOf<fnArg, ","> spaces "):" spaces 
+
+    fnArg = var | identifier
+
+    return = "return " spaces expression
+
+    var = identifier spaces "=" spaces expression spaces
 
     // ====================
 
-    Comparator = Expression "==" Expression -- equals
-                    | Expression "!=" Expression -- not_equals
-                    | Expression ">" Expression -- bigger
-                    | Expression "<" Expression -- smaller
-                    | Expression ">=" Expression -- bigger_equals
-                    | Expression "<=" Expression -- smaller_equals
+    cond = condWhen | condWhenElse | condElse
+
+    condWhen = "when " spaces comparator spaces ":" spaces
+    
+    condWhenElse = "else when " spaces comparator spaces ":" spaces
+
+    condElse = "else:" spaces
+
+    // ====================
+
+    ternary = expression spaces "?" spaces expression spaces ":" spaces expression
+
+    // ====================
+
+    comparator = expression spaces "==" spaces expression -- equals
+                    | expression spaces "!=" spaces expression -- not_equals
+                    | expression spaces ">" spaces expression -- bigger
+                    | expression spaces "<" spaces expression -- smaller
+                    | expression spaces ">=" spaces expression -- bigger_equals
+                    | expression spaces "<=" spaces expression -- smaller_equals
 }
-
-
 `)
