@@ -1,8 +1,8 @@
 import assert from 'assert';
 
 class Collection {
-  constructor() {
-    this.items = [];
+  constructor(items) {
+    this.items = items;
   }
 
   // Add an item to the end of the collection
@@ -53,7 +53,7 @@ class Collection {
     return new Collection(this.items.slice(start, end));
   }
 
-map(fn) {
+  map(fn) {
     const mapped = this.items.map(fn);
     return new Collection(mapped);
   }
@@ -77,43 +77,43 @@ map(fn) {
 
 const collection = new Collection([1, 2, 3, 4]);
 
-assert.deepEqual(collection.items, [1, 2, 3, 4]);
+assert.deepStrictEqual(collection.items, [1, 2, 3, 4]);
 
 collection.append(5);
-assert.deepEqual(collection.items, [1, 2, 3, 4, 5]);
+assert.deepStrictEqual(collection.items, [1, 2, 3, 4, 5]);
 
 collection.insert(1, 1.5);
-assert.deepEqual(collection.items, [1, 1.5, 2, 3, 4, 5]);
+assert.deepStrictEqual(collection.items, [1, 1.5, 2, 3, 4, 5]);
 
 collection.remove(2);
-assert.deepEqual(collection.items, [1, 1.5, 3, 4, 5]);
+assert.deepStrictEqual(collection.items, [1, 1.5, 3, 4, 5]);
 
-assert.equal(collection.index(3), 2);
+assert.strictEqual(collection.index(3), 2);
 
 assert(collection.contains(3));
-assert(!collection.contains(5));
+assert(!collection.contains(10));
 
-assert.equal(collection.length(), 5);
+assert.strictEqual(collection.length(), 5);
 
-assert.equal(collection.get(1), 1.5);
+assert.strictEqual(collection.get(1), 1.5);
 
 collection.set(1, 2);
-assert.deepEqual(collection.items, [1, 2, 3, 4, 5]);
+assert.deepStrictEqual(collection.items, [1, 2, 3, 4, 5]);
 
 const subCollection = collection.slice(1, 3);
-assert.deepEqual(subCollection.items, [2, 3]);
+assert.deepStrictEqual(subCollection.items, [2, 3]);
 
 const mapped = collection.map(x => x * 2);
-assert.deepEqual(mapped.items, [2, 4, 6, 8, 10]);
+assert.deepStrictEqual(mapped.items, [2, 4, 6, 8, 10]);
 
 const reduced = collection.reduce((acc, x) => acc + x, 0);
-assert.equal(reduced, 15);
+assert.strictEqual(reduced, 15);
 
 const filtered = collection.filter(x => x % 2 === 0);
-assert.deepEqual(filtered.items, [2, 4]);
+assert.deepStrictEqual(filtered.items, [2, 4]);
 
 const array = collection.fromString("[1, 2, 3, 4]");
-assert.deepEqual(array, [1, 2, 3, 4]);
+assert.deepStrictEqual(array, [1, 2, 3, 4]);
 
 const multiDimensionalArray = collection.fromString("[1, 2, [3, 4], 5]");
-assert.deepEqual(multiDimensionalArray, [1, 2, [3, 4], 5]);
+assert.deepStrictEqual(multiDimensionalArray, [1, 2, [3, 4], 5]);
