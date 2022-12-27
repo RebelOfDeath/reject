@@ -5,21 +5,24 @@ Reject {
     // note that almost all elements in this grammar are lexical rules.
     // this is to avoid goofy indentation, etc.
 
-    Program = element*
+    program = listOf<element, (nl | comment)+>
 
-    element = statement | expression
+       element = (statement | expression) s
     
     statement = iterative | return | var | fn
     
-    expression = logical | comparator | cond | ternary | invocation | literal | identifier
+    expression = logical | comparator | cond | ternary | afn | invocation | literal | identifier
 
     // ====================
-    
-    nl = "\\n" | "\\r" | "\u2028" | "\u2029"
 
     comment = "#" (~nl any)*
     
-    space := " " | comment // ignore comments in code
+    // inline spacing
+    inline = " " | "\t" | comment // ignore comments in code
+    
+    s = inline*
+        
+    nl = "\n" | "\r" | "\u2028" | "\u2029"
     
     // ====================
 
@@ -32,11 +35,11 @@ Reject {
     
     boolean = "true" | "false"
 
-    logical = logical spaces "and" spaces boolean -- and
-                    | logical spaces "or" spaces boolean -- or
+    logical = logical s "and" s boolean -- and
+                    | logical s "or" s boolean -- or
                     | logicalPar
 
-    logicalPar = "(" spaces logical spaces ")" -- par
+    logicalPar = "(" s logical s ")" -- par
                     | "!" logical -- inv
                     | boolean
 
@@ -52,81 +55,95 @@ Reject {
 
     arithmetic = exprAdd
 
-    exprAdd = exprAdd spaces "+" spaces exprMul -- plus
-                    | exprAdd spaces "-" spaces exprMul -- sub
+    exprAdd = exprAdd s "+" s exprMul -- plus
+                    | exprAdd s "-" s exprMul -- sub
                     | exprMul
 
-    exprMul = exprMul spaces "*" spaces exprExp -- mul
-                    | exprMul spaces "/" spaces exprExp -- div
+    exprMul = exprMul s "*" s exprExp -- mul
+                    | exprMul s "/" s exprExp -- div
                     | exprExp
 
-    exprExp = exprExp spaces "^" spaces number -- exp
+    exprExp = exprExp s "^" s number -- exp
                     | exprPar
 
-    exprPar = "(" spaces exprAdd spaces ")" -- par
+    exprPar = "(" s exprAdd s ")" -- par
                     | number
 
     // ====================
 
     text = string | char
 
-    string = "\\"" (~("\\"" | nl) any)* "\\""
+    string = "\"" (~("\"" | nl) any)* "\""
 
     char = "'" (~nl any) "'"
 
     // ====================
     
-    array = "[" listOf<expression, ","> "]"
+    array = "[" listOf<arrayArg, ","> "]"
+
+    arrayArg = s expression s
 
     // ====================
 
     matrix = "{" listOf<matrixArgsTypes, ","> "}"
 
-    matrixArgsTypes = spaces (matrix | number) spaces
+    matrixArgsTypes = s (matrix | number) s
 
     // ====================
     
-    iterative = "for " spaces listOf<identifier, ","> spaces " in " spaces expression spaces ":" spaces
-
-    // ====================
-
-    invocation = invocationPipe | invocationFn
-
-    invocationPipe = "|" spaces expression spaces "|"
+    iterative = "for" listOf<iterativeArg, ","> "in" s expression s ":" s
     
-    invocationFn = identifier "(" spaces listOf<expression, ","> spaces ")"
+    iterativeArg = s identifier s
 
     // ====================
 
-    fn = "fun " spaces identifier spaces "(" spaces listOf<fnArg, ","> spaces "):" spaces 
+    invocation = invocationPipe | invocationFactorial | invocationFn
 
-    fnArg = var | identifier
+    invocationPipe = "|" s expression s "|"
+    
+    invocationFactorial = expression s "!"
+    
+    invocationFn = identifier "(" s listOf<invocationFnArg, ","> s ")"
+    
+    invocationFnArg = s expression s
 
-    return = "return " spaces expression
+    // ====================
 
-    var = identifier spaces "=" spaces expression spaces
+    fn = "fun " s identifier s "(" listOf<fnArg, ","> "):" s 
+
+    fnArg = s (var | identifier) s
+
+    return = "return" s expression s
+
+    var = identifier s "=" s expression s
+    
+    // ====================
+
+    afn = ":(" listOf<afnArg, ","> "):" s expression
+    
+    afnArg = s identifier s
 
     // ====================
 
     cond = condWhen | condWhenElse | condElse
 
-    condWhen = "when " spaces comparator spaces ":" spaces
+    condWhen = "when" s comparator s ":" s
     
-    condWhenElse = "else when " spaces comparator spaces ":" spaces
+    condWhenElse = "else when" s comparator s ":" s
 
-    condElse = "else:" spaces
-
-    // ====================
-
-    ternary = expression spaces "?" spaces expression spaces ":" spaces expression
+    condElse = "else:" s
 
     // ====================
 
-    comparator = expression spaces "==" spaces expression -- equals
-                    | expression spaces "!=" spaces expression -- not_equals
-                    | expression spaces ">" spaces expression -- bigger
-                    | expression spaces "<" spaces expression -- smaller
-                    | expression spaces ">=" spaces expression -- bigger_equals
-                    | expression spaces "<=" spaces expression -- smaller_equals
+    ternary = expression s "?" s expression s ":" s expression
+
+    // ====================
+
+    comparator = expression s "==" s expression -- equals
+                    | expression s "!=" s expression -- not_equals
+                    | expression s ">" s expression -- bigger
+                    | expression s "<" s expression -- smaller
+                    | expression s ">=" s expression -- bigger_equals
+                    | expression s "<=" s expression -- smaller_equals
 }
 `)
