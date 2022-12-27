@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-class Collection {
+export class Collection {
   constructor(items) {
     this.items = items;
   }
