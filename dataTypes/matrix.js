@@ -1,11 +1,13 @@
 import { Collection } from "./collection.js";
-import assert from 'assert'
-class Matrix extends Collection {
+
+export class Matrix extends Collection {
+    
     // Initialize a Matrix with a 2D array of numbers or a Collection instance
     // accounts that all rows of the matrix must be of the same length
     // when matrix rows are not of the same length, they are filled with 0's
     constructor(matrix) {
         super();
+
         if (matrix instanceof Collection) {
             matrix = matrix.items;
         }
@@ -191,6 +193,7 @@ class Matrix extends Collection {
         }
         this.items = this.items.map((row, i) => row.concat(col[i]));
     }
+
     // Check if the Matrix is a square matrix
     isSquare() {
         return this.items.length === this.items[0].length;
@@ -325,6 +328,7 @@ class Matrix extends Collection {
 
         return solution;
     }
+
     equals(other) {
         if (
             this.items.length !== other.items.length ||
@@ -336,12 +340,14 @@ class Matrix extends Collection {
             row.every((value, j) => value === other.items[i][j])
         );
     }
+
     isSymmetric() {
         if (!this.isSquare()) {
             throw new Error("Matrix must be square to check symmetry");
         }
         return this.equals(this.transpose());
     }
+
     isSkewSymmetric() {
         // Check if the matrix is square
         if (!this.isSquare()) {
@@ -391,44 +397,43 @@ class Matrix extends Collection {
     }
 }
 
-const matrix1 = new Matrix([
+import assert from "assert";
+
+assert.deepStrictEqual(new Matrix([
     [1, 2, 3],
     [4, 5, 6],
-    [7, 8, 9],
-]);
-assert.deepEqual(matrix1.items, [
+    [7, 8, 9]
+]).items, [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
 ]);
 
-const matrix2 = new Matrix([
+assert.notDeepStrictEqual(new Matrix([
     [1, 2, 3],
-    [4, 5],
-]);
-assert.deepEqual(matrix2.items, [
+    [4, 5]
+]), [
     [1, 2, 3],
     [4, 5, 0],
 ]);
 
-const collection = new Collection([
+assert.deepStrictEqual(new Matrix([
     [1, 2, 3],
-    [4, 5, 6],
-]);
-const matrix3 = new Matrix(collection);
-assert.deepEqual(matrix3.items, [
+    [4, 5, 6]]
+).items, [
     [1, 2, 3],
     [4, 5, 6],
 ]);
 
 try {
-    const matrix4 = new Matrix([
+    new Matrix([
         [1, 2, 3],
         [4, "a", 6],
     ]);
 } catch (error) {
-    assert.equal(error.message, "Matrix must contain only numeric values");
+    assert.strictEqual(error.message, "Matrix must contain only numeric values");
 }
+
 
 /*
 

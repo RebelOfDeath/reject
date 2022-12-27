@@ -1,6 +1,4 @@
-// import assert from 'assert';
-
-class Fraction {
+export class Fraction {
     constructor(numerator, denominator = 1) {
         if (arguments.length === 2) {
             // Both numerator and denominator are provided
@@ -74,51 +72,47 @@ class Fraction {
     }
 }
 
-// function testFraction() {
-//   // Test creating a fraction with both numerator and denominator
-//   const f1 = new Fraction(1, 2);
-//   assert.strictEqual(f1.numerator, 1);
-//   assert.strictEqual(f1.denominator, 2);
+import assert from "assert";
 
-//   // Test creating a fraction with only numerator
-//   const f2 = new Fraction(1);
-//   assert.strictEqual(f2.numerator, 1);
-//   assert.strictEqual(f2.denominator, 1);
+const f1 = new Fraction(1, 2);
+assert.strictEqual(f1.numerator, 1);
+assert.strictEqual(f1.denominator, 2);
 
-//   // Test creating a fraction from a float
-//   const f3 = new Fraction(0.125);
-//   assert.strictEqual(f3.numerator, 1);
-//   assert.strictEqual(f3.denominator, 8);
+// Test creating a fraction with only numerator
+const f2 = new Fraction(1);
+assert.strictEqual(f2.numerator, 1);
+assert.strictEqual(f2.denominator, 1);
 
-//   // Test adding two fractions
-//   const f4 = f1.add(f2);
-//   assert.strictEqual(f4.numerator, 3);
-//   assert.strictEqual(f4.denominator, 2);
+// Test creating a fraction from a float
+const f3 = new Fraction(0.125);
+assert.strictEqual(f3.numerator, 1);
+assert.strictEqual(f3.denominator, 8);
 
-//   // Test subtracting two fractions
-//   const f5 = f1.subtract(f2);
-//   assert.strictEqual(f5.numerator, -1);
-//   assert.strictEqual(f5.denominator, 2);
+// Test adding two fractions
+const f4 = f1.add(f2);
+assert.strictEqual(f4.numerator, 3);
+assert.strictEqual(f4.denominator, 2);
 
-//   // Test multiplying two fractions
-//   const f6 = f1.multiply(f2);
-//   assert.strictEqual(f6.numerator, 1);
-//   assert.strictEqual(f6.denominator, 2);
+// Test subtracting two fractions
+const f5 = f1.subtract(f2);
+assert.strictEqual(f5.numerator, -1);
+assert.strictEqual(f5.denominator, 2);
 
-//   // Test dividing two fractions
-//   const f7 = f1.divide(f2);
-//   assert.strictEqual(f7.numerator, 1);
-//   assert.strictEqual(f7.denominator, 2);
+// Test multiplying two fractions
+const f6 = f1.multiply(f2);
+assert.strictEqual(f6.numerator, 1);
+assert.strictEqual(f6.denominator, 2);
 
-//   // Test simplifying a fraction
-//   const f8 = new Fraction(2, 4);
-//   f8.simplify();
-//   assert.strictEqual(f8.numerator, 1);
-//   assert.strictEqual(f8.denominator, 2);
+// Test dividing two fractions
+const f7 = f1.divide(f2);
+assert.strictEqual(f7.numerator, 1);
+assert.strictEqual(f7.denominator, 2);
 
-//   // Test converting a fraction to a string
-//   assert.strictEqual(f1.toString(), '1/2');
-// }
+// Test simplifying a fraction
+const f8 = new Fraction(2, 4);
+f8.simplify();
+assert.strictEqual(f8.numerator, 1);
+assert.strictEqual(f8.denominator, 2);
 
-// testFraction();
-
+// Test converting a fraction to a string
+assert.strictEqual(f1.toString(), '1/2');

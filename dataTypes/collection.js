@@ -1,81 +1,81 @@
-import assert from 'assert';
-
 export class Collection {
-  constructor(items) {
-    this.items = items;
-  }
-
-  // Add an item to the end of the collection
-  append(item) {
-    this.items.push(item);
-  }
-
-  // Insert an item at a specific index
-  insert(index, item) {
-    this.items.splice(index, 0, item);
-  }
-
-  // Remove an item from the collection
-  remove(item) {
-    const index = this.items.indexOf(item);
-    if (index !== -1) {
-      this.items.splice(index, 1);
+    constructor(items) {
+        this.items = items;
     }
-  }
 
-  // Find the index of an item in the collection
-  index(item) {
-    return this.items.indexOf(item);
-  }
+    // Add an item to the end of the collection
+    append(item) {
+        this.items.push(item);
+    }
 
-  // Check if an item is in the collection
-  contains(item) {
-    return this.index(item) !== -1;
-  }
+    // Insert an item at a specific index
+    insert(index, item) {
+        this.items.splice(index, 0, item);
+    }
 
-  // Get the length of the collection
-  length() {
-    return this.items.length;
-  }
+    // Remove an item from the collection
+    remove(item) {
+        const index = this.items.indexOf(item);
+        if (index !== -1) {
+            this.items.splice(index, 1);
+        }
+    }
 
-  // Get the item at a specific index
-  get(index) {
-    return this.items[index];
-  }
+    // Find the index of an item in the collection
+    index(item) {
+        return this.items.indexOf(item);
+    }
 
-  // Set the item at a specific index
-  set(index, item) {
-    this.items[index] = item;
-  }
+    // Check if an item is in the collection
+    contains(item) {
+        return this.index(item) !== -1;
+    }
 
-  // Get a sub-collection (slice) of the collection
-  slice(start, end) {
-    return new Collection(this.items.slice(start, end));
-  }
+    // Get the length of the collection
+    length() {
+        return this.items.length;
+    }
 
-  map(fn) {
-    const mapped = this.items.map(fn);
-    return new Collection(mapped);
-  }
+    // Get the item at a specific index
+    get(index) {
+        return this.items[index];
+    }
 
-  // Reduce the collection to a single value by applying a function to each item in the collection
-  reduce(fn, initialValue) {
-    return this.items.reduce(fn, initialValue);
-  }
+    // Set the item at a specific index
+    set(index, item) {
+        this.items[index] = item;
+    }
 
-  // Filter the collection to a new Collection with only the items that pass a test function
-  filter(fn) {
-    const filtered = this.items.filter(fn);
-    return new Collection(filtered);
-  }
+    // Get a sub-collection (slice) of the collection
+    slice(start, end) {
+        return new Collection(this.items.slice(start, end));
+    }
 
-  //evaluate and assign the value of the Collection from a string
-  fromString(string) {
-    return eval(string);
-  }
+    map(fn) {
+        const mapped = this.items.map(fn);
+        return new Collection(mapped);
+    }
+
+    // Reduce the collection to a single value by applying a function to each item in the collection
+    reduce(fn, initialValue) {
+        return this.items.reduce(fn, initialValue);
+    }
+
+    // Filter the collection to a new Collection with only the items that pass a test function
+    filter(fn) {
+        const filtered = this.items.filter(fn);
+        return new Collection(filtered);
+    }
+
+    //evaluate and assign the value of the Collection from a string
+    fromString(string) {
+        return eval(string);
+    }
 }
 
-const collection = new Collection([1, 2, 3, 4]);
+import assert from "assert";
+
+const collection = new Collection([2, 3, 4]);
 
 assert.deepStrictEqual(collection.items, [1, 2, 3, 4]);
 
