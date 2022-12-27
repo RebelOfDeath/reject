@@ -2,12 +2,12 @@ const ohm = require('ohm-js')
 const grammar = ohm.grammar(`
 Reject {
 
-    // note that almost all elements in this grammar are lexical rules.
-    // this is to avoid goofy indentation, etc.
+    // note that all elements in this grammar are lexical rules.
+    // this is to avoid incorrect indentation, etc.
 
-    program = listOf<element, (nl | comment)+>
+    program = ls* listOf<element, ls+> ls*
 
-       element = (statement | expression) s
+    element = (statement | expression) s
     
     statement = iterative | return | var | fn
     
@@ -20,9 +20,20 @@ Reject {
     // inline spacing
     inline = " " | "\t" | comment // ignore comments in code
     
+    // inline space
     s = inline*
         
+    // new line chars
     nl = "\n" | "\r" | "\u2028" | "\u2029"
+    
+    // line separator
+    ls = (nl | comment)+
+    
+    block = ls listOf<blockElem, nl>
+    
+    blockElem = indent element?
+    
+    indent = "\t" | " " | "  " | "    "
     
     // ====================
 
@@ -73,7 +84,7 @@ Reject {
 
     text = string | char
 
-    string = "\"" (~("\"" | nl) any)* "\""
+    string = "\\"" (~("\\"" | nl) any)* "\\""
 
     char = "'" (~nl any) "'"
 
@@ -91,7 +102,7 @@ Reject {
 
     // ====================
     
-    iterative = "for" listOf<iterativeArg, ","> "in" s expression s ":" s
+    iterative = "for" listOf<iterativeArg, ","> "in" s expression s ":" s block
     
     iterativeArg = s identifier s
 
@@ -109,7 +120,7 @@ Reject {
 
     // ====================
 
-    fn = "fun " s identifier s "(" listOf<fnArg, ","> "):" s 
+    fn = "fun " s identifier s "(" listOf<fnArg, ","> "):" s block
 
     fnArg = s (var | identifier) s
 
@@ -127,11 +138,11 @@ Reject {
 
     cond = condWhen | condWhenElse | condElse
 
-    condWhen = "when" s comparator s ":" s
+    condWhen = "when" s (comparator | boolean) s ":" s block
     
-    condWhenElse = "else when" s comparator s ":" s
+    condWhenElse = "else when" s (comparator | boolean) s ":" s block
 
-    condElse = "else:" s
+    condElse = "else:" s block
 
     // ====================
 
