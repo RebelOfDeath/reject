@@ -1,3 +1,5 @@
+import ohm from 'ohm-js';
+
 const grammar = ohm.grammar(`
 Reject {
 
