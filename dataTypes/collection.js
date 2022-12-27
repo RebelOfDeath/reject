@@ -75,7 +75,7 @@ export class Collection {
 
 import assert from "assert";
 
-const collection = new Collection([2, 3, 4]);
+const collection = new Collection([1, 2, 3, 4]);
 
 assert.deepStrictEqual(collection.items, [1, 2, 3, 4]);
 
