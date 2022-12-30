@@ -169,7 +169,7 @@ Reject {
 
 const semantics = grammar.createSemantics();
 
-semantics.addOperation('eval', {
+semantics.addOperation('doTheThing', {
     exprAdd_plus(x, _1, _2, _3, y) {
         return x.eval() + y.eval();
     },
@@ -182,12 +182,12 @@ semantics.addOperation('eval', {
     exprMul_div(x, _1, _2, _3, y) {
         return x.eval() / y.eval();
     },
-    exprExp_exp(x, _1, _2, _3, y) {
-        return Math.pow(x.eval(), y.eval());
+    integer(_, x) {
+        return parseInt(x.sourceString)
     },
-    number(digits) {
-        return parseInt(digits.sourceString)
+    float(_, x, _2, _3) {
+        return parseFloat(x.sourceString)
     }
 });
 
-console.log(semantics(grammar.match('100 + 1 * 2')).eval())
+console.log(semantics(grammar.match('100 + 1 * 2')).doTheThing())

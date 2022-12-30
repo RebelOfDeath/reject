@@ -33,9 +33,9 @@ export class Complex {
 
     //returns a string representation of the complex number
     toString() {
-        imag_part =
+        let imag_part =
             this.imag > 0 ? `+ ${this.imag}` : `- ${Math.abs(this.imag)}`;
-        return `(${ths.real} ${imag_part} i)`;
+        return `(${this.real} ${imag_part} i)`;
     }
 
     //returns the conjugate of the complex number, which is obtained by negating the imaginary part of the complex number
