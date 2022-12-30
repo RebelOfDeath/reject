@@ -14,12 +14,23 @@ Reject {
 
     program = ls* listOf<element, ls> ls*
 
-    element = (statement | expression) s
+    element = statement | expression
     
     statement = iterative | return | var | augmented | fn
     
-    expression = ternary | comparator | logical | cond | afn | invocation | literal | identifier
+    expression = ternary | comparator | logical | cond | afn | literal | invocation | identifier
+    
+    // spaced expr shortcuts
+    exprSpaced = s expression s
+    exprLeft = expression s
 
+    // format for vars, fn names
+    identifier = ~(digit+) #(alnum | "_")+
+    
+    // spaced ident shortcuts
+    identSpaced = s identifier s
+    identLeft = identifier s
+    
     // ====================
 
     comment = "#" (~nl any)*
@@ -46,9 +57,6 @@ Reject {
 
     literal = array | matrix | text | arithmetic | boolean
 
-    // format for vars, fn names
-    identifier = ~(digit+) #(alnum | "_")+
-    
     // ====================
     
     boolean = "true" | "false"
@@ -73,29 +81,35 @@ Reject {
 
     arithmetic = exprAdd
 
-    exprAdd = exprAdd s "+" s exprMul -- plus
-                    | exprAdd s "-" s exprMul -- sub
+    exprAdd = exprAALeft "+" exprAASpaced -- plus
+                    | exprAALeft "-" exprAASpaced -- sub
                     | exprMul
 
-    exprMul = exprMul s "*" s exprExp -- mul
-                    | exprMul s "/" s exprExp -- div
+    exprMul = exprAALeft "*" exprAASpaced -- mul
+                    | exprAALeft "/" exprAASpaced -- div
                     | exprExp
 
-    exprExp = exprExp s "^" s exprFac -- exp
+    exprExp = exprAALeft "^" exprAASpaced -- exp
                     | exprFac
 
-    exprFac = exprFac s "!" -- fac
+    exprFac = exprAALeft "!" -- fac
                     | exprPar
 
-    exprPar = "(" s exprAdd s ")" -- par
+    exprPar = "(" exprAASpaced ")" s -- par
                     | number
+
+    // exprArithmeticAllowed
+    exprAA = ternary | arithmetic | invocation | number | identifier
+    
+    exprAASpaced = s exprAA s
+    exprAALeft = exprAA s
 
     // ====================
 
-    augmented = identifier "*=" expression -- mul
-                    | identifier "/=" expression -- div
-                    | identifier "+=" expression -- plus
-                    | identifier "-=" expression -- sub
+    augmented = identLeft "*=" exprSpaced -- mul
+                    | identLeft "/=" exprSpaced -- div
+                    | identLeft "+=" exprSpaced -- plus
+                    | identLeft "-=" exprSpaced -- sub
 
     // ====================
 
@@ -107,9 +121,7 @@ Reject {
 
     // ====================
     
-    array = "[" listOf<arrayArg, ","> "]"
-
-    arrayArg = s expression s
+    array = "[" listOf<exprSpaced, ","> "]"
 
     // ====================
 
@@ -119,62 +131,58 @@ Reject {
 
     // ====================
     
-    iterative = "for" listOf<iterativeArg, ","> "in" s expression s ":" s block
-    
-    iterativeArg = s identifier s
+    iterative = "for" listOf<identSpaced, ","> "in" exprSpaced ":" s block
 
     // ====================
 
     invocation = invocationPipe | invocationPrint | invocationFn // | invocationFactorial todo
 
-    invocationPipe = "|" s expression s "|"
+    invocationPipe = "|" exprSpaced "|"
     
-    invocationFactorial = expression s "!"
+    invocationFactorial = exprSpaced "!"
     
-    invocationPrint = "print(" s listOf<invocationFnArg, ","> s ")"
+    invocationPrint = "print(" s listOf<exprSpaced, ","> s ")"
     
-    invocationFn = identifier "(" s listOf<invocationFnArg, ","> s ")"
-    
-    invocationFnArg = s expression s
+    invocationFn = identifier "(" s listOf<exprSpaced, ","> s ")"
 
     // ====================
 
-    fn = "fun " s identifier s "(" listOf<fnArg, ","> "):" s block
+    fn = "fun " identSpaced "(" listOf<fnArg, ","> "):" s block
 
     fnArg = s (var | identifier) s
 
-    return = "return" s expression s
+    return = "return" exprSpaced
 
-    var = identifier s "=" s expression s
+    var = identLeft "=" exprSpaced
     
     // ====================
 
-    afn = ":(" listOf<afnArg, ","> "):" s expression
-    
-    afnArg = s identifier s
+    afn = ":(" listOf<identSpaced, ","> "):" exprSpaced
 
     // ====================
 
     cond = condWhen | condWhenElse | condElse
 
-    condWhen = "when" s (comparator | boolean) s ":" s block
+    condWhen = "when" condArg ":" s block
     
-    condWhenElse = "else when" s (comparator | boolean) s ":" s block
+    condWhenElse = "else when" condArg ":" s block
 
     condElse = "else:" s block
+    
+    condArg = s (comparator | boolean) s
 
     // ====================
 
-    ternary = expression s "?" s expression s ":" s expression
+    ternary = exprLeft "?" exprSpaced ":" exprSpaced
 
     // ====================
 
-    comparator = expression s "==" s expression -- equals
-                    | expression s "!=" s expression -- not_equals
-                    | expression s ">" s expression -- bigger
-                    | expression s "<" s expression -- smaller
-                    | expression s ">=" s expression -- bigger_equals
-                    | expression s "<=" s expression -- smaller_equals
+    comparator = exprLeft "==" exprSpaced -- equals
+                    | exprLeft "!=" exprSpaced -- not_equals
+                    | exprLeft ">" exprSpaced -- bigger
+                    | exprLeft "<" exprSpaced -- smaller
+                    | exprLeft ">=" exprSpaced -- bigger_equals
+                    | exprLeft "<=" exprSpaced -- smaller_equals
 }
 `)
 
@@ -190,7 +198,22 @@ semantics.addOperation('eval', {
             .map(x => x.eval());
     },
 
-    element(x, _) {
+    element(x) {
+        return x.eval();
+    },
+
+    // spaced stuff
+    exprSpaced(_, x, __) {
+        return x.eval();
+    },
+    exprLeft(x, _) {
+        return x.eval();
+    },
+
+    identSpaced(_, x, __) {
+        return x.eval();
+    },
+    identLeft(x, _) {
         return x.eval();
     },
 
@@ -234,27 +257,35 @@ semantics.addOperation('eval', {
     },
 
     // arithmetic
-    exprAdd_plus(x, _, __, ___, y) {
+    exprAdd_plus(x, _, y) {
         return x.eval().add(y.eval());
     },
-    exprAdd_sub(x, _, __, ___, y) {
+    exprAdd_sub(x, _, y) {
         return x.eval().subtract(y.eval());
     },
-    exprMul_mul(x, _, __, ___, y) {
+    exprMul_mul(x, _, y) {
         return x.eval().multiply(y.eval());
     },
-    exprMul_div(x, _, __, ___, y) {
+    exprMul_div(x, _, y) {
         return x.eval().divide(y.eval());
     },
-    exprExp_exp(x, _, __, ___, y) {
+    exprExp_exp(x, _, y) {
         return x.eval().exp(y.eval());
     },
-    exprFac_fac(x, _, __) {
+    exprFac_fac(x, _) {
         return x.eval().factorial();
     },
     // if an expression is within parentheses, just evaluate the inner expression
-    exprPar_par(_, __, x, ___, ____) {
+    exprPar_par(_, x, __, ___) {
         return x.eval();
+    },
+
+    // spaced allowed assignment exprs
+    exprAASpaced(_, x, __) {
+        return x.eval()
+    },
+    exprAALeft(x, _) {
+        return x.eval()
     },
 
     // augmented assignment
@@ -280,10 +311,6 @@ semantics.addOperation('eval', {
             .map(x => x.eval()));
     },
 
-    arrayArg(_, x, __) {
-        return x.eval();
-    },
-
     // matrices
 
     matrix(_, xs, __) {
@@ -304,7 +331,7 @@ semantics.addOperation('eval', {
 
     // todo error on wrong types
 
-    invocationPipe(_, __, x, ___, ____) {
+    invocationPipe(_, x, __) {
         x = x.eval();
         if (x instanceof Fraction) {
             return x.abs();
@@ -314,7 +341,7 @@ semantics.addOperation('eval', {
         return x;
     },
 
-    invocationFactorial(x, _, __) {
+    invocationFactorial(x, _) {
         return x.eval().factorial();
     },
 
@@ -328,10 +355,6 @@ semantics.addOperation('eval', {
         return true; // any value is true
     },
 
-    invocationFnArg(_, x, __) {
-        return x.eval();
-    },
-
     // fn definition
 
 
@@ -343,28 +366,31 @@ semantics.addOperation('eval', {
 
     // ternary
 
-    ternary(cond, _, q, __, pass, ___, c, ____, dontPass) {
+    ternary(cond, _, pass, __, dontPass) {
         return cond.eval() ? pass.eval() : dontPass.eval();
     },
 
     // comparators
 
-    comparator_equals(x, _, s, __, y) {
+    comparator_equals(x, _, y) {
+        console.log(x.eval())
+        console.log(y.eval())
+
         return x.eval() === y.eval();
     },
-    comparator_not_equals(x, _, s, __, y) {
+    comparator_not_equals(x, _, y) {
         return x.eval() !== y.eval();
     },
-    comparator_bigger(x, _, s, __, y) {
+    comparator_bigger(x, _, y) {
         return x.eval() > y.eval();
     },
-    comparator_smaller(x, _, s, __, y) {
+    comparator_smaller(x, _, y) {
         return x.eval() < y.eval();
     },
-    comparator_bigger_equals(x, _, s, __, y) {
+    comparator_bigger_equals(x, _, y) {
         return x.eval() >= y.eval();
     },
-    comparator_smaller_equals(x, _, s, __, y) {
+    comparator_smaller_equals(x, _, y) {
         return x.eval() <= y.eval();
     },
 
@@ -387,4 +413,3 @@ fs.readFile("./x.rej", "utf8", (error, data) => {
         throw new ParsingError(error.message)
     }
 })
-
