@@ -11,13 +11,7 @@ export class Matrix extends Collection {
         if (matrix instanceof Collection) {
             matrix = matrix.items;
         }
-        if (
-            !matrix.every((row) =>
-                row.every((value) => typeof value === "number")
-            )
-        ) {
-            throw new Error("Matrix must contain only numeric values");
-        }
+
         const maxRowLength = Math.max(...matrix.map((row) => row.length));
         this.items = matrix.map((row) => {
             while (row.length < maxRowLength) {

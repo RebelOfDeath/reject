@@ -1,4 +1,5 @@
 export class Fraction {
+
     constructor(numerator, denominator = 1) {
         if (arguments.length === 2) {
             // Both numerator and denominator are provided
@@ -50,6 +51,25 @@ export class Fraction {
         return new Fraction(numerator, denominator);
     }
 
+    exp(otherFraction) {
+        const numerator = this.numerator ** otherFraction.numerator;
+        const denominator = this.denominator ** otherFraction.denominator;
+        return new Fraction(numerator, denominator);
+    }
+
+    factorial() {
+        let x = 1;
+        for (let i = 2; i <= this.numerator; i++) {
+            x *= i;
+        }
+
+        return new Fraction(x);
+    }
+
+    abs() {
+        return new Fraction(Math.abs(this.numerator), Math.abs(this.denominator));
+    }
+
     simplify() {
         let gcd = this.getGCD(this.numerator, this.denominator);
         this.numerator = this.numerator / gcd;
@@ -68,7 +88,7 @@ export class Fraction {
     }
 
     evaluate() {
-        return this.numerator / this.denominator
+        return this.numerator / this.denominator;
     }
 }
 

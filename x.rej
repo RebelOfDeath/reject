@@ -1,0 +1,10 @@
+(1+5+5*3/3)/6^2*10^3-40*1^2--6
+true and true or !true and !(!!false or false)
+true == true != false
+true ? 3 : 0
+[1, 2, 3, [1, 2]]
+{{1, 2, 3}, {1, 2, 3}, {1, 2, 3}}
+"hey"
+'h'
+
+print(5!+3^3!)

@@ -1,36 +1,36 @@
-class Boolean {
+export class Boolean {
   constructor(value) {
-    this.value = Boolean(value);
+    this.value = value === "true" || value === true;
   }
 
   // Method that returns the negation of the boolean value
   not() {
-    return !this.value;
+    return new Boolean(!this.value);
   }
 
   // Method that returns the conjunction of two boolean values
   and(other) {
-    return this.value && other;
+    return new Boolean(this.value && other.value);
   }
 
   // Method that returns the disjunction of two boolean values
   or(other) {
-    return this.value || other;
+    return new Boolean(this.value || other.value);
   }
 
   // Method that returns the exclusive disjunction of two boolean values
   xor(other) {
-    return this.value !== other;
+    return new Boolean(this.value !== other.value);
   }
 
   // Method that converts the boolean value to a string
   toString() {
-    return this.value.toString();
+    return new Boolean(this.value.toString());
   }
 
   // Method that converts the boolean value to a number
   valueOf() {
-    return this.value ? 1 : 0;
+    return new Boolean(this.value ? 1 : 0);
   }
 }
 

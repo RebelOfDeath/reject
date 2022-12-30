@@ -212,4 +212,8 @@ export class String extends Collection {
     codePointAt(index) {
         return this.string.codePointAt(index);
     }
+
+    toString() {
+        return this.string;
+    }
 }
