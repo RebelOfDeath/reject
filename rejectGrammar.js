@@ -12,8 +12,14 @@ Reject {
     // ====================
 
     integer = "-"? digit+
+    
+    float = "-"? digit* "." integer+
+    
+    fraction = integer+ "//" integer+
 
-    number = integer
+    number = fraction | float | integer
+
+    arithmetic = exprAdd
 
     exprAdd = exprAdd "+" exprMul -- plus
                     | exprAdd "-" exprMul -- sub
@@ -23,7 +29,7 @@ Reject {
                     | exprMul "/" exprExp -- div
                     | exprExp
 
-    exprExp = exprExp "^" exprPar -- exp
+    exprExp = exprExp "^" number -- exp
                     | exprPar
 
     exprPar = "(" exprAdd ")" -- par
@@ -34,6 +40,19 @@ Reject {
 const semantics = grammar.createSemantics();
 
 semantics.addOperation('eval', {
+
+    integer(sgn, x) {
+        return parseInt(sgn.sourceString + x.sourceString);
+    },
+
+    float(sgn, x, _, y) {
+        return parseFloat(sgn.sourceString + x.sourceString + "." + y.eval())
+    },
+
+    fraction(x, _, y) {
+        return x.eval() / y.eval()
+    },
+
     exprAdd_plus(x, _, y) {
         return x.eval() + y.eval()
     },
@@ -52,12 +71,12 @@ semantics.addOperation('eval', {
     exprPar_par(_0, x, _1) {
         return x.eval();
     },
-    integer(sgn, x) {
-        return parseInt(sgn.sourceString + x.sourceString);
-    },
+
+
     _iter(...children) {
         return children.map(c => c.eval())
     }
 });
 
-console.log(semantics(grammar.match("(1+5)/6-(1+5/6)*10^3")).eval())
+console.log(semantics(grammar.match("(1+5)/6-(1+5/6)*10^3.5")).eval())
+console.log(semantics(grammar.match("3//5")).eval())
