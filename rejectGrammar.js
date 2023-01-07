@@ -16,9 +16,11 @@ Reject {
 
     element = statement | expression
     
-    statement = iterative | return | var | augmented | fn
+    statement = cond | iterative | return | var | augmented | fn
     
-    expression = ternary | comparator | logical | cond | afn | literal | invocation | identifier
+    expression = ternary | comparator | logical | afn | invocation | literal
+                    | "(" exprSpaced ")" -- par
+                    | identifier
     
     // spaced expr shortcuts
     exprSpaced = s expression s
@@ -51,7 +53,7 @@ Reject {
     
     blockElem = indent element?
     
-    indent = "\\t" | " " | "  " | "    "
+    indent = " "
     
     // ====================
 
@@ -61,12 +63,12 @@ Reject {
     
     boolean = "true" | "false"
 
-    logical = logical s "and" s logicalPar -- and
-                    | logical s "or" s logicalPar -- or
-                    | logicalPar
+    logical = logical s "and" s logicalNot s -- and
+                    | logical s "or" s logicalNot s -- or
+                    | logicalNot
 
-    logicalPar = "(" s logical s ")" -- par
-                    | "!" logical -- not
+    // todo change name
+    logicalNot = "!" logical -- not
                     | boolean
 
     // ====================
@@ -93,13 +95,11 @@ Reject {
                     | exprFac
 
     exprFac = exprAALeft "!" -- fac
-                    | exprPar
-
-    exprPar = "(" exprAASpaced ")" s -- par
                     | number
 
     // exprArithmeticAllowed
-    exprAA = ternary | arithmetic | invocation | number | identifier
+    exprAA = ternary | arithmetic | invocation | identifier 
+                    | "(" exprAA ")" -- par
     
     exprAASpaced = s exprAA s
     exprAALeft = exprAA s
@@ -115,17 +115,17 @@ Reject {
 
     text = string | char
 
-    string = "\\"" (~("\\"" | nl) any)* "\\""
+    string = "\\"" (~("\\"" | nl) any)* "\\"" s
 
-    char = "'" (~nl any) "'"
+    char = "'" (~nl any) "'" s
 
     // ====================
     
-    array = "[" listOf<exprSpaced, ","> "]"
+    array = "[" listOf<exprSpaced, ","> "]" s
 
     // ====================
 
-    matrix = "{" listOf<matrixArgsTypes, ","> "}"
+    matrix = "{" listOf<matrixArgsTypes, ","> "}" s
 
     matrixArgsTypes = s (matrix | number) s
 
@@ -135,15 +135,13 @@ Reject {
 
     // ====================
 
-    invocation = invocationPipe | invocationPrint | invocationFn // | invocationFactorial todo
+    invocation = invocationPipe | invocationPrint | invocationFn
 
-    invocationPipe = "|" exprSpaced "|"
+    invocationPipe = "|" exprSpaced "|" s
     
-    invocationFactorial = exprSpaced "!"
+    invocationPrint = "print(" s listOf<exprSpaced, ","> s ")" s
     
-    invocationPrint = "print(" s listOf<exprSpaced, ","> s ")"
-    
-    invocationFn = identifier "(" s listOf<exprSpaced, ","> s ")"
+    invocationFn = identifier "(" s listOf<exprSpaced, ","> s ")" s 
 
     // ====================
 
@@ -173,7 +171,8 @@ Reject {
 
     // ====================
 
-    ternary = exprLeft "?" exprSpaced ":" exprSpaced
+    // doesnt allow for exprLeft for some reason, even though it's literally the same as expression s
+    ternary = expression s "?" exprSpaced ":" exprSpaced
 
     // ====================
 
@@ -202,6 +201,10 @@ semantics.addOperation('eval', {
         return x.eval();
     },
 
+    expression_par(_, x, __) {
+        return x.eval();
+    },
+
     // spaced stuff
     exprSpaced(_, x, __) {
         return x.eval();
@@ -224,17 +227,13 @@ semantics.addOperation('eval', {
         return x.sourceString === "true"; // ignore
     },
 
-    logical_and(x, _, __, ___, y) {
+    logical_and(x, _, __, ___, y, ____) {
         return x.eval() && y.eval();
     },
-    logical_or(x, _, __, ___, y) {
+    logical_or(x, _, __, ___, y, ____) {
         return x.eval() || y.eval();
     },
-    // if an expression is within parentheses, just evaluate the inner expression
-    logicalPar_par(_, __, x, ___, ____) {
-        return x.eval();
-    },
-    logicalPar_not(_, x) {
+    logicalNot_not(_, x) {
         return !x.eval();
     },
 
@@ -275,8 +274,8 @@ semantics.addOperation('eval', {
     exprFac_fac(x, _) {
         return x.eval().factorial();
     },
-    // if an expression is within parentheses, just evaluate the inner expression
-    exprPar_par(_, x, __, ___) {
+
+    exprAA_par(_, x, __) {
         return x.eval();
     },
 
@@ -294,17 +293,17 @@ semantics.addOperation('eval', {
 
     // texts
 
-    string(_, x, __) {
+    string(_, x, __, ___) {
         return new String(x.sourceString); // ignore
     },
 
-    char(_, x, __) {
+    char(_, x, __, ___) {
         return new String(x.sourceString); // ignore
     },
 
     // arrays
 
-    array(_, xs, __) {
+    array(_, xs, __, ___) {
         return new Collection(xs
             .asIteration()
             .children
@@ -313,7 +312,7 @@ semantics.addOperation('eval', {
 
     // matrices
 
-    matrix(_, xs, __) {
+    matrix(_, xs, __, ___) {
         return new Matrix(xs
             .asIteration()
             .children
@@ -331,7 +330,7 @@ semantics.addOperation('eval', {
 
     // todo error on wrong types
 
-    invocationPipe(_, x, __) {
+    invocationPipe(_, x, __, ___) {
         x = x.eval();
         if (x instanceof Fraction) {
             return x.abs();
@@ -341,11 +340,7 @@ semantics.addOperation('eval', {
         return x;
     },
 
-    invocationFactorial(x, _) {
-        return x.eval().factorial();
-    },
-
-    invocationPrint(_, __, xs, ___, ____) {
+    invocationPrint(_, __, xs, ___, ____, _____) {
         console.log((xs
             .asIteration()
             .children
@@ -366,16 +361,13 @@ semantics.addOperation('eval', {
 
     // ternary
 
-    ternary(cond, _, pass, __, dontPass) {
+    ternary(cond, _, __, pass, ___, dontPass) {
         return cond.eval() ? pass.eval() : dontPass.eval();
     },
 
     // comparators
 
     comparator_equals(x, _, y) {
-        console.log(x.eval())
-        console.log(y.eval())
-
         return x.eval() === y.eval();
     },
     comparator_not_equals(x, _, y) {

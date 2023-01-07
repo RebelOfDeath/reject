@@ -1,5 +1,5 @@
-(1+5+5*3 /3)/6^2* 10 ^ 3 -40*1^2--6* |-1| + 100
-true and true or !true and !(!!false or false)
+(1+5+5*3/3)/6^2* 10 ^ 3 -40*1^2--6* |-1| + 100
+true and true or !true and !!!false or false
 true == true != false
 true == true ? 3: 0
 [1, 2,3, [1, 2]]
@@ -7,7 +7,5 @@ true == true ? 3: 0
 "hey"
 'h'
 
-print((1+5+ 5*3 /3)/6^2* 10 ^ 3 -40*1^2--6* |-1| + 100)
-print(true and true or !true and !(!!false or false))
-print(true == true ? 3 : 0)
-print("i", "love", "you")
+print((15 + 10) * 10 / 40^4 + |-10|)
+print("xx")
