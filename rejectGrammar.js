@@ -69,6 +69,7 @@ Reject {
 
     // todo change name
     logicalNot = "!" logical -- not
+                    | "(" logical ")" -- par
                     | boolean
 
     // ====================
@@ -224,7 +225,7 @@ semantics.addOperation('eval', {
 
     // parse boolean value
     boolean(x) {
-        return x.sourceString === "true"; // ignore
+        return x.sourceString === "true";
     },
 
     logical_and(x, _, __, ___, y, ____) {
@@ -235,6 +236,9 @@ semantics.addOperation('eval', {
     },
     logicalNot_not(_, x) {
         return !x.eval();
+    },
+    logicalNot_par(_, x, __) {
+        return x.eval();
     },
 
     // numerical types
