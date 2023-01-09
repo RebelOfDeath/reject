@@ -7,6 +7,8 @@ true == true ? 3: 0
 "hey"
 'h'
 
+print(true == true)
+
 print((1+5+5*3/3)/6^2* 10 ^ 3 -40*1^2--6* |-1| + 100)
 print(true and true or !true and !(!!false or false))
 print(true == true != false)
@@ -17,8 +19,22 @@ print("hey")
 print('h')
 print((15 + 10) * 10 / 40^4 + |-10|)
 print("xx")
+print(3^3)
+print(3!!)
 
 when x==10:
 	print("cheese")
     when x == 10:
     	print("more cheese!!!")
+
+x = 10
+x *= 2
+x -= 5
+x += 10
+x /= 2
+
+fun call(f):
+    print(f)
+
+
+call(10)

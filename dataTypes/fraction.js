@@ -5,6 +5,7 @@ export class Fraction {
             // Both numerator and denominator are provided
             this.numerator = numerator;
             this.denominator = denominator;
+            // todo simplify?
         } else {
             // Only numerator is provided
             if (Number.isInteger(numerator)) {
@@ -51,7 +52,7 @@ export class Fraction {
         return new Fraction(numerator, denominator);
     }
 
-    exp(otherFraction) {
+    pow(otherFraction) {
         const numerator = this.numerator ** otherFraction.numerator;
         const denominator = this.denominator ** otherFraction.denominator;
         return new Fraction(numerator, denominator);

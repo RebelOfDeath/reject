@@ -396,6 +396,7 @@ export class Matrix extends Collection {
 }
 
 import assert from "assert";
+import {Fraction} from "./fraction.js";
 
 assert.deepStrictEqual(new Matrix([
     [1, 2, 3],

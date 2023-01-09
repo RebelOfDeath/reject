@@ -1,10 +1,13 @@
 import ohm from 'ohm-js'
+import fs from "fs";
 import {Fraction} from "./dataTypes/fraction.js"
 import {String} from "./dataTypes/string.js"
 import {Collection} from "./dataTypes/collection.js"
 import {Matrix} from "./dataTypes/matrix.js";
-import fs from "fs";
 import {ParsingError, ReadingError} from "./reject.js";
+import {Complex} from "./dataTypes/complex.js";
+import {Var, VARS} from "./dataTypes/var.js";
+import {Function, FUNS} from "./dataTypes/function.js";
 
 const grammar = ohm.grammar(`
 Reject {
@@ -105,10 +108,10 @@ Reject {
 
     // ====================
 
-    augmented = identLeft "*=" exprSpaced -- mul
-                    | identLeft "/=" exprSpaced -- div
-                    | identLeft "+=" exprSpaced -- plus
-                    | identLeft "-=" exprSpaced -- sub
+    augmented = (identLeft "*=" exprSpaced)
+                    | (identLeft "/=" exprSpaced)
+                    | (identLeft "+=" exprSpaced)
+                    | (identLeft "-=" exprSpaced)
 
     // ====================
 
@@ -124,9 +127,7 @@ Reject {
 
     // ====================
 
-    matrix = "{" listOf<matrixArgsTypes, ","> "}" s
-
-    matrixArgsTypes = s (matrix | number) s
+    matrix = "{" listOf<exprSpaced, ","> "}" s
 
     // ====================
     
@@ -174,12 +175,12 @@ Reject {
 
     // ====================
 
-    comparator = exprLeft "==" exprSpaced -- equals
-                    | exprLeft "!=" exprSpaced -- not_equals
-                    | exprLeft ">" exprSpaced -- bigger
-                    | exprLeft "<" exprSpaced -- smaller
-                    | exprLeft ">=" exprSpaced -- bigger_equals
-                    | exprLeft "<=" exprSpaced -- smaller_equals
+    comparator = (exprLeft "==" exprSpaced)
+                    | (exprLeft "!=" exprSpaced)
+                    | (exprLeft ">" exprSpaced)
+                    | (exprLeft "<" exprSpaced)
+                    | (exprLeft ">=" exprSpaced)
+                    | (exprLeft "<=" exprSpaced)
 }
 `)
 
@@ -219,7 +220,13 @@ semantics.addOperation('eval', {
     },
 
     block(_, xs) {
+        return xs.asIteration()
+            .children
+            .map(x => x.eval());
+    },
 
+    blockElem(_, x) {
+        return x.eval();
     },
 
     // booleans
@@ -274,7 +281,7 @@ semantics.addOperation('eval', {
         return x.eval().divide(y.eval());
     },
     exprExp_exp(x, _, y) {
-        return x.eval().exp(y.eval());
+        return x.eval().pow(y.eval());
     },
     exprFac_fac(x, _) {
         return x.eval().factorial();
@@ -294,7 +301,35 @@ semantics.addOperation('eval', {
 
     // augmented assignment
 
-    // todo
+    augmented(name, modifier, value) {
+        name = name.sourceString.trim();
+        modifier = modifier.sourceString.trim();
+        value = value.eval();
+
+        let updated;
+        if (VARS.has(name)) {
+            updated = VARS.get(name);
+
+            switch (modifier) {
+                case "*=":
+                    updated.value = updated.value.multiply(value);
+                    break;
+                case "/=":
+                    updated.value = updated.value.divide(value);
+                    break;
+                case "+=":
+                    updated.value = updated.value.add(value);
+                    break;
+                case "-=":
+                    updated.value = updated.value.subtract(value);
+                    break;
+            }
+        } else {
+            updated = new Var(name, new Fraction(0));
+        }
+
+        VARS.set(name, updated);
+    },
 
     // texts
 
@@ -321,13 +356,7 @@ semantics.addOperation('eval', {
         return new Matrix(xs
             .asIteration()
             .children
-            .map(x => {
-                return x.eval()
-            }));
-    },
-
-    matrixArgsTypes(_, x, __) {
-        return x.eval();
+            .map(x => x.eval()));
     },
 
     // iteratives
@@ -335,15 +364,16 @@ semantics.addOperation('eval', {
 
     // fn invocation
 
-    // todo error on wrong types
-
     invocationPipe(_, x, __, ___) {
         x = x.eval();
+
         if (x instanceof Fraction) {
             return x.abs();
         } else if (x instanceof Collection) {
             return x.length();
         }
+
+        // return x when there is no value to be changed
         return x;
     },
 
@@ -357,18 +387,58 @@ semantics.addOperation('eval', {
         return true; // any value is true
     },
 
+    // invocationFn = identifier "(" s listOf<exprSpaced, ","> s ")" s
+    invocationFn(ident, _, __, xs, ___, ____, _____) {
+        let fun = FUNS.get(ident.sourceString.trim());
+
+        console.log(fun);
+
+        return fun.invoke(xs.asIteration()
+            .children
+            .map(x => x.eval()));
+    },
+
     // fn definition
 
+    // fn = "fun " identSpaced "(" listOf<fnArg, ","> "):" s block
+    fn(_, ident, __, args, ___, ____, block) {
+        ident = ident.sourceString.trim();
+
+        FUNS.set(ident, new Function(ident,
+            args.asIteration()
+                .children
+                .map(variable => {
+                    let string = variable.sourceString.trim();
+                    let ident = string.split("=")[0].trim();
+
+                    return string.includes("=") ? new Var(ident, variable.children[1].children[2].eval()) : new Var(ident, null);
+                }), block));
+
+        console.log(FUNS);
+    },
+
+    fnArg(_, x, __) {
+        return x.eval();
+    },
+
+    // var = identLeft "=" exprSpaced
+    var(ident, _, value) {
+        ident = ident.sourceString.trim();
+        value = value.eval();
+
+        VARS.set(ident, new Var(ident, value));
+    },
 
     // afn
 
 
     // conditionals
 
-    // condWhen = "when" condArg ":" s block
-    condWhen(_, args, __, ___, block) {
-
-        return true
+    // condWhen = "when" expr ":" s block
+    condWhen(_, arg, __, ___, block) {
+        if (arg === true) {
+            // execute block
+        }
     },
 
     // ternary
@@ -379,23 +449,62 @@ semantics.addOperation('eval', {
 
     // comparators
 
-    comparator_equals(x, _, y) {
-        return x.eval() === y.eval();
-    },
-    comparator_not_equals(x, _, y) {
-        return x.eval() !== y.eval();
-    },
-    comparator_bigger(x, _, y) {
-        return x.eval() > y.eval();
-    },
-    comparator_smaller(x, _, y) {
-        return x.eval() < y.eval();
-    },
-    comparator_bigger_equals(x, _, y) {
-        return x.eval() >= y.eval();
-    },
-    comparator_smaller_equals(x, _, y) {
-        return x.eval() <= y.eval();
+    comparator(x, modifier, y) {
+        x = x.eval();
+        modifier = modifier.sourceString.trim();
+        y = y.eval();
+
+        switch (modifier) {
+            case "==":
+                if (x instanceof Fraction && y instanceof Fraction) {
+                    return x.evaluate() === y.evaluate();
+                } else if (x instanceof Complex && y instanceof Complex) {
+                    return x.real === y.real && x.imag === y.imag;
+                } else if (x instanceof Collection && y instanceof Collection) {
+                    if (x === y) return true;
+                    if (x.length() === y.length()) return true;
+
+                    return x.toString() === y.toString(); // probably not the most efficient, but who cares! :D
+                } else {
+                    return x === y;
+                }
+            case "!=":
+                if (x instanceof Fraction && y instanceof Fraction) {
+                    return x.evaluate() !== y.evaluate();
+                } else if (x instanceof Complex && y instanceof Complex) {
+                    return x.real !== y.real && x.imag !== y.imag;
+                } else if (x instanceof Collection && y instanceof Collection) {
+                    if (x === y || x.length() !== y.length()) return false;
+
+                    return x.toString() !== y.toString();
+                } else {
+                    return x !== y;
+                }
+            case ">":
+                if (x instanceof Fraction && y instanceof Fraction) {
+                    return x.evaluate() > y.evaluate();
+                }
+
+                throw new TypeError(`Operator '>' cannot be applied to '${typeof x}' and '${typeof y}'`);
+            case "<":
+                if (x instanceof Fraction && y instanceof Fraction) {
+                    return x.evaluate() < y.evaluate();
+                }
+
+                throw new TypeError(`Operator '<' cannot be applied to '${typeof x}' and '${typeof y}'`);
+            case ">=":
+                if (x instanceof Fraction && y instanceof Fraction) {
+                    return x.evaluate() >= y.evaluate();
+                }
+
+                throw new TypeError(`Operator '>=' cannot be applied to '${typeof x}' and '${typeof y}'`);
+            case "<=":
+                if (x instanceof Fraction && y instanceof Fraction) {
+                    return x.evaluate() <= y.evaluate();
+                }
+
+                throw new TypeError(`Operator '<=' cannot be applied to '${typeof x}' and '${typeof y}'`);
+        }
     },
 
     // generics
@@ -403,12 +512,12 @@ semantics.addOperation('eval', {
     // a program contains multiple elements, so call eval on all of them
     _iter(...children) {
         return children.map(c => c.eval());
-    }
+    },
 })
 
 fs.readFile("./x.rej", "utf8", (error, data) => {
     if (error) {
-        throw new ReadingError(error.message)
+        throw new ReadingError(error.stack)
     }
 
     try {

@@ -74,23 +74,24 @@ export class Complex {
 
     //returns the absolute value (magnitude) of the complex number
     abs() {
-        return Math.sqrt(
+        return new Fraction(Math.sqrt(
             this.real.multiply(this.real).add(this.imag.multiply(this.imag))
-        );
+        ));
     }
 
     //returns the argument (angle) of the complex number in radians when no input is given
     //when input is true, the answer given is in degrees
     arg(degrees = false) {
         const argument = Math.atan2(this.imag.evaluate(), this.real.evaluate());
-        return degrees ? (argument * 180) / Math.PI : argument;
+        return new Fraction(degrees ? (argument * 180) / Math.PI : argument);
     }
 
     //returns the nth power of the complex number.
     pow(n) {
-        if(!(n instanceof Complex)){
-            n = new Complex(other)
-        }
+        if(!(n instanceof Fraction)){
+            n = new Fraction(n)
+        } // todo is this supposed to be fraction or ?
+
         const magnitude = this.abs();
         const argument = this.arg();
         return new Complex(

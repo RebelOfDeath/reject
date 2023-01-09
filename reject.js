@@ -1,11 +1,3 @@
-export class TypeMismatchError extends Error {
-
-    constructor(x) {
-        super("Unexpected type -> " + typeof x);
-    }
-
-}
-
 export class ParsingError extends Error {
 
     constructor(x) {
