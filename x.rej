@@ -7,6 +7,18 @@ true == true ? 3: 0
 "hey"
 'h'
 
+print((1+5+5*3/3)/6^2* 10 ^ 3 -40*1^2--6* |-1| + 100)
+print(true and true or !true and !(!!false or false))
+print(true == true != false)
+print(true == true ? 3: 0)
+print([1, 2,3, [1, 2]])
+print({{1, 2, 3}, {1,2, 3}, {1, 2, 3}})
+print("hey")
+print('h')
 print((15 + 10) * 10 / 40^4 + |-10|)
 print("xx")
-print(true and true or !true and !(!!false or false))
+
+when x==10:
+	print("cheese")
+    when x == 10:
+    	print("more cheese!!!")

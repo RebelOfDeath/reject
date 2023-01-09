@@ -71,6 +71,10 @@ export class Collection {
     fromString(string) {
         return eval(string);
     }
+
+    toString() {
+        return `[${this.items.join(", ")}]`;
+    }
 }
 
 import assert from "assert";

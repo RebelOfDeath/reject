@@ -389,6 +389,10 @@ export class Matrix extends Collection {
 
         return true;
     }
+
+    toString() {
+        return `{${this.items.join(", ")}}`;
+    }
 }
 
 import assert from "assert";

@@ -1,4 +1,4 @@
-import { Fraction } from "./fraction";
+import { Fraction } from "./fraction.js";
 
 export class Complex {
     constructor(real, imag) {
@@ -65,15 +65,6 @@ export class Complex {
             real.divide(denom).evaluate(),
             imag.divide(denom).evaluate()
         );
-    }
-
-    //returns a string representation of the complex number
-    toString() {
-        let imag_part =
-            this.imag.evaluate() > 0
-                ? `+ ${this.imag.evaluate()}`
-                : `- ${Math.abs(this.imag.evaluate())}`;
-        return `(${this.real.evaluate()} ${imag_part} i)`;
     }
 
     //returns the conjugate of the complex number, which is obtained by negating the imaginary part of the complex number
@@ -156,5 +147,15 @@ export class Complex {
     //returns the hyperbolic tangent of the complex number
     tanh() {
         return this.sinh().divide(this.cosh());
+    }
+
+    //returns a string representation of the complex number
+    toString() {
+        let imag = this.imag.evaluate();
+
+        let imag_part = imag > 0
+            ? `+ ${imag}`
+            : `- ${Math.abs(imag)}`;
+        return `(${this.real.evaluate()} ${imag_part} i)`;
     }
 }

@@ -35,13 +35,10 @@ Reject {
     
     // ====================
 
-    comment = "#" (~nl any)*
+    comment (a comment) = "#" (~nl any)*
     
-    // inline spacing
-    inline = " " | "\\t" | comment // ignore comments in code
-    
-    // inline space
-    s = inline*
+    // stuff that doesn't matter inline
+    s = (" " | "\\t" | comment)*
         
     // new line chars
     nl = "\\n" | "\\r" | "\u2028" | "\u2029"
@@ -49,11 +46,12 @@ Reject {
     // line separator
     ls = (nl | comment)+
     
-    block = ls listOf<blockElem, nl>
+    // todo make sure this uses the correct indentation all the way
+    block = ls listOf<blockElem, ls>
     
-    blockElem = indent element?
+    blockElem = indent+ element?
     
-    indent = " "
+    indent = "    " | "  " | "\\t"
     
     // ====================
 
@@ -162,18 +160,17 @@ Reject {
 
     cond = condWhen | condWhenElse | condElse
 
-    condWhen = "when" condArg ":" s block
+    condWhen = "when " exprLeft ":" s block
     
-    condWhenElse = "else when" condArg ":" s block
+    condWhenElse = "else when " exprLeft ":" s block
 
-    condElse = "else:" s block
+    condElse = "else: " s block
     
     condArg = s (comparator | boolean) s
 
     // ====================
 
-    // doesnt allow for exprLeft for some reason, even though it's literally the same as expression s
-    ternary = expression s "?" exprSpaced ":" exprSpaced
+    ternary = exprLeft "?" exprSpaced ":" exprSpaced
 
     // ====================
 
@@ -219,6 +216,10 @@ semantics.addOperation('eval', {
     },
     identLeft(x, _) {
         return x.eval();
+    },
+
+    block(_, xs) {
+
     },
 
     // booleans
@@ -320,7 +321,9 @@ semantics.addOperation('eval', {
         return new Matrix(xs
             .asIteration()
             .children
-            .map(x => x.eval()));
+            .map(x => {
+                return x.eval()
+            }));
     },
 
     matrixArgsTypes(_, x, __) {
@@ -362,10 +365,15 @@ semantics.addOperation('eval', {
 
     // conditionals
 
+    // condWhen = "when" condArg ":" s block
+    condWhen(_, args, __, ___, block) {
+
+        return true
+    },
 
     // ternary
 
-    ternary(cond, _, __, pass, ___, dontPass) {
+    ternary(cond, __, pass, ___, dontPass) {
         return cond.eval() ? pass.eval() : dontPass.eval();
     },
 
@@ -406,6 +414,6 @@ fs.readFile("./x.rej", "utf8", (error, data) => {
     try {
         semantics(grammar.match(data)).eval()
     } catch (error) {
-        throw new ParsingError(error.message)
+        throw new ParsingError(error.stack)
     }
 })
