@@ -54,6 +54,13 @@ nav > div {
     padding: 1rem 1rem;
 }
 
+/* Improve mobile usage */
+@media (max-width: 768px) {
+    nav > div {
+        margin: auto;
+    }
+}
+
 /* Indicate that the icons are buttons with pointer cursor */
 nav > div:hover {
     cursor: pointer;

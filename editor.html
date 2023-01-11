@@ -26,19 +26,19 @@
     <div id="reset" title="Clear your code">
         <i class="fa-solid fa-trash"></i>
     </div>
-    <div id="save" title="Download your current text">
+    <div id="download" title="Download your current text">
         <i class="fa-solid fa-download"></i>
     </div>
-<!--    <div id="upload" title="Upload your file to edit">-->
-<!--        <i class="fa-solid fa-upload"></i>-->
-<!--    </div>-->
+    <!--    <div id="upload" title="Upload your file to edit">-->
+    <!--        <i class="fa-solid fa-upload"></i>-->
+    <!--    </div>-->
     <div id="docs" title="View documentation">
         <a href="https://github.com/RebelOfDeath/reject/wiki" target="_blank">
             <i class="fa-solid fa-book"></i>
         </a>
     </div>
     <div id="src" title="View source code">
-        <a href="https://github.com/RebelOfDeath/reject" target="_blank">
+        <a href="https://github.com/Efnilite/reject-editor" target="_blank">
             <i class="fa-sharp fa-solid fa-code"></i>
         </a>
     </div>
@@ -93,7 +93,7 @@
             clearConsole();
         })
 
-        $("#save").click(() => {
+        $("#download").click(() => {
             // transform all text in code area to a blob (stores data)
             const blob = new Blob([$("#code").val()], { type: "text/plain" });
 

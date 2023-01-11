@@ -189,6 +189,16 @@ semantics.addOperation('eval', {
         return x.eval();
     },
 
+    identifier(x) {
+        let str = x.sourceString.trim();
+
+        if (VARS.has(str)) {
+            return VARS.get(str).value;
+        } else {
+            return new Fraction(0);
+        }
+    },
+
     expression_par(_, x, __) {
         return x.eval();
     },
