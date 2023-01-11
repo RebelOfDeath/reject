@@ -77,8 +77,6 @@
         log("Use the 'print' function to log stuff here.");
         log("You can start writing your code in the left text area.");
         log("Click on the green 'Run' button to run your code!");
-        
-        
 
         $("#run").click(() => {
             clearConsole();
@@ -88,12 +86,12 @@
             } catch (error) {
                 log(error.stack);
             }
-        })
+        });
 
         $("#reset").click(() => {
             clearCode();
             clearConsole();
-        })
+        });
 
         $("#download").click(() => {
             // transform all text in code area to a blob (stores data)
@@ -116,7 +114,7 @@
 
     function log(x) {
         $('#console').val((i, txt) => {
-            return txt + ("\n" + x);
+            return txt + (txt === "" ? x.toString() : ("\n" + x.toString()));
         });
     }
 

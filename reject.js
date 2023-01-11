@@ -47,7 +47,7 @@ Reject {
     
     // ====================
 
-    literal = array | matrix | text | arithmetic | boolean
+    literal = array | matrix | text | exprAdd | boolean
 
     // ====================
     
@@ -72,28 +72,27 @@ Reject {
 
     number = fraction | float | integer
 
-    arithmetic = exprAdd
-
-    exprAdd = exprAALeft "+" exprAASpaced -- plus
-                    | exprAALeft "-" exprAASpaced -- sub
-                    | exprMul
-
-    exprMul = exprAALeft "*" exprAASpaced -- mul
-                    | exprAALeft "/" exprAASpaced -- div
-                    | exprExp
-
-    exprExp = exprAALeft "^" exprAASpaced -- exp
-                    | exprFac
-
-    exprFac = exprAALeft "!" -- fac
-                    | number
-
-    // exprArithmeticAllowed
-    exprAA = ternary | arithmetic | invocation | identifier 
-                    | "(" exprAA ")" -- par
+    exprAdd
+      = exprAdd s "+" s exprMul  -- plus
+      | exprAdd s "-" s exprMul  -- sub
+      | exprMul
     
-    exprAASpaced = s exprAA s
-    exprAALeft = exprAA s
+    exprMul
+      = exprMul s "*" s exprExp  -- mul
+      | exprMul s "/" s exprExp  -- div
+      | exprExp
+    
+    exprExp
+      = exprRest s "^" s exprExp -- exp
+      | exprRest s "!" -- fac
+      | exprRest
+    
+    exprRest
+      = "(" s expression s ")"  -- par
+      | ternary 
+      | invocation 
+      | identifier
+      | number
 
     // ====================
 
@@ -267,35 +266,26 @@ semantics.addOperation('eval', {
     },
 
     // arithmetic
-    exprAdd_plus(x, _, y) {
+    exprAdd_plus(x, _, __, ___, y) {
         return x.eval().add(y.eval());
     },
-    exprAdd_sub(x, _, y) {
+    exprAdd_sub(x, _, __, ___, y) {
         return x.eval().subtract(y.eval());
     },
-    exprMul_mul(x, _, y) {
+    exprMul_mul(x, _, __, ___, y) {
         return x.eval().multiply(y.eval());
     },
-    exprMul_div(x, _, y) {
+    exprMul_div(x, _, __, ___, y) {
         return x.eval().divide(y.eval());
     },
-    exprExp_exp(x, _, y) {
+    exprExp_exp(x, _, __, ___, y) {
         return x.eval().pow(y.eval());
     },
-    exprFac_fac(x, _) {
+    exprExp_fac(x, _, __) {
         return x.eval().factorial();
     },
-
-    exprAA_par(_, x, __) {
+    exprRest_par(_, __, x, ___, ____) {
         return x.eval();
-    },
-
-    // spaced allowed assignment exprs
-    exprAASpaced(_, x, __) {
-        return x.eval()
-    },
-    exprAALeft(x, _) {
-        return x.eval()
     },
 
     // augmented assignment
@@ -390,8 +380,6 @@ semantics.addOperation('eval', {
     invocationFn(ident, _, __, xs, ___, ____, _____) {
         let fun = FUNS.get(ident.sourceString.trim());
 
-        console.log(fun);
-
         return fun.invoke(xs.asIteration()
             .children
             .map(x => x.eval()));
@@ -412,8 +400,6 @@ semantics.addOperation('eval', {
 
                     return string.includes("=") ? new Var(ident, variable.children[1].children[2].eval()) : new Var(ident, null);
                 }), block));
-
-        console.log(FUNS);
     },
 
     fnArg(_, x, __) {
@@ -517,18 +503,6 @@ semantics.addOperation('eval', {
 function parse(input) {
     semantics(grammar.match(input)).eval()
 }
-
-// fs.readFile("./x.rej", "utf8", (error, data) => {
-//     if (error) {
-//         throw new ReadingError(error.stack)
-//     }
-//
-//     try {
-//         semantics(grammar.match(data)).eval()
-//     } catch (error) {
-//         throw new ParsingError(error.stack)
-//     }
-// })
 
 class Collection {
     constructor(items) {
@@ -887,9 +861,7 @@ class Function {
             VARS.set(variable.name, variable);
         }
 
-        this.block.asIteration()
-            .children
-            .map(x => x.eval());
+        this.block.eval();
     }
 
 }
