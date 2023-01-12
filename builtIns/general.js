@@ -1,8 +1,8 @@
 import { Fraction } from "../dataTypes/fraction";
-import { constants } from "./constants";
 import { Matrix } from '../dataTypes/matrix'
 import { Collection } from "../dataTypes/collection";
 import { Complex } from '../dataTypes/complex.js';
+import { String } from '../dataTypes/string.js';
 
 let general = {
     sgn : (num) => {
@@ -17,43 +17,43 @@ let general = {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         num = num.evaluate();
-        return new Fraction(Math.floor(num))
+        return new Fraction(Math.floor(num));
     },
     ceil : (num) => {
         if(!(num instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         num = num.evaluate();
-        return new Fraction(Math.ceil(num))
+        return new Fraction(Math.ceil(num));
     },
     round : (num) => {
         if(!(num instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         num = num.evaluate();
-        return new Fraction(Math.round(num))
+        return new Fraction(Math.round(num));
     },
     ln : (num) => {
         if(!(num instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        return new Fraction(Math.log(num.evaluate()))
+        return new Fraction(Math.log(num.evaluate()));
     },
     log : (num, base=10) => {
         if(!((num instanceof Fraction) && (base===10 || base instanceof Fraction))) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         num = num.evaluate();
-        ans = Math.log(num) / (base===10 ? Math.log(10) : Math.log(base.evaluate()))
-        return new Fraction(ans)
+        return new Fraction(Math.log(num) / (base===10 ? Math.log(10) : Math.log(base.evaluate())));
     },
     max : (num1, ...rest) => {
-        if(!(num1 instanceof Fraction)){
+        if (!(num1 instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        max = num1.evaluate();
-        for(elem in rest){
-            if(!(elem instanceof Fraction)){
+
+        let max = num1.evaluate();
+        for (let elem in rest){
+            if (!(elem instanceof Fraction)){
                 throw new TypeError('Function only supports numeric type (Fraction)');
             }
             max = (elem.evaluate() > max ? elem.evaluate() : max);
@@ -61,12 +61,13 @@ let general = {
         return new Fraction(max);
     },
     min : (num1, ...rest) => {
-        if(!(num1 instanceof Fraction)){
+        if (!(num1 instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        min = num1.evaluate();
-        for(elem in rest){
-            if(!(elem instanceof Fraction)){
+
+        let min = num1.evaluate();
+        for (let elem in rest){
+            if (!(elem instanceof Fraction)){
                 throw new TypeError('Function only supports numeric type (Fraction)');
             }
             min = (elem.evaluate() < min ? elem.evaluate() : min);
@@ -79,7 +80,7 @@ let general = {
         }
         number = number.evaluate();
         divisor = divisor.evaluate();
-        return new Fraction(number%divisor);
+        return new Fraction(number % divisor);
     },
     sqrt : (number) => {
         if(!(number instanceof Fraction)){
@@ -98,11 +99,11 @@ let general = {
         return new Fraction(Math.pow(number, 1 / n));
     },
     exp : (number, n=Math.E) => {
-        if(!(number instanceof Fraction && (n instanceof Fraction || n===Math.E))){
+        if(!(number instanceof Fraction && (n instanceof Fraction || n === Math.E))){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         number = number.evaluate();
-        n = (n===Math.E ? Math.E : n.evaluate());
+        n = (n === Math.E ? Math.E : n.evaluate());
         return new Fraction(Math.pow(n, number))
     },
     det : (matrix) => {
@@ -115,8 +116,8 @@ let general = {
         if(!(num1 instanceof Fraction && num2 instanceof Fraction)){
             throw new TypeError('Function only supports matrices');
         }
-        x = Math.abs(num1.evaluate());
-        y = Math.abs(num2.evaluate());
+        let x = Math.abs(num1.evaluate());
+        let y = Math.abs(num2.evaluate());
 
         while(y) {
             let t = y;
@@ -134,9 +135,9 @@ let general = {
         if(!(num1 instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        sum = num1.evaluate();
-        for(elem in rest){
-            if(!(elem instanceof Fraction)){
+        let sum = num1.evaluate();
+        for(let elem in rest){
+            if (!(elem instanceof Fraction)) {
                 throw new TypeError('Function only supports numeric type (Fraction)');
             }
             sum = sum + elem.evaluate();
@@ -144,7 +145,7 @@ let general = {
         return new Fraction(sum);
     },
     D : (a, b, c) => {
-        if(!(num1 instanceof Fraction && num2 instanceof Fraction && num3 instanceof Fraction)){
+        if (!(a instanceof Fraction && b instanceof Fraction && c instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         a = a.evaluate();
@@ -157,14 +158,14 @@ let general = {
         a = a.evaluate();
         b = b.evaluate();
         c = c.evaluate();
-        if(D < 0){
-            return null;
-            //still don't quite know what to do here, have to discuss
-        }else if(D == 0){
+
+        if (D < 0) {
+            throw new Error("Discriminant value below 0")
+        } else if (D === 0) {
             return new Fraction((-b) / (2*a))
-        }else{
+        } else {
             let sqrtD = Math.sqrt(D);
-            return new Collection([((-b) + sqrtD)/(2*a), ((-b) - sqrtD)/(2*a)])
+            return new Collection([(-b + sqrtD) / (2 * a), (-b - sqrtD)/(2 * a)])
         }
     },
     abs : (elem) => {
@@ -176,7 +177,7 @@ let general = {
             return new Fraction(elem.length());
         }else if(elem instanceof Complex){
             return new Fraction(elem.length())
-        }else{
+        } else{
             throw new TypeError('Function does not support provided type');
         }
     }

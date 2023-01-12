@@ -20,9 +20,9 @@ Reject {
         = ternary 
         | comparator 
         | afn 
-        | invocation 
-        | logical 
+        | invocation
         | exprAdd 
+        | logical
         | array 
         | matrix 
         | text
@@ -192,6 +192,7 @@ Reject {
         | (expression s "<=" exprSpaced)
 }
 `)
+// todo merge logical, comparator and exprAdd
 
 const semantics = grammar.createSemantics()
 
