@@ -8,23 +8,22 @@ Reject {
 
     element = statement | expression
     
-    statement 
-        = cond 
-        | iterative 
-        | return 
-        | var 
-        | augmented 
+    statement
+        = cond
+        | iterative
+        | return
+        | var
+        | augmented
         | fn
     
     expression 
-        = ternary 
-        | comparator 
-        | afn 
+        = ternary
+        | comparator
+        | afn
         | invocation
-        | exprAdd 
         | logical
-        | array 
-        | matrix 
+        | array
+        | matrix
         | text
         | "(" exprSpaced ")" -- par
         | identifier
@@ -71,8 +70,8 @@ Reject {
         | "(" logical ")" -- par
         | ternary
         | invocation
-        | identifier
         | boolean
+        | exprAdd
 
     // ====================
 
@@ -196,7 +195,7 @@ Reject {
 
 const semantics = grammar.createSemantics()
 
-semantics.addOperation('eval', {
+semantics.addOperation("eval", {
 
     // main stuff
     program(_, xs, __) {
