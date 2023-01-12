@@ -5,6 +5,10 @@ import { Complex } from '../dataTypes/complex.js';
 import { String } from '../dataTypes/string.js';
 
 let general = {
+    print : (...xs) => {
+        console.log(xs.join(" "));
+        return true;
+    },
     sgn : (num) => {
         if(!(num instanceof Fraction)){
             throw new TypeError('Function only supports numeric type (Fraction)');

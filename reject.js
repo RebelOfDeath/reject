@@ -8,11 +8,12 @@ Reject {
 
     program = ls* listOf<element, ls> ls* end
 
-    element = var | expression | cond | for | return
+    element = var | expression | cond | for | return | fn
     
     // =============
     
-    var = nonemptyListOf<varList, ",">
+    // todo fix
+    var = listOf<varList, ",">
     
     varList = identifier s "=" expressionSpaced
     
@@ -24,7 +25,7 @@ Reject {
     expressionSpaced = s expression s
         
     // assignment first since it uses exprs
-    assignment = invocation assignmentOp expression -- assignment
+    assignment = ternary s assignmentOp expressionSpaced -- assignment
         | ternary
     
     // ternary doesn't allow for assignment, so go down
@@ -35,14 +36,11 @@ Reject {
         | addition
         
     addition 
-        = addition s "+" s multiplication -- add
-        | addition s "-" s multiplication -- sub
+        = addition s addOp s multiplication -- add
         | multiplication
         
     multiplication 
-        = multiplication s "*" s exponentiation -- mul
-        | multiplication s "/" s exponentiation -- div
-        | multiplication s "%" s exponentiation -- mod
+        = multiplication s mulOp s exponentiation -- mul
         | exponentiation 
         
     exponentiation
@@ -77,11 +75,11 @@ Reject {
     
     condWhen = "when " expressionSpaced ":" s block
     
-    // =============
-    
     for = "for " listOf<identifierSpaced, ","> "in" expressionSpaced ":" s block
     
-    // =============
+    fn = "fun " identifierSpaced "(" listOf<fnArg, ","> "):" s block
+    
+    fnArg = s (var | identifier) s
     
     return = "return" expressionSpaced
     
@@ -107,6 +105,10 @@ Reject {
     
     // =============
     
+    addOp = "+" | "-"
+    
+    mulOp = "*" | "/" | "%"
+    
     assignmentOp = "=" | "+=" | "-=" | "*=" | "/=" | "^=" | "%="
     
     compareOp = "==" | "!=" | "<=" | ">=" | "<" | ">" 
@@ -120,7 +122,7 @@ Reject {
     // line separator
     ls = (nl | comment)+
     
-    s = (" " | "\    " | comment)*
+    s = (" " | "    " | comment)*
     
     identifier = ~(digit+) #(alnum | "_")+
     
@@ -134,274 +136,83 @@ Reject {
     indent = "    " | "  " | "\\t"
 }
 `)
-// todo merge logical, comparator and exprAdd
 
 const semantics = grammar.createSemantics()
 
 semantics.addOperation("eval", {
 
     // main stuff
-    program(_, xs, __) {
+    program(_, xs, __, ___) {
         return xs
             .asIteration()
             .children
             .map(x => x.eval());
     },
 
-    element(x) {
+    expressionSpaced(_, x, __) {
         return x.eval();
     },
 
-    identifier(x) {
-        let str = x.sourceString.trim();
+    // =============
 
-        console.log(x);
-
-        if (VARS.has(str)) {
-            return VARS.get(str).value;
-        }
-
-        throw new Error("Unknown variable: " + str);
-    },
-
-    expression_par(_, x, __) {
-        return x.eval();
-    },
-
-    // spaced stuff
-    exprSpaced(_, x, __) {
-        return x.eval();
-    },
-
-    identSpaced(_, x, __) {
-        return x.eval();
-    },
-
-    block(_, xs) {
-        return xs.asIteration()
-            .children
-            .map(x => x.eval());
-    },
-
-    blockElem(_, x) {
-        return x.eval();
-    },
-
-    // booleans
-
-    // parse boolean value
-    boolean(x) {
-        return x.sourceString === "true";
-    },
-
-    logical_and(x, _, __, ___, y, ____) {
-        return x.eval() && y.eval();
-    },
-    logical_or(x, _, __, ___, y, ____) {
-        return x.eval() || y.eval();
-    },
-    logicalNot_not(_, x) {
-        return !x.eval();
-    },
-    logicalNot_par(_, x, __) {
-        return x.eval();
-    },
-
-    // numerical types
-    // every numerical is a fraction under the hood
-
-    // integer x can be represented by fraction as x/1, so just parse int from string
-    // and use it as numerator
-    integer(sgn, x) {
-        return new Fraction(parseInt(sgn.sourceString + x.sourceString));
-    },
-    // some floats cannot be represented by fractions, therefore the system will internally
-    // create a fraction which estimates the floating value.
-    float(sgn, x, _, y) {
-        return new Fraction(parseFloat(sgn.sourceString + x.sourceString + "." + y.sourceString));
-    },
-
-    // arithmetic
-    exprAdd_plus(x, _, __, ___, y) {
-        return x.eval().add(y.eval());
-    },
-    exprAdd_sub(x, _, __, ___, y) {
-        return x.eval().subtract(y.eval());
-    },
-    exprMul_mul(x, _, __, ___, y) {
-        return x.eval().multiply(y.eval());
-    },
-    exprMul_div(x, _, __, ___, y) {
-        x = x.eval();
-        y = y.eval();
-
-        if (Number.isInteger(x) && Number.isInteger(y)) {
-            return new Fraction(x, y);
-        }
-
-        return x.divide(y);
-    },
-    exprExp_exp(x, _, __, ___, y) {
-        return x.eval().pow(y.eval());
-    },
-    exprExp_fac(x, _, __) {
-        return x.factorial();
-    },
-    exprRest_par(_, __, x, ___, ____) {
-        return x.eval();
-    },
-
-    // augmented assignment
-
-    augmented(name, _, modifier, value) {
-        name = name.sourceString.trim();
-        modifier = modifier.sourceString.trim();
-        value = value.eval();
-
-        let updated;
-        if (VARS.has(name)) {
-            updated = VARS.get(name);
-
-            switch (modifier) {
-                case "*=":
-                    updated.value = updated.value.multiply(value);
-                    break;
-                case "/=":
-                    updated.value = updated.value.divide(value);
-                    break;
-                case "+=":
-                    updated.value = updated.value.add(value);
-                    break;
-                case "-=":
-                    updated.value = updated.value.subtract(value);
-                    break;
-            }
-        } else {
-            updated = new Var(name, new Fraction(0));
-        }
-
-        VARS.set(name, updated);
-    },
-
-    // texts
-
-    string(_, x, __, ___) {
-        return new Str(x.sourceString); // ignore
-    },
-
-    char(_, x, __, ___) {
-        return new Str(x.sourceString); // ignore
-    },
-
-    // arrays
-
-    array(_, xs, __, ___) {
-        return new Collection(xs
-            .asIteration()
-            .children
-            .map(x => x.eval()));
-    },
-
-    // matrices
-
-    matrix(_, xs, __, ___) {
-        return new Matrix(xs
-            .asIteration()
-            .children
-            .map(x => x.eval()));
-    },
-
-    // iteratives
-
-
-    // fn invocation
-
-    invocationPipe(_, x, __, ___) {
-        x = x.eval();
-
-        if (x instanceof Fraction) {
-            return x.abs();
-        } else if (x instanceof Collection) {
-            return x.length();
-        }
-
-        // return x when there is no value to be changed
-        return x;
-    },
-
-    invocationPrint(_, __, xs, ___, ____, _____) {
-        log((xs
-            .asIteration()
-            .children
-            .map(x => x.eval().toString()))
-            .join(" "));
-
-        return true; // any value is true
-    },
-
-    // invocationFn = identifier "(" s listOf<exprSpaced, ","> s ")" s
-    invocationFn(ident, _, __, xs, ___, ____, _____) {
-        let fun = FUNS.get(ident.sourceString.trim());
-
-        return fun.invoke(xs.asIteration()
-            .children
-            .map(x => x.eval()));
-    },
-
-    // fn definition
-
-    // fn = "fun " identSpaced "(" listOf<fnArg, ","> "):" s block
-    fn(_, ident, __, args, ___, ____, block) {
-        ident = ident.sourceString.trim();
-
-        FUNS.set(ident, new Function(ident,
-            args.asIteration()
-                .children
-                .map(variable => {
-                    let string = variable.sourceString.trim();
-                    let ident = string.split("=")[0].trim();
-
-                    return string.includes("=") ? new Var(ident, variable.children[1].children[2].eval()) : new Var(ident, null);
-                }), block));
-    },
-
-    fnArg(_, x, __) {
-        return x.eval();
-    },
-
-    var(ident, _, __, value) {
+    varList(ident, _, __, value) {
         ident = ident.sourceString.trim();
         value = value.eval();
 
         VARS.set(ident, new Var(ident, value));
     },
 
-    // afn
+    // =============
 
+    assignment_assignment(name, _, op, expr) {
+        name = name.sourceString.trim();
+        op = op.sourceString.trim();
+        expr = expr.eval();
 
-    // conditionals
+        let updated;
+        if (VARS.has(name)) {
+            updated = VARS.get(name);
 
-    // condWhen = "when" expr ":" s block
-    condWhen(_, arg, __, ___, ____, block) {
-        if (arg === true) {
-            // execute block
+            switch (op) {
+                case "=":
+                    updated.value = expr;
+                    break;
+                case "+=":
+                    updated.value = updated.value.add(expr);
+                    break;
+                case "-=":
+                    updated.value = updated.value.subtract(expr);
+                    break;
+                case "*=":
+                    updated.value = updated.value.multiply(expr);
+                    break;
+                case "/=":
+                    updated.value = updated.value.divide(expr);
+                    break;
+                case "^=":
+                    updated.value = updated.value.pow(expr);
+                    break;
+                case "%=":
+                    updated.value = updated.value.mod(expr);
+                    break;
+            }
+        } else {
+            updated = expr;
         }
+
+        VARS.set(name, updated);
     },
 
-    // ternary
-
-    ternary(cond, _, __, pass, ___, dontPass) {
+    ternary_ternary(cond, _, __, pass, ___, dontPass) {
         return cond.eval() ? pass.eval() : dontPass.eval();
     },
 
-    // comparators
-
-    comparator(x, _, modifier, y) {
+    comparator_compare(x, _, op, y) {
         x = x.eval();
-        modifier = modifier.sourceString.trim();
+        op = op.sourceString.trim();
         y = y.eval();
 
-        switch (modifier) {
+        switch (op) {
             case "==":
                 if (x instanceof Fraction && y instanceof Fraction) {
                     return x.evaluate() === y.evaluate();
@@ -454,7 +265,174 @@ semantics.addOperation("eval", {
         }
     },
 
-    // generics
+    addition_add(x, _, op, ___, y) {
+        x = x.eval();
+        y = y.eval();
+        op = op.sourceString.trim();
+
+        switch (op) {
+            case "+":
+                return x.add(y);
+            case "-":
+                return x.subtract(y);
+        }
+    },
+
+    multiplication_mul(x, _, op, ___, y) {
+        x = x.eval();
+        y = y.eval();
+        op = op.sourceString.trim();
+
+        switch (op) {
+            case "*":
+                return x.multiply(y);
+            case "/":
+                return x.divide(y);
+            case "%":
+                return x.evaluate() % y.evaluate();
+        }
+    },
+
+    exponentiation_exp(x, _, __, ___, y) {
+        return x.eval().pow(y.eval());
+    },
+    exponentiation_fac(x, _) {
+        return x.eval().factorial();
+    },
+
+    logical_logic(x, _, op, y) {
+        x = x.eval();
+        y = y.eval();
+        op = op.sourceString.trim();
+
+        switch (op) {
+            case "and":
+                return x && y;
+            case "or":
+                return x || y;
+        }
+    },
+
+    logicalNot_not(_, x, __) {
+        return !x.eval();
+    },
+
+    afn_afn(_, args, __, expr) {
+
+    },
+
+    pipe_pipe(_, x, __) {
+        x = x.eval();
+
+        if (x instanceof Fraction) {
+            return x.abs();
+        } else if (x instanceof Collection) {
+            return x.length();
+        }
+
+        // return x when there is no value to be changed
+        return x;
+    },
+
+    invocation_invoke(ident, _, xs, __) {
+        let fun = FUNS.get(ident.sourceString.trim());
+
+        return fun.invoke(xs.asIteration()
+            .children
+            .map(x => x.eval()));
+    },
+
+    default_par(_, x, __) {
+        return x.eval();
+    },
+
+    // =============
+
+    condWhen(_, arg, __, ___, block) {
+        if (arg === true) {
+            block.eval();
+        }
+    },
+
+    fn(_, ident, __, args, ___, ____, block) {
+        ident = ident.sourceString.trim();
+
+        FUNS.set(ident, new Function(ident,
+            args.asIteration()
+                .children
+                .map(variable => {
+                    let string = variable.sourceString.trim();
+                    let ident = string.split("=")[0].trim();
+
+                    return string.includes("=") ? new Var(ident, variable.children[1].children[2].eval()) : new Var(ident, null);
+                }), block));
+    },
+
+    fnArg(_, x, __) {
+        return x.eval();
+    },
+
+    // =============
+
+    boolean(x) {
+        return x.sourceString === "true";
+    },
+
+    string(_, x, __) {
+        return new Str(x.sourceString);
+    },
+
+    char(_, x, __) {
+        return new Str(x.sourceString);
+    },
+
+    integer(sgn, x) {
+        return new Fraction(parseInt(sgn.sourceString + x.sourceString));
+    },
+
+    float(sgn, x, _, y) {
+        return new Fraction(parseFloat(sgn.sourceString + x.sourceString + "." + y.sourceString));
+    },
+
+    array(_, xs, __) {
+        return new Collection(xs
+            .asIteration()
+            .children
+            .map(x => x.eval()));
+    },
+
+    matrix(_, xs, __) {
+        return new Matrix(xs
+            .asIteration()
+            .children
+            .map(x => x.eval()));
+    },
+
+    // =============
+
+    identifier(x) {
+        let str = x.sourceString.trim();
+
+        if (VARS.has(str)) {
+            return VARS.get(str).value;
+        }
+
+        throw new Error("Unknown variable: " + str);
+    },
+
+    identifierSpaced(_, x, __) {
+        return x.eval();
+    },
+
+    block(_, xs) {
+        return xs.asIteration()
+            .children
+            .map(x => x.eval());
+    },
+
+    blockElem(_, x) {
+        return x.eval();
+    },
 
     // a program contains multiple elements, so call eval on all of them
     _iter(...children) {

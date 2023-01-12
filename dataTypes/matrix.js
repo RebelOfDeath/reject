@@ -117,7 +117,7 @@ export class Matrix extends Collection {
     }
 
     // todo add
-    factorial(n) {
+    factorial() {
 
     }
 

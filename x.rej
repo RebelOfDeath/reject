@@ -57,3 +57,11 @@ x = 4 * 3/5, y = (6 * 23) / 4
 # Anonymous functions
 x = :(x): |x|
 y = :(f): print(f)
+
+x *= 1
+x *= (y + 3) / 6
+x /= |-6|
+x += 34^2
+x -= 4
+x ^= 2
+x %= 2
