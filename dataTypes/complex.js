@@ -108,6 +108,15 @@ export class Complex {
         );
     }
 
+    //return the length of the complex number
+    length() {
+        let real = this.real.evaluate();
+        let imag = this.imag.evaluate();
+        return new Fraction(
+            Math.sqrt((real^2) + (imag^2))
+        )
+    }
+
     //returns the sine of the complex number
     sin() {
         return new Complex(
