@@ -111,6 +111,16 @@ export class Matrix extends Collection {
         return determinant;
     }
 
+    // todo add
+    pow(n) {
+
+    }
+
+    // todo add
+    factorial(n) {
+
+    }
+
     // Get the number of columns in the Matrix
     col() {
         return this.items[0].length;
@@ -396,7 +406,6 @@ export class Matrix extends Collection {
 }
 
 import assert from "assert";
-import {Fraction} from "./fraction.js";
 
 assert.deepStrictEqual(new Matrix([
     [1, 2, 3],

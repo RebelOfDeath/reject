@@ -1,54 +1,130 @@
 const grammar = ohm.grammar(`
 Reject {
+    
+    // =============
 
     // note that all elements in this grammar are lexical rules.
     // this is to avoid incorrect indentation, etc.
 
-    program = ls* listOf<element, ls> ls*
+    program = ls* listOf<element, ls> ls* end
 
-    element = statement | expression
+    element = var | expression | cond | for | return
     
-    statement
-        = cond
-        | iterative
-        | return
-        | var
-        | augmented
-        | fn
+    // =============
     
-    expression 
-        = ternary
-        | comparator
-        | afn
-        | invocation
-        | logical
-        | array
-        | matrix
-        | text
-        | "(" exprSpaced ")" -- par
-        | identifier
+    var = nonemptyListOf<varList, ",">
     
-    // spaced expr shortcuts
-    exprSpaced = s expression s
-
-    // format for vars, fn names
-    identifier = ~(digit+) #(alnum | "_")+
+    varList = identifier s "=" expressionSpaced
     
-    // spaced ident shortcuts
-    identSpaced = s identifier s
+    // =============
     
-    // ====================
-
-    comment (a comment) = "#" (~nl any)*
+    // improve naming
+    expression = assignment
     
-    // stuff that doesn't matter inline
-    s = (" " | "\\t" | comment)*
+    expressionSpaced = s expression s
         
-    // new line chars
-    nl = "\\n" | "\\r" | "\u2028" | "\u2029"
+    // assignment first since it uses exprs
+    assignment = invocation assignmentOp expression -- assignment
+        | ternary
+    
+    // ternary doesn't allow for assignment, so go down
+    ternary = ternary s "?" expressionSpaced ":" expressionSpaced -- ternary
+        | comparator
+        
+    comparator = comparator s compareOp expressionSpaced -- compare
+        | addition
+        
+    addition 
+        = addition s "+" s multiplication -- add
+        | addition s "-" s multiplication -- sub
+        | multiplication
+        
+    multiplication 
+        = multiplication s "*" s exponentiation -- mul
+        | multiplication s "/" s exponentiation -- div
+        | multiplication s "%" s exponentiation -- mod
+        | exponentiation 
+        
+    exponentiation
+        = exponentiation s "^" s logical -- exp
+        | exponentiation "!" -- fac // adding a space causes x! to be confused with x !=, so for now this'll have to do
+        | logical
+        
+    logical = logical s logicOp expressionSpaced -- logic
+        | logicalNot
+        
+    logicalNot = "!" logicalNot s -- not
+        | afn
+
+    afn = ":(" listOf<identifierSpaced, ","> "): " expressionSpaced -- afn
+        | pipe
+        
+    pipe = "|" expressionSpaced "|" -- pipe
+        | invocation
+        
+    invocation = identifier "(" listOf<expressionSpaced, ","> ")" -- invoke
+        | default
+        
+    // the last resort
+    default
+        = identifier 
+        | literal
+        | "(" expression ")" -- par
+    
+    // =============
+    
+    cond = condWhen
+    
+    condWhen = "when " expressionSpaced ":" s block
+    
+    // =============
+    
+    for = "for " listOf<identifierSpaced, ","> "in" expressionSpaced ":" s block
+    
+    // =============
+    
+    return = "return" expressionSpaced
+    
+    // =============
+    
+    literal = boolean | char | string | number | array | matrix
+    
+    boolean = "true" | "false"
+    
+    string = "\\"" (~("\\"" | nl) any)* "\\""
+
+    char = "'" (~nl any) "'"
+    
+    integer = "-"? digit+
+    
+    float = "-"? digit* "." integer+
+    
+    number = integer | float
+    
+    array = "[" listOf<expressionSpaced, ","> "]"
+
+    matrix = "{" listOf<expressionSpaced, ","> "}"
+    
+    // =============
+    
+    assignmentOp = "=" | "+=" | "-=" | "*=" | "/=" | "^=" | "%="
+    
+    compareOp = "==" | "!=" | "<=" | ">=" | "<" | ">" 
+    
+    logicOp = "and" | "or"
+    
+    nl = "\\n" | "\\r" | "\u2028" | "\u2029" 
+    
+    comment (a comment) = "#" (~nl any)*
     
     // line separator
     ls = (nl | comment)+
+    
+    s = (" " | "\    " | comment)*
+    
+    identifier = ~(digit+) #(alnum | "_")+
+    
+    identifierSpaced = s identifier s
     
     // todo make sure this uses the correct indentation all the way
     block = ls listOf<blockElem, ls>
@@ -56,139 +132,6 @@ Reject {
     blockElem = indent+ element?
     
     indent = "    " | "  " | "\\t"
-
-    // ====================
-    
-    boolean = "true" | "false"
-
-    logical = logical s "and" s logicalNot s -- and
-        | logical s "or" s logicalNot s -- or
-        | logicalNot
-
-    // todo change name
-    logicalNot = "!" logical -- not
-        | "(" logical ")" -- par
-        | ternary
-        | invocation
-        | boolean
-        | exprAdd
-
-    // ====================
-
-    integer = "-"? digit+
-    
-    float = "-"? digit* "." integer+
-    
-    fraction = integer+ "//" integer+
-
-    number = fraction | float | integer
-
-    exprAdd 
-        = exprAdd s "+" s exprMul  -- plus
-        | exprAdd s "-" s exprMul  -- sub
-        | exprMul
-    
-    exprMul
-        = exprMul s "*" s exprExp  -- mul
-        | exprMul s "/" s exprExp  -- div
-        | exprExp
-    
-    exprExp
-        = exprRest s "^" s exprExp -- exp
-        | exprRest s "!" -- fac
-        | exprRest
-    
-    exprRest
-        = "(" s expression s ")"  -- par
-        | ternary 
-        | invocation 
-        | identifier
-        | matrix
-        | number
-
-    // ====================
-
-    augmented 
-        = (identifier s "*=" exprSpaced)
-        | (identifier s "/=" exprSpaced)
-        | (identifier s "+=" exprSpaced)
-        | (identifier s "-=" exprSpaced)
-
-    // ====================
-
-    text = string | char
-
-    string = "\\"" (~("\\"" | nl) any)* "\\"" s
-
-    char = "'" (~nl any) "'" s
-
-    // ====================
-    
-    array = "[" listOf<exprSpaced, ","> "]" s
-
-    // ====================
-
-    matrix = "{" listOf<exprSpaced, ","> "}" s
-
-    // ====================
-    
-    iterative = "for" listOf<identSpaced, ","> "in" exprSpaced ":" s block
-
-    // ====================
-
-    invocation 
-        = invocationPipe 
-        | invocationPrint 
-        | invocationFn
-
-    invocationPipe = "|" exprSpaced "|" s
-    
-    invocationPrint = "print(" s listOf<exprSpaced, ","> s ")" s
-    
-    invocationFn = identifier "(" s listOf<exprSpaced, ","> s ")" s 
-
-    // ====================
-
-    fn = "fun " identSpaced "(" listOf<fnArg, ","> "):" s block
-
-    fnArg = s (var | identifier) s
-
-    return = "return" exprSpaced
-
-    var = identifier s "=" exprSpaced
-    
-    // ====================
-
-    afn = ":(" listOf<identSpaced, ","> "):" exprSpaced
-
-    // ====================
-
-    cond 
-        = condWhen 
-        | condWhenElse 
-        | condElse
-
-    condWhen = "when " expression s ":" s block
-    
-    condWhenElse = "else when " expression s ":" s block
-
-    condElse = "else: " s block
-    
-    condArg = s (comparator | boolean) s
-
-    // ====================
-
-    ternary = expression s "?" exprSpaced ":" exprSpaced
-
-    // ====================
-
-    comparator 
-        = (expression s "==" exprSpaced)
-        | (expression s "!=" exprSpaced)
-        | (expression s ">" exprSpaced)
-        | (expression s "<" exprSpaced)
-        | (expression s ">=" exprSpaced)
-        | (expression s "<=" exprSpaced)
 }
 `)
 // todo merge logical, comparator and exprAdd
@@ -277,10 +220,6 @@ semantics.addOperation("eval", {
     float(sgn, x, _, y) {
         return new Fraction(parseFloat(sgn.sourceString + x.sourceString + "." + y.sourceString));
     },
-    // fraction only supports ints
-    fraction(x, _, y) {
-        return new Fraction(x.eval().evaluate(), y.eval().evaluate());
-    },
 
     // arithmetic
     exprAdd_plus(x, _, __, ___, y) {
@@ -293,13 +232,20 @@ semantics.addOperation("eval", {
         return x.eval().multiply(y.eval());
     },
     exprMul_div(x, _, __, ___, y) {
-        return x.eval().divide(y.eval());
+        x = x.eval();
+        y = y.eval();
+
+        if (Number.isInteger(x) && Number.isInteger(y)) {
+            return new Fraction(x, y);
+        }
+
+        return x.divide(y);
     },
     exprExp_exp(x, _, __, ___, y) {
         return x.eval().pow(y.eval());
     },
     exprExp_fac(x, _, __) {
-        return x.eval().factorial();
+        return x.factorial();
     },
     exprRest_par(_, __, x, ___, ____) {
         return x.eval();
