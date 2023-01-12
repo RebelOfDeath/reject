@@ -8,22 +8,35 @@ Reject {
 
     element = statement | expression
     
-    statement = cond | iterative | return | var | augmented | fn
+    statement 
+        = cond 
+        | iterative 
+        | return 
+        | var 
+        | augmented 
+        | fn
     
-    expression = ternary | comparator | logical | afn | invocation | literal
-                    | "(" exprSpaced ")" -- par
-                    | identifier
+    expression 
+        = ternary 
+        | comparator 
+        | afn 
+        | invocation 
+        | logical 
+        | exprAdd 
+        | array 
+        | matrix 
+        | text
+        | "(" exprSpaced ")" -- par
+        | identifier
     
     // spaced expr shortcuts
     exprSpaced = s expression s
-    exprLeft = expression s
 
     // format for vars, fn names
     identifier = ~(digit+) #(alnum | "_")+
     
     // spaced ident shortcuts
     identSpaced = s identifier s
-    identLeft = identifier s
     
     // ====================
 
@@ -44,23 +57,22 @@ Reject {
     blockElem = indent+ element?
     
     indent = "    " | "  " | "\\t"
-    
-    // ====================
-
-    literal = array | matrix | text | exprAdd | boolean
 
     // ====================
     
     boolean = "true" | "false"
 
     logical = logical s "and" s logicalNot s -- and
-                    | logical s "or" s logicalNot s -- or
-                    | logicalNot
+        | logical s "or" s logicalNot s -- or
+        | logicalNot
 
     // todo change name
     logicalNot = "!" logical -- not
-                    | "(" logical ")" -- par
-                    | boolean
+        | "(" logical ")" -- par
+        | ternary
+        | invocation
+        | identifier
+        | boolean
 
     // ====================
 
@@ -72,34 +84,36 @@ Reject {
 
     number = fraction | float | integer
 
-    exprAdd
-      = exprAdd s "+" s exprMul  -- plus
-      | exprAdd s "-" s exprMul  -- sub
-      | exprMul
+    exprAdd 
+        = exprAdd s "+" s exprMul  -- plus
+        | exprAdd s "-" s exprMul  -- sub
+        | exprMul
     
     exprMul
-      = exprMul s "*" s exprExp  -- mul
-      | exprMul s "/" s exprExp  -- div
-      | exprExp
+        = exprMul s "*" s exprExp  -- mul
+        | exprMul s "/" s exprExp  -- div
+        | exprExp
     
     exprExp
-      = exprRest s "^" s exprExp -- exp
-      | exprRest s "!" -- fac
-      | exprRest
+        = exprRest s "^" s exprExp -- exp
+        | exprRest s "!" -- fac
+        | exprRest
     
     exprRest
-      = "(" s expression s ")"  -- par
-      | ternary 
-      | invocation 
-      | identifier
-      | number
+        = "(" s expression s ")"  -- par
+        | ternary 
+        | invocation 
+        | identifier
+        | matrix
+        | number
 
     // ====================
 
-    augmented = (identLeft "*=" exprSpaced)
-                    | (identLeft "/=" exprSpaced)
-                    | (identLeft "+=" exprSpaced)
-                    | (identLeft "-=" exprSpaced)
+    augmented 
+        = (identifier s "*=" exprSpaced)
+        | (identifier s "/=" exprSpaced)
+        | (identifier s "+=" exprSpaced)
+        | (identifier s "-=" exprSpaced)
 
     // ====================
 
@@ -123,7 +137,10 @@ Reject {
 
     // ====================
 
-    invocation = invocationPipe | invocationPrint | invocationFn
+    invocation 
+        = invocationPipe 
+        | invocationPrint 
+        | invocationFn
 
     invocationPipe = "|" exprSpaced "|" s
     
@@ -139,7 +156,7 @@ Reject {
 
     return = "return" exprSpaced
 
-    var = identLeft "=" exprSpaced
+    var = identifier s "=" exprSpaced
     
     // ====================
 
@@ -147,11 +164,14 @@ Reject {
 
     // ====================
 
-    cond = condWhen | condWhenElse | condElse
+    cond 
+        = condWhen 
+        | condWhenElse 
+        | condElse
 
-    condWhen = "when " exprLeft ":" s block
+    condWhen = "when " expression s ":" s block
     
-    condWhenElse = "else when " exprLeft ":" s block
+    condWhenElse = "else when " expression s ":" s block
 
     condElse = "else: " s block
     
@@ -159,16 +179,17 @@ Reject {
 
     // ====================
 
-    ternary = exprLeft "?" exprSpaced ":" exprSpaced
+    ternary = expression s "?" exprSpaced ":" exprSpaced
 
     // ====================
 
-    comparator = (exprLeft "==" exprSpaced)
-                    | (exprLeft "!=" exprSpaced)
-                    | (exprLeft ">" exprSpaced)
-                    | (exprLeft "<" exprSpaced)
-                    | (exprLeft ">=" exprSpaced)
-                    | (exprLeft "<=" exprSpaced)
+    comparator 
+        = (expression s "==" exprSpaced)
+        | (expression s "!=" exprSpaced)
+        | (expression s ">" exprSpaced)
+        | (expression s "<" exprSpaced)
+        | (expression s ">=" exprSpaced)
+        | (expression s "<=" exprSpaced)
 }
 `)
 
@@ -191,11 +212,13 @@ semantics.addOperation('eval', {
     identifier(x) {
         let str = x.sourceString.trim();
 
+        console.log(x);
+
         if (VARS.has(str)) {
             return VARS.get(str).value;
-        } else {
-            return new Fraction(0);
         }
+
+        throw new Error("Unknown variable: " + str);
     },
 
     expression_par(_, x, __) {
@@ -206,14 +229,8 @@ semantics.addOperation('eval', {
     exprSpaced(_, x, __) {
         return x.eval();
     },
-    exprLeft(x, _) {
-        return x.eval();
-    },
 
     identSpaced(_, x, __) {
-        return x.eval();
-    },
-    identLeft(x, _) {
         return x.eval();
     },
 
@@ -290,7 +307,7 @@ semantics.addOperation('eval', {
 
     // augmented assignment
 
-    augmented(name, modifier, value) {
+    augmented(name, _, modifier, value) {
         name = name.sourceString.trim();
         modifier = modifier.sourceString.trim();
         value = value.eval();
@@ -406,8 +423,7 @@ semantics.addOperation('eval', {
         return x.eval();
     },
 
-    // var = identLeft "=" exprSpaced
-    var(ident, _, value) {
+    var(ident, _, __, value) {
         ident = ident.sourceString.trim();
         value = value.eval();
 
@@ -420,7 +436,7 @@ semantics.addOperation('eval', {
     // conditionals
 
     // condWhen = "when" expr ":" s block
-    condWhen(_, arg, __, ___, block) {
+    condWhen(_, arg, __, ___, ____, block) {
         if (arg === true) {
             // execute block
         }
@@ -428,13 +444,13 @@ semantics.addOperation('eval', {
 
     // ternary
 
-    ternary(cond, __, pass, ___, dontPass) {
+    ternary(cond, _, __, pass, ___, dontPass) {
         return cond.eval() ? pass.eval() : dontPass.eval();
     },
 
     // comparators
 
-    comparator(x, modifier, y) {
+    comparator(x, _, modifier, y) {
         x = x.eval();
         modifier = modifier.sourceString.trim();
         y = y.eval();
@@ -740,6 +756,7 @@ class Complex {
         let imag_part = imag > 0
             ? `+ ${imag}`
             : `- ${Math.abs(imag)}`;
+
         return `(${this.real.evaluate()} ${imag_part} i)`;
     }
 }
@@ -747,24 +764,23 @@ class Complex {
 class Fraction {
 
     constructor(numerator, denominator = 1) {
+        if (denominator === 0) {
+            throw new Error("Cannot divide by 0");
+        }
+
         if (arguments.length === 2) {
             // Both numerator and denominator are provided
             this.numerator = numerator;
             this.denominator = denominator;
-            // todo simplify?
+            this.simplify();
         } else {
             // Only numerator is provided
             if (Number.isInteger(numerator)) {
                 this.numerator = numerator;
                 this.denominator = 1;
             } else {
-                this.numerator =
-                    numerator *
-                    Math.pow(10, numerator.toString().split(".")[1].length);
-                this.denominator = Math.pow(
-                    10,
-                    numerator.toString().split(".")[1].length
-                );
+                this.numerator = numerator * Math.pow(10, numerator.toString().split(".")[1].length);
+                this.denominator = Math.pow(10, numerator.toString().split(".")[1].length);
                 this.simplify();
             }
         }
@@ -821,6 +837,7 @@ class Fraction {
         let gcd = this.getGCD(this.numerator, this.denominator);
         this.numerator = this.numerator / gcd;
         this.denominator = this.denominator / gcd;
+        return this;
     }
 
     getGCD(a, b) {
@@ -851,7 +868,7 @@ class Function {
 
     invoke(...params) {
         if (this.params.length !== params.length) {
-            throw new SyntaxError(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
+            throw new Error(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
         }
 
         for (let i = 0; i < params.length; i++) {

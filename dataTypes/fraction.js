@@ -1,24 +1,22 @@
 export class Fraction {
 
     constructor(numerator, denominator = 1) {
+        if (denominator === 0) {
+            throw new Error("Cannot divide by 0");
+        }
+
         if (arguments.length === 2) {
             // Both numerator and denominator are provided
             this.numerator = numerator;
             this.denominator = denominator;
-            // todo simplify?
         } else {
             // Only numerator is provided
             if (Number.isInteger(numerator)) {
                 this.numerator = numerator;
                 this.denominator = 1;
             } else {
-                this.numerator =
-                    numerator *
-                    Math.pow(10, numerator.toString().split(".")[1].length);
-                this.denominator = Math.pow(
-                    10,
-                    numerator.toString().split(".")[1].length
-                );
+                this.numerator = numerator * Math.pow(10, numerator.toString().split(".")[1].length);
+                this.denominator = Math.pow(10, numerator.toString().split(".")[1].length);
                 this.simplify();
             }
         }
@@ -29,7 +27,7 @@ export class Fraction {
             this.numerator * otherFraction.denominator +
             otherFraction.numerator * this.denominator;
         const denominator = this.denominator * otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     subtract(otherFraction) {
@@ -37,25 +35,25 @@ export class Fraction {
             this.numerator * otherFraction.denominator -
             otherFraction.numerator * this.denominator;
         const denominator = this.denominator * otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     multiply(otherFraction) {
         const numerator = this.numerator * otherFraction.numerator;
         const denominator = this.denominator * otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     divide(otherFraction) {
         const numerator = this.numerator * otherFraction.denominator;
         const denominator = this.denominator * otherFraction.numerator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     pow(otherFraction) {
         const numerator = this.numerator ** otherFraction.numerator;
         const denominator = this.denominator ** otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     factorial() {
@@ -75,6 +73,7 @@ export class Fraction {
         let gcd = this.getGCD(this.numerator, this.denominator);
         this.numerator = this.numerator / gcd;
         this.denominator = this.denominator / gcd;
+        return this;
     }
 
     getGCD(a, b) {
@@ -90,6 +89,10 @@ export class Fraction {
 
     evaluate() {
         return this.numerator / this.denominator;
+    }
+
+    eval() {
+        return this;
     }
 }
 
