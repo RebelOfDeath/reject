@@ -10,7 +10,7 @@ Reject {
 
     program = ls* listOf<element, ls> ls*
 
-    element = var | expression | cond | for | return | fn
+    element = var | cond | for | return | fn |expression
     
     // =============
     
@@ -73,7 +73,7 @@ Reject {
     
     cond = condWhen
     
-    condWhen = "when " expressionSpaced ":" s block
+    condWhen = "when" expressionSpaced ":" s block
     
     for = "for " listOf<identifierSpaced, ","> "in" expressionSpaced ":" s block
     
@@ -341,13 +341,9 @@ semantics.addOperation("eval", {
     invocation_invoke(ident, _, xs, __) {
         let fun = FUNS.get(ident.sourceString.trim());
 
-        let res = fun.invoke(xs.asIteration()
+        return fun.invoke(xs.asIteration()
             .children
             .map(x => x.eval()));
-
-        console.log(res);
-
-        return res;
     },
 
     default_par(_, x, __) {
@@ -357,7 +353,7 @@ semantics.addOperation("eval", {
     // =============
 
     condWhen(_, arg, __, ___, block) {
-        if (arg === true) {
+        if (arg.eval() === true) {
             block.eval();
         }
     },
@@ -1519,7 +1515,7 @@ function registerNativeConstants(map) {
     for (const name in map) {
         let value = map[name];
 
-        VARS.set(name, value);
+        VARS.set(name, new Var(name, value));
     }
 }
 
@@ -1800,7 +1796,7 @@ registerNativeFns(general);
 registerNativeFns(trigFuncs);
 
 let constants = {
-    PI : new Fraction(355, 113),
+    pi : new Fraction(355, 113),
     e : new Fraction(Math.E)
 }
 
