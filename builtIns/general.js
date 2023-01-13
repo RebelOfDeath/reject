@@ -2,7 +2,7 @@ import { Fraction } from "../dataTypes/fraction";
 import { Matrix } from '../dataTypes/matrix'
 import { Collection } from "../dataTypes/collection";
 import { Complex } from '../dataTypes/complex.js';
-import {registerNatives} from "../dataTypes/Fn.js";
+import {registerNatives} from "../dataTypes/fn.js";
 
 let general = {
     print : (...xs) => {

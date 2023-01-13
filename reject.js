@@ -440,7 +440,7 @@ semantics.addOperation("eval", {
     },
 })
 
-function parseInput(input) {
+function parse(input) {
     semantics(grammar.match(input)).eval();
 }
 
@@ -716,64 +716,6 @@ class Fn {
         }
 
         this.block.eval();
-    }
-}
-
-class AFn extends Fn {
-
-    constructor(params, block) {
-        super("", params, block)
-    }
-
-    invoke(...params) {
-        if (this.params.length !== params.length) {
-            throw new Error(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
-        }
-
-        for (let i = 0; i < params.length; i++) {
-            let variable = this.params[i];
-            variable.value = params[i];
-
-            VARS.set(variable.name, variable);
-        }
-
-        this.block.eval();
-    }
-}
-
-class NativeFn extends Fn {
-
-    constructor(name, afn) {
-        super(name);
-
-        this.afn = afn;
-    }
-
-    invoke(...params) {
-        if (this.afn.length !== params.length) {
-            throw new Error(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
-        }
-
-        this.afn(params);
-    }
-}
-
-// registers a single function
-function register(fn) {
-    if (fn.name.length === 0) {
-        throw new Error("Cannot register anonymous functions");
-    }
-
-    FUNS.set(fn.name, fn);
-}
-
-// registers a native function, provided with a map
-function registerNatives(map) {
-
-    for (const name in map) {
-        let fn = map[name];
-
-        register(new NativeFn(name, fn));
     }
 }
 
@@ -1203,9 +1145,7 @@ class Matrix extends Collection {
         const inverse = this.inverse();
 
         // Multiply the inverse by the right-hand side to get the solution
-        const solution = inverse.multiply(rhs);
-
-        return solution;
+        return inverse.multiply(rhs);
     }
 
     equals(other) {
@@ -1235,10 +1175,9 @@ class Matrix extends Collection {
 
         // Check if the matrix is equal to the negation of its transpose
         const transpose = this.transpose();
-        const skewSymmetric = this.items.every((row, i) =>
+        return this.items.every((row, i) =>
             row.every((value, j) => value === -transpose.items[i][j])
         );
-        return skewSymmetric;
     }
 
     isOrthogonal() {
@@ -1513,14 +1452,5 @@ class Var {
 
     set var(value) {
         this.value = value;
-    }
-}
-
-function registerNatives(map) {
-
-    for (const name in map) {
-        let value = map[name];
-
-        VARS.set(name, value);
     }
 }

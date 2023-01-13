@@ -1,5 +1,5 @@
 import { Fraction } from "../dataTypes/fraction";
-import {registerNatives} from "../dataTypes/Fn.js";
+import {registerNatives} from "../dataTypes/fn.js";
 
 let trigFuncs = {
     cos: (angle, radian=true) => {
