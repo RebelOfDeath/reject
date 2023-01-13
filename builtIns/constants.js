@@ -1,6 +1,9 @@
 import { Fraction } from "../dataTypes/fraction";
+import {registerNatives} from "../dataTypes/var.js";
 
-export let constants = {
+let constants = {
     PI : new Fraction(355, 113),
     e : new Fraction(Math.E)
 }
+
+registerNatives(constants);

@@ -1,6 +1,6 @@
 import { Collection } from "./collection.js";
 
-export class String extends Collection {
+export class Str extends Collection {
     constructor(items = []) {
         if (typeof items === "string") {
             items = items.split("");
@@ -20,7 +20,7 @@ export class String extends Collection {
 
     // Reverse the string
     reverse() {
-        return new String(this.items.reverse());
+        return new Str(this.items.reverse());
     }
 
     // Get the character at a specific index
@@ -50,7 +50,7 @@ export class String extends Collection {
 
     // Get the substring between two indices (inclusive)
     slice(start, end) {
-        return new String(this.items.slice(start, end + 1));
+        return new Str(this.items.slice(start, end + 1));
     }
 
     // Split the string into an array of substrings
@@ -60,24 +60,24 @@ export class String extends Collection {
 
     // Replace all occurrences of a substring with another string
     replace(substring, replacement) {
-        return new String(
+        return new Str(
             this.items.join("").replace(substring, replacement).split("")
         );
     }
 
     // Remove leading and trailing whitespace from the string
     trim() {
-        return new String(this.items.join("").trim().split(""));
+        return new Str(this.items.join("").trim().split(""));
     }
 
     // Convert the string to uppercase
     toUpperCase() {
-        return new String(this.items.join("").toUpperCase().split(""));
+        return new Str(this.items.join("").toUpperCase().split(""));
     }
 
     // Convert the string to lowercase
     toLowerCase() {
-        return new String(this.items.join("").toLowerCase().split(""));
+        return new Str(this.items.join("").toLowerCase().split(""));
     }
 
     // Convert the string to a number
@@ -112,7 +112,7 @@ export class String extends Collection {
     concat(...strings) {
         let combinedString = this.string;
         for (const string of strings) {
-            if (string instanceof String) {
+            if (string instanceof Str) {
                 combinedString = combinedString.concat(string.string);
             } else if (typeof string === "string") {
                 combinedString = combinedString.concat(string);
@@ -120,7 +120,7 @@ export class String extends Collection {
                 throw new TypeError("Value must be a string or String object");
             }
         }
-        return new String(combinedString);
+        return new Str(combinedString);
     }
 
     // Pad the start of the string with a character or string
@@ -131,7 +131,7 @@ export class String extends Collection {
         if (typeof padString !== "string") {
             throw new TypeError("Pad string must be a string");
         }
-        return new String(this.string.padStart(length, padString));
+        return new Str(this.string.padStart(length, padString));
     }
 
     // Pad the end of the string with a character or string
@@ -142,7 +142,7 @@ export class String extends Collection {
         if (typeof padString !== "string") {
             throw new TypeError("Pad string must be a string");
         }
-        return new String(this.string.padEnd(length, padString));
+        return new Str(this.string.padEnd(length, padString));
     }
 
     // Pad the start and end of the string with a character or string
@@ -167,7 +167,7 @@ export class String extends Collection {
         if (typeof count !== "number" || count < 0) {
             throw new TypeError("Count must be a non-negative number");
         }
-        return new String(this.string.repeat(count));
+        return new Str(this.string.repeat(count));
     }
 
     // Get the substring between two indices (inclusive)
@@ -182,7 +182,7 @@ export class String extends Collection {
         if (typeof end !== "number" || end < 0 || end > this.items.length) {
             throw new RangeError("End index out of bounds");
         }
-        return new String(this.items.slice(start, end + 1));
+        return new Str(this.items.slice(start, end + 1));
     }
 
     // TODO: we could potentially create our own regex type
@@ -201,11 +201,11 @@ export class String extends Collection {
     // Truncate the string to a given length and append an ellipsis if necessary
     truncate(length, ellipsis = "...") {
         if (this.string.length > length) {
-            return new String(
+            return new Str(
                 this.string.slice(0, length - ellipsis.length) + ellipsis
             );
         }
-        return new String(this.string);
+        return new Str(this.string);
     }
 
     // Get the Unicode code point value at a specific index

@@ -2,11 +2,13 @@ import { Fraction } from "../dataTypes/fraction";
 import { Matrix } from '../dataTypes/matrix'
 import { Collection } from "../dataTypes/collection";
 import { Complex } from '../dataTypes/complex.js';
-import { String } from '../dataTypes/string.js';
+import {registerNatives} from "../dataTypes/Fn.js";
 
 let general = {
     print : (...xs) => {
-        console.log(xs.join(" "));
+        console.log(xs
+            .map(x => x.toString())
+            .join(" "));
         return true;
     },
     sgn : (num) => {
@@ -173,17 +175,16 @@ let general = {
         }
     },
     abs : (elem) => {
-        if(elem instanceof Fraction){
+        if (elem instanceof Fraction) {
             return elem.abs();
-        }else if(elem instanceof Collection){
+        } else if(elem instanceof Collection) {
             return new Fraction(elem.length());
-        }else if(elem instanceof String){
-            return new Fraction(elem.length());
-        }else if(elem instanceof Complex){
+        } else if(elem instanceof Complex) {
             return new Fraction(elem.length())
-        } else{
+        } else {
             throw new TypeError('Function does not support provided type');
         }
     }
-    
 }
+
+registerNatives(general);

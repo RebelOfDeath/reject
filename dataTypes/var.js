@@ -16,3 +16,12 @@ export class Var {
         this.value = value;
     }
 }
+
+export function registerNatives(map) {
+
+    for (const name in map) {
+        let value = map[name];
+
+        VARS.set(name, value);
+    }
+}

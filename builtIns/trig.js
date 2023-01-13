@@ -1,4 +1,5 @@
 import { Fraction } from "../dataTypes/fraction";
+import {registerNatives} from "../dataTypes/Fn.js";
 
 let trigFuncs = {
     cos: (angle, radian=true) => {
@@ -91,3 +92,5 @@ let trigFuncs = {
         return new Fraction((num.evaluate()) / 0.0174533);
     }
 }
+
+registerNatives(trigFuncs);

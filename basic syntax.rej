@@ -8,7 +8,7 @@
 #- Character : are a single Unicode symbol ( a string is a collection of characters with its own specific methods )
 #- Matrix : a Matrix is a special type of numeric 2 dimensional collection with its own distinct charachteristics
 #- Complex : a complex number with specific functionalities
-#- Function : A reference to a function definition, defined by the fun keyword and followed by the name and between parantheses the parameters. default values for parameters can be given such as done in python. arguments are seperated by commas.
+#- Fn : A reference to a function definition, defined by the fun keyword and followed by the name and between parantheses the parameters. default values for parameters can be given such as done in python. arguments are seperated by commas.
 #- Lambda : A function definition itself
 
 
