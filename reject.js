@@ -1,16 +1,16 @@
 console.log("Loading grammar");
 
 const grammar = ohm.grammar(`
-Reject {
+Reject <: IndentationSensitive { 
     
     // =============
 
     // note that all elements in this grammar are lexical rules.
     // this is to avoid incorrect indentation, etc.
 
-    program = ls* listOf<element, ls> ls*
+    program = nothing* listOf<element, eol> nothing*
 
-    element = var | cond | for | return | fn |expression
+    element = var | cond | for | return | fn | expression
     
     // =============
     
@@ -73,7 +73,7 @@ Reject {
     
     cond = condWhen
     
-    condWhen = "when" expressionSpaced ":" s block
+    condWhen = "when " expressionSpaced ":" s block
     
     for = "for " listOf<identifierSpaced, ","> "in" expressionSpaced ":" s block
     
@@ -115,12 +115,13 @@ Reject {
     
     logicOp = "and" | "or"
     
-    nl = "\\n" | "\\r" | "\u2028" | "\u2029" 
-    
     comment (a comment) = "#" (~nl any)*
     
-    // line separator
-    ls = (nl | comment)+
+    nothing = nl | comment
+    
+    eol = nothing | end
+
+    nl = "\\r\\n" | "\\r" | "\\n"
     
     s = (" " | "    " | comment)*
     
@@ -128,14 +129,10 @@ Reject {
     
     identifierSpaced = s identifier s
     
-    // todo make sure this uses the correct indentation all the way
-    block = ls listOf<blockElem, ls>
-    
-    blockElem = indent+ element?
-    
-    indent = "    " | "  " | "\\t"
+    block = eol indent (element eol)* dedent // todo fix
+
 }
-`)
+`, {IndentationSensitive: ohm.IndentationSensitive})
 
 console.log("Created grammar");
 
@@ -428,14 +425,8 @@ semantics.addOperation("eval", {
         return x.eval();
     },
 
-    block(_, xs) {
-        return xs.asIteration()
-            .children
-            .map(x => x.eval());
-    },
-
-    blockElem(_, x) {
-        return x.eval();
+    block(_, __, xs, ___, ____) {
+        return xs.eval();
     },
 
     // a program contains multiple elements, so call eval on all of them
@@ -748,8 +739,6 @@ class NativeFn extends Fn {
     }
 
     invoke(params) {
-        console.log(params);
-
         return this.afn(...params);
     }
 }
