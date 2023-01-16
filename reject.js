@@ -116,20 +116,18 @@ Reject <: IndentationSensitive {
     logicOp = "and" | "or"
     
     comment (a comment) = "#" (~nl any)*
-    
-    nothing = nl | comment
-    
-    eol = nothing | end
+
+    eol = nl | comment
 
     nl = "\\r\\n" | "\\r" | "\\n"
     
-    s = (" " | "    " | comment)*
+    s = (" " | "\t" | comment)*
     
     identifier = ~(digit+) #(alnum | "_")+
     
     identifierSpaced = s identifier s
     
-    block = indent element* dedent
+    block = eol indent element* dedent
 
 }
 `, {IndentationSensitive: ohm.IndentationSensitive})
