@@ -1,24 +1,23 @@
-import * as ohm from 'ohm-js';
-
 const grammar = ohm.grammar(`
-Outline <: IndentationSensitive {
-      Items = Item+
-      Item = "-" label indent Items dedent  -- withChildren
-          | "-" label  -- leaf
-    
-      label = (~newline any)* eol
-    
-      eol = newline | end
-      newline = "\\r\\n" | "\\r" | "\\n"
-      spaces := (~newline space)*
+G <: IndentationSensitive {
+  IfExpr = "if" Expr ":" Block
+  Block = indent Expr dedent
+  Expr = IfExpr
+       | "True"
+       | "False"
+       | number
+  number = digit+
 }
 `,
     {IndentationSensitive: ohm.IndentationSensitive}
 );
 
-grammar.match(`
-- x\n
-  - y\n
-  - z\n
-- a
-`);
+console.log(ohm.IndentationSensitive);
+
+const x = grammar.match(`
+if True:\n
+  if False:\n
+    3
+`).succeeded();
+
+console.log(x);
