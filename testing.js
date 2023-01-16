@@ -1,4 +1,4 @@
-const grammar = ohm.grammar(`
+const g = ohm.grammar(`
 G <: IndentationSensitive {
   IfExpr = "if" Expr ":" Block
   Block = indent Expr dedent
@@ -12,12 +12,5 @@ G <: IndentationSensitive {
     {IndentationSensitive: ohm.IndentationSensitive}
 );
 
-console.log(ohm.IndentationSensitive);
-
-const x = grammar.match(`
-if True:\n
-  if False:\n
-    3
-`).succeeded();
-
-console.log(x);
+console.log(ohm.IndentationSensitive === null);
+console.log(g.match('if True:\n  if False:\n    3').succeeded());
