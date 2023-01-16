@@ -1,95 +1,92 @@
 console.log("Loading grammar");
 
-const grammar = ohm.grammar(`
-Reject <: IndentationSensitive { 
+const g = ohm.grammar(`
+Reject { 
     
     // =============
 
     // note that all elements in this grammar are lexical rules.
     // this is to avoid incorrect indentation, etc.
 
-    program = eol* listOf<element, eol> eol*
+    Program = ListOf<Element, eol>
 
-    element = var | cond | for | return | fn | expression
+    Element = Var | Cond | For | Return | Fn | Expression
     
     // =============
     
     // todo fix
-    var = identifier s "=" expressionSpaced
+    Var = identifier "=" Expression
     
     // =============
     
     // improve naming
-    expression = assignment
+    Expression = Assignment
     
-    expressionSpaced = s expression s
-        
     // assignment first since it uses exprs
-    assignment = ternary s assignmentOp expressionSpaced -- assignment
-        | ternary
+    Assignment = Ternary assignmentOp Expression -- assignment
+        | Ternary
     
     // ternary doesn't allow for assignment, so go down
-    ternary = ternary s "?" expressionSpaced ":" expressionSpaced -- ternary
-        | comparator
+    Ternary = Ternary "?" Expression ":" Expression -- ternary
+        | Comparator
         
-    comparator = comparator s compareOp expressionSpaced -- compare
-        | addition
+    Comparator = Comparator compareOp Expression -- compare
+        | Addition
         
-    addition 
-        = addition s addOp s multiplication -- add
-        | multiplication
+    Addition = Addition addOp Multiplication -- add
+        | Multiplication
         
-    multiplication 
-        = multiplication s mulOp s exponentiation -- mul
-        | exponentiation 
+    Multiplication 
+        = Multiplication mulOp Exponentiation -- mul
+        | Exponentiation 
         
-    exponentiation
-        = exponentiation s "^" s logical -- exp
-        | exponentiation "!" -- fac // adding a space causes x! to be confused with x !=, so for now this'll have to do
-        | logical
+    Exponentiation
+        = Exponentiation "^" Logical -- exp
+        | Exponentiation "!" -- fac // adding a space causes x! to be confused with x !=, so for now this'll have to do
+        | Logical
         
-    logical = logical s logicOp expressionSpaced -- logic
-        | logicalNot
+    Logical = Logical logicOp Expression -- logic
+        | LogicalNot
         
-    logicalNot = "!" logicalNot s -- not
-        | afn
+    LogicalNot = "!" LogicalNot -- not
+        | AFn
 
-    afn = ":(" listOf<identifierSpaced, ","> "): " expressionSpaced -- afn
-        | pipe
+    AFn = ":(" ListOf<identifier, ","> "): " Expression -- afn
+        | Pipe
         
-    pipe = "|" expressionSpaced "|" -- pipe
-        | invocation
+    Pipe = "|" Expression "|" -- pipe
+        | Invocation
         
-    invocation = identifier "(" listOf<expressionSpaced, ","> ")" -- invoke
-        | default
+    Invocation = identifier "(" listOf<Expression, ","> ")" -- invoke
+        | Default
         
     // the last resort
-    default
+    Default
         = identifier 
-        | literal
-        | "(" expression ")" -- par
+        | Literal
+        | "(" Expression ")" -- par
     
     // =============
     
-    cond = condWhen
+    Cond = CondWhen
     
-    condWhen = "when " expressionSpaced ":" s block
+    CondWhen = "when " Expression ":" Block
     
-    for = "for " listOf<identifierSpaced, ","> "in" expressionSpaced ":" s block
+    For = "for " ListOf<identifier, ","> "in" Expression ":" Block
     
-    fn = "fun " identifierSpaced "(" listOf<fnArg, ","> "):" s block
+    Fn = "fun " identifier "(" ListOf<FnArg, ","> "):" Block
     
-    fnArg = s (var | identifier) s
+    FnArg = Var | identifier
     
-    return = "return" expressionSpaced
+    Return = "return" Expression
     
     // =============
     
-    literal = boolean | char | string | number | array | matrix
+    Literal = boolean | char | string | number | Array | Matrix
     
     boolean = "true" | "false"
     
-    string = "\\"" (~("\\"" | nl) any)* "\\""
+    string = "\"" (~("\"" | nl) any)* "\""
 
     char = "'" (~nl any) "'"
     
@@ -99,9 +96,9 @@ Reject <: IndentationSensitive {
     
     number = integer | float
     
-    array = "[" listOf<expressionSpaced, ","> "]"
+    Array = "[" ListOf<Expression, ","> "]"
 
-    matrix = "{" listOf<expressionSpaced, ","> "}"
+    Matrix = "{" ListOf<Expression, ","> "}"
     
     // =============
     
@@ -119,42 +116,39 @@ Reject <: IndentationSensitive {
 
     eol = (nl | comment)+
 
-    nl = "\\r\\n" | "\\r" | "\\n"
+    nl = "\r\n" | "\r" | "\n"
     
-    s = (" " | "\\t" | comment)*
+    space := " " | "\t"
     
     identifier = ~(digit+) #(alnum | "_")+
     
-    identifierSpaced = s identifier s
+    indent = ">"
+    dedent = "<"
     
-    block = indent Expr dedent
+    Block = indent Expression dedent
 
 }
 `, {IndentationSensitive: ohm.IndentationSensitive})
 
 console.log("Created grammar");
 
-const semantics = grammar.createSemantics();
+const semantics = g.createSemantics();
 
 console.log("Created semantics");
 
 semantics.addOperation("eval", {
 
     // main stuff
-    program(_, xs, __) {
+    Program(xs) {
         return xs
             .asIteration()
             .children
             .map(x => x.eval());
     },
 
-    expressionSpaced(_, x, __) {
-        return x.eval();
-    },
-
     // =============
 
-    var(ident, _, __, value) {
+    Var(ident, _, value) {
         ident = ident.sourceString.trim();
         value = value.eval();
 
@@ -163,7 +157,7 @@ semantics.addOperation("eval", {
 
     // =============
 
-    assignment_assignment(name, _, op, expr) {
+    Assignment_assignment(name, op, expr) {
         name = name.sourceString.trim();
         op = op.sourceString.trim();
         expr = expr.eval();
@@ -202,11 +196,11 @@ semantics.addOperation("eval", {
         VARS.set(name, updated);
     },
 
-    ternary_ternary(cond, _, __, pass, ___, dontPass) {
+    Ternary_ternary(cond, _, pass, __, dontPass) {
         return cond.eval() ? pass.eval() : dontPass.eval();
     },
 
-    comparator_compare(x, _, op, y) {
+    Comparator_compare(x, op, y) {
         x = x.eval();
         op = op.sourceString.trim();
         y = y.eval();
@@ -264,7 +258,7 @@ semantics.addOperation("eval", {
         }
     },
 
-    addition_add(x, _, op, ___, y) {
+    Addition_add(x, op, y) {
         x = x.eval();
         y = y.eval();
         op = op.sourceString.trim();
@@ -277,7 +271,7 @@ semantics.addOperation("eval", {
         }
     },
 
-    multiplication_mul(x, _, op, ___, y) {
+    Multiplication_mul(x, op, y) {
         x = x.eval();
         y = y.eval();
         op = op.sourceString.trim();
@@ -292,14 +286,14 @@ semantics.addOperation("eval", {
         }
     },
 
-    exponentiation_exp(x, _, __, ___, y) {
+    Exponentiation_exp(x, _, y) {
         return x.eval().pow(y.eval());
     },
-    exponentiation_fac(x, _) {
+    Exponentiation_fac(x, _) {
         return x.eval().factorial();
     },
 
-    logical_logic(x, _, op, y) {
+    Logical_logic(x, op, y) {
         x = x.eval();
         y = y.eval();
         op = op.sourceString.trim();
@@ -312,15 +306,15 @@ semantics.addOperation("eval", {
         }
     },
 
-    logicalNot_not(_, x, __) {
+    LogicalNot_not(_, x) {
         return !x.eval();
     },
 
-    afn_afn(_, args, __, expr) {
+    AFn_afn(_, args, __, expr) {
 
     },
 
-    pipe_pipe(_, x, __) {
+    Pipe_pipe(_, x, __) {
         x = x.eval();
 
         if (x instanceof Fraction) {
@@ -333,7 +327,7 @@ semantics.addOperation("eval", {
         return x;
     },
 
-    invocation_invoke(ident, _, xs, __) {
+    Invocation_invoke(ident, _, xs, __) {
         let fun = FUNS.get(ident.sourceString.trim());
 
         return fun.invoke(xs.asIteration()
@@ -341,19 +335,19 @@ semantics.addOperation("eval", {
             .map(x => x.eval()));
     },
 
-    default_par(_, x, __) {
+    Default_par(_, x, __) {
         return x.eval();
     },
 
     // =============
 
-    condWhen(_, arg, __, ___, block) {
+    CondWhen(_, arg, __, block) {
         if (arg.eval() === true) {
             block.eval();
         }
     },
 
-    fn(_, ident, __, args, ___, ____, block) {
+    Fn(_, ident, __, args, ___, block) {
         ident = ident.sourceString.trim();
 
         FUNS.set(ident, new Fn(ident,
@@ -365,10 +359,6 @@ semantics.addOperation("eval", {
 
                     return string.includes("=") ? new Var(ident, variable.children[1].children[2].eval()) : new Var(ident, null);
                 }), block));
-    },
-
-    fnArg(_, x, __) {
-        return x.eval();
     },
 
     // =============
@@ -393,14 +383,14 @@ semantics.addOperation("eval", {
         return new Fraction(parseFloat(sgn.sourceString + x.sourceString + "." + y.sourceString));
     },
 
-    array(_, xs, __) {
+    Array(_, xs, __) {
         return new Collection(xs
             .asIteration()
             .children
             .map(x => x.eval()));
     },
 
-    matrix(_, xs, __) {
+    Matrix(_, xs, __) {
         return new Matrix(xs
             .asIteration()
             .children
@@ -419,11 +409,7 @@ semantics.addOperation("eval", {
         throw new Error("Unknown variable: " + str);
     },
 
-    identifierSpaced(_, x, __) {
-        return x.eval();
-    },
-
-    block(_, __, xs, ___) {
+    Block(_, xs, __) {
         return xs
             .asIteration()
             .children
@@ -440,7 +426,7 @@ console.log("Defined semantics");
 
 function parse(input) {
     
-    const result = grammar.match(input);
+    const result = g.match(input);
 
     if (result.succeeded()) {
         return semantics(result).eval();
