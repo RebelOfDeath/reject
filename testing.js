@@ -1,7 +1,7 @@
 const g = ohm.grammar(`
 G <: IndentationSensitive {
   IfExpr = "if" Expr ":" Block
-  Block = indent Expr dedent
+  Block = indent Expr* dedent
   Expr = IfExpr
        | "True"
        | "False"

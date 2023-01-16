@@ -127,7 +127,7 @@ Reject <: IndentationSensitive {
     
     identifierSpaced = s identifier s
     
-    block = eol indent element* dedent
+    block = indent Expr dedent
 
 }
 `, {IndentationSensitive: ohm.IndentationSensitive})
