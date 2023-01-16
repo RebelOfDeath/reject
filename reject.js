@@ -117,11 +117,11 @@ Reject <: IndentationSensitive {
     
     comment (a comment) = "#" (~nl any)*
 
-    eol = nl | comment
+    eol = (nl | comment)+
 
     nl = "\\r\\n" | "\\r" | "\\n"
     
-    s = (" " | "\t" | comment)*
+    s = (" " | "\\t" | comment)*
     
     identifier = ~(digit+) #(alnum | "_")+
     
