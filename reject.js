@@ -8,7 +8,7 @@ Reject <: IndentationSensitive {
     // note that all elements in this grammar are lexical rules.
     // this is to avoid incorrect indentation, etc.
 
-    program = nothing* listOf<element, eol> nothing*
+    program = eol* listOf<element, eol> eol*
 
     element = var | cond | for | return | fn | expression
     
