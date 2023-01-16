@@ -423,7 +423,7 @@ semantics.addOperation("eval", {
         return x.eval();
     },
 
-    block(_, xs, __) {
+    block(_, __, xs, ___) {
         return xs
             .asIteration()
             .children
