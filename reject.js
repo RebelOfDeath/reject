@@ -118,8 +118,6 @@ Reject <: IndentationSensitive {
 
     nl = "\\r\\n" | "\\r" | "\\n"
     
-    spaces := (~nl space)*
-    
     identifier = ~(digit+) #(alnum | "_")+
     
     Block = indent Expression dedent
