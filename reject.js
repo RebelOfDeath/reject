@@ -129,7 +129,7 @@ Reject <: IndentationSensitive {
     
     identifierSpaced = s identifier s
     
-    block = eol indent (element eol)* dedent // todo fix
+    block = indent element* dedent
 
 }
 `, {IndentationSensitive: ohm.IndentationSensitive})
@@ -425,8 +425,11 @@ semantics.addOperation("eval", {
         return x.eval();
     },
 
-    block(_, __, xs, ___, ____) {
-        return xs.eval();
+    block(_, xs, __) {
+        return xs
+            .asIteration()
+            .children
+            .map(x => x.eval());
     },
 
     // a program contains multiple elements, so call eval on all of them
