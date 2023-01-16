@@ -441,7 +441,15 @@ semantics.addOperation("eval", {
 console.log("Defined semantics");
 
 function parse(input) {
-    semantics(grammar.match(input)).eval();
+    
+    const result = grammar.match(input);
+
+    if (result.succeeded()) {
+        return semantics(result).eval();
+    } else {
+        log(result.shortMessage)
+        throw new Error(result.message);
+    }
 }
 
 class Collection {
