@@ -325,9 +325,7 @@ semantics.addOperation("eval", {
     Invocation_invoke(ident, _, xs, __) {
         let fun = FUNS.get(ident.sourceString.trim());
 
-        return fun.invoke(xs.asIteration()
-            .children
-            .map(x => x.eval()));
+        return fun.invoke(xs.eval());
     },
 
     Default_par(_, x, __) {
