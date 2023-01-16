@@ -1,7 +1,7 @@
 console.log("Loading grammar");
 
 const g = ohm.grammar(`
-Reject { 
+Reject <: IndentationSensitive { 
     
     // =============
 
