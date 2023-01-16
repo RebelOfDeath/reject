@@ -1,7 +1,7 @@
 console.log("Loading grammar");
 
 const g = ohm.grammar(`
-Reject <: IndentationSensitive { 
+Reject { 
     
     // =============
 
@@ -70,11 +70,11 @@ Reject <: IndentationSensitive {
     
     Cond = CondWhen
     
-    CondWhen = "when " Expression ":" Block
+    CondWhen = "when " Expression Block
     
-    For = "for " ListOf<identifier, ","> "in" Expression ":" Block
+    For = "for " ListOf<identifier, ","> "in" Expression Block
     
-    Fn = "fun " identifier "(" ListOf<FnArg, ","> "):" Block
+    Fn = "fun " identifier "(" ListOf<FnArg, ","> ")" Block
     
     FnArg = Var | identifier
     
@@ -120,9 +120,9 @@ Reject <: IndentationSensitive {
     
     identifier = ~(digit+) #(alnum | "_")+
     
-    Block = indent Element+ dedent
+    Block = ">>" Element+ "<<"
 
-}`, {IndentationSensitive: ohm.IndentationSensitive})
+}`)
 
 console.log("Created grammar");
 
@@ -328,7 +328,7 @@ semantics.addOperation("eval", {
 
     // =============
 
-    CondWhen(_, arg, __, block) {
+    CondWhen(_, arg, block) {
         if (arg.eval() === true) {
             block.eval();
         }
@@ -409,12 +409,9 @@ semantics.addOperation("eval", {
 console.log("Defined semantics");
 
 function parse(input) {
-
     const result = g.match(input);
 
     if (result.succeeded()) {
-
-        console.log(semantics(result));
         return semantics(result).eval();
     } else {
         log(result.message)
