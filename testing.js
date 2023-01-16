@@ -13,5 +13,5 @@ G <: IndentationSensitive {
 );
 
 function parse(input) {
-  console.log(g.match().succeeded());
+  console.log(g.match(input).succeeded());
 }
