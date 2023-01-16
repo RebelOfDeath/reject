@@ -12,14 +12,6 @@ G <: IndentationSensitive {
     {IndentationSensitive: ohm.IndentationSensitive}
 );
 
-console.log(ohm.IndentationSensitive === null);
-console.log(g.match('if True:\n  if False:\n    3').succeeded());
-console.log(g.match(`if True:\n  if False:\n    3`).succeeded());
-console.log(g.match(
-  `if True:
-    if False:
-      3`).succeeded());
-console.log(g.match(
-`if True:
-  if False:
-      3`).succeeded());
+function parse(input) {
+  console.log(g.match().succeeded());
+}
