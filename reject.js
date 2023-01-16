@@ -86,7 +86,7 @@ Reject {
     
     boolean = "true" | "false"
     
-    string = "\"" (~("\"" | nl) any)* "\""
+    string = "\\"" (~("\\"" | nl) any)* "\\""
 
     char = "'" (~nl any) "'"
     
@@ -116,14 +116,11 @@ Reject {
 
     eol = (nl | comment)+
 
-    nl = "\r\n" | "\r" | "\n"
+    nl = "\\r\\n" | "\\r" | "\\n"
     
-    space := " " | "\t"
+    space := " " | "\\t"
     
     identifier = ~(digit+) #(alnum | "_")+
-    
-    indent = ">"
-    dedent = "<"
     
     Block = indent Expression dedent
 
