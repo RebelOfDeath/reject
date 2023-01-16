@@ -118,7 +118,7 @@ Reject <: IndentationSensitive {
 
     nl = "\\r\\n" | "\\r" | "\\n"
     
-    space := " " | "\\t"
+    spaces := (~nl space)*
     
     identifier = ~(digit+) #(alnum | "_")+
     
