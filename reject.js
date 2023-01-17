@@ -120,7 +120,7 @@ Reject {
     
     identifier = ~(digit+) #(alnum | "_")+
     
-    Block = ">>" Element+ "<<"
+    Block = "{" Element+ "}"
 
 }`)
 
