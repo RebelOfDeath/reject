@@ -28,17 +28,17 @@
     <div id="download" title="Download your current text">
         <i class="fa-solid fa-download"></i>
     </div>
-    <!--    <div id="upload" title="Upload your file to edit">-->
-    <!--        <i class="fa-solid fa-upload"></i>-->
-    <!--    </div>-->
+    <div id="charts" title="View generated graphs">
+        <i class="fa-solid fa-chart-line"></i>
+    </div>
     <div id="docs" title="View documentation">
         <a href="https://github.com/RebelOfDeath/reject/wiki" target="_blank">
             <i class="fa-solid fa-book"></i>
         </a>
     </div>
-    <div id="src" title="View source code">
+    <div id="src" title="View GitHub">
         <a href="https://github.com/Efnilite/reject-editor" target="_blank">
-            <i class="fa-sharp fa-solid fa-code"></i>
+            <i class="fa-brands fa-github"></i>
         </a>
     </div>
     <div id="credits">
@@ -53,6 +53,17 @@
     <textarea readonly placeholder="" title="The console" id="console">
 
     </textarea>
+
+    <div id="graphs">
+        <div id="graphs-title">
+            <span id="graphs-close">[x]</span>
+            <span>Your Generated Graphs</span>
+        </div>
+
+        <div id="graphs-content">
+
+        </div>
+    </div>
 </main>
 
 <script>
@@ -94,6 +105,16 @@
             download.href = window.URL.createObjectURL(blob);
             download.click()
         });
+
+        $("#charts").click(() => {
+            showGraphs();
+
+            createCanvas();
+        })
+
+        $("#graphs-close").click(() => {
+            $("#graphs").css("visibility", "hidden");
+        })
     });
 
     function clearCode() {
@@ -115,7 +136,11 @@
     }
 
     function showGraphs() {
+        $("#graphs").css("visibility", "visible");
+    }
 
+    function createCanvas() {
+        return $("#graphs-content").append(`<canvas></canvas>`).html();
     }
 
 </script>
