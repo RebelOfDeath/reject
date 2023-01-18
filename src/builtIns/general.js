@@ -1,8 +1,8 @@
-import {Fraction} from "../dataTypes/fraction";
-import {Matrix} from '../dataTypes/matrix'
-import {Collection} from "../dataTypes/collection";
-import {Complex} from '../dataTypes/complex.js';
-import {registerNativeFns} from "../dataTypes/fn.js";
+import {Fraction} from "../fraction.js";
+import {Matrix} from '../matrix.js'
+import {Collection} from "../collection.js";
+import {Complex} from '../complex.js';
+import {registerNativeFns} from "../fn.js";
 
 let general = {
     print: (...xs) => {
@@ -150,7 +150,7 @@ let general = {
         }
         return new Fraction(sum);
     },
-    D: (a, b, c) => {
+    discriminant: (a, b, c) => {
         if (!(a instanceof Fraction && b instanceof Fraction && c instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }

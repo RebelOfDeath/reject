@@ -10097,8 +10097,9 @@ var rejectBundle = (function () {
   */
 
   let constants = {
-      PI: new Fraction(355, 113),
-      e: new Fraction(Math.E)
+      pi: new Fraction(355, 113),
+      e: new Fraction(Math.E),
+      pretty_printing: false
   };
 
   registerNativeConstants(constants);
@@ -10249,7 +10250,7 @@ var rejectBundle = (function () {
           }
           return new Fraction(sum);
       },
-      D: (a, b, c) => {
+      discriminant: (a, b, c) => {
           if (!(a instanceof Fraction && b instanceof Fraction && c instanceof Fraction)) {
               throw new TypeError('Function only supports numeric type (Fraction)');
           }
