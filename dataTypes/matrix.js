@@ -1,7 +1,8 @@
-import { Collection } from "./collection.js";
+import {Collection} from "./collection.js";
+import assert from "assert";
 
 export class Matrix extends Collection {
-    
+
     // Initialize a Matrix with a 2D array of numbers or a Collection instance
     // accounts that all rows of the matrix must be of the same length
     // when matrix rows are not of the same length, they are filled with 0's
@@ -83,6 +84,7 @@ export class Matrix extends Collection {
         );
         return new Matrix(difference);
     }
+
     // Get the determinant of the Matrix (only works for square matrices)
     determinant() {
         if (this.items.length !== this.items[0].length) {
@@ -133,7 +135,7 @@ export class Matrix extends Collection {
 
     // Get the dimensions of the Matrix (number of rows and columns)
     dimensions() {
-        return { rows: this.row(), cols: this.col() };
+        return {rows: this.row(), cols: this.col()};
     }
 
     // Transform the Matrix into a square Matrix, filling missing values with 0's
@@ -404,8 +406,6 @@ export class Matrix extends Collection {
         return `{${this.items.join(", ")}}`;
     }
 }
-
-import assert from "assert";
 
 assert.deepStrictEqual(new Matrix([
     [1, 2, 3],

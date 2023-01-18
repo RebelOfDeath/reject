@@ -1,57 +1,57 @@
-import { Fraction } from "../dataTypes/fraction";
-import {registerNatives} from "../dataTypes/fn.js";
+import {Fraction} from "../dataTypes/fraction";
+import {registerNativeFns} from "../dataTypes/fn.js";
 
 let trigFuncs = {
-    cos: (angle, radian=true) => {
-        if (!(angle instanceof Fraction)){
+    cos: (angle, radian = true) => {
+        if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radian? angle.evaluate() : (angle.evaluate() * 0.0174533))
+        let radAngle = (radian ? angle.evaluate() : (angle.evaluate() * 0.0174533))
         return new Fraction(Math.cos(radAngle));
     },
-    sin: (angle, radian=true) => {
+    sin: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radian? angle.evaluate() : (angle.evaluate() * 0.0174533))
+        let radAngle = (radian ? angle.evaluate() : (angle.evaluate() * 0.0174533))
         return new Fraction(Math.sin(radAngle));
     },
-    tan: (angle, radian=true) => {
+    tan: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radian? angle.evaluate() : (angle.evaluate() * 0.0174533))
+        let radAngle = (radian ? angle.evaluate() : (angle.evaluate() * 0.0174533))
         return new Fraction(Math.tan(radAngle));
-    }, 
-    cot: (angle, radian=true) => {
+    },
+    cot: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radian? angle.evaluate() : (angle.evaluate() * 0.0174533))
+        let radAngle = (radian ? angle.evaluate() : (angle.evaluate() * 0.0174533))
         return new Fraction(1 / Math.tan(radAngle));
     },
-    arcCos: (angle, radian=true) => {
+    arccos: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         let radAngle = Math.acos(angle.evaluate());
         return new Fraction((radian ? radAngle : radAngle / 0.0174533));
     },
-    arcSin: (angle, radian=true) => {
+    arcsin: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         let radAngle = Math.asin(angle.evaluate());
         return new Fraction((radian ? radAngle : radAngle / 0.0174533));
     },
-    arcTan: (angle, radian=true) => {
+    arctan: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         let radAngle = Math.atan(angle.evaluate());
         return new Fraction((radian ? radAngle : radAngle / 0.0174533));
     },
-    arcCot: (angle, radian=true) => {
+    arccot: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
@@ -64,25 +64,25 @@ let trigFuncs = {
         }
         return new Fraction((angle.evaluate()) * 0.0174533);
     },
-    sinh: (num, radians=true) => {
+    sinh: (num, radians = true) => {
         if (!(num instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radians? num.evaluate : (num.evaluate() * 0.0174533));
+        let radAngle = (radians ? num.evaluate : (num.evaluate() * 0.0174533));
         return new Fraction(Math.sinh(radAngle))
     },
-    cosh: (num, radians=true) => {
+    cosh: (num, radians = true) => {
         if (!(num instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radians? num.evaluate : (num.evaluate() * 0.0174533));
+        let radAngle = (radians ? num.evaluate : (num.evaluate() * 0.0174533));
         return new Fraction(Math.cosh(radAngle))
     },
-    tanh: (num, radians=true) => {
+    tanh: (num, radians = true) => {
         if (!(num instanceof Fraction)) {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
-        let radAngle = (radians? num.evaluate : (num.evaluate() * 0.0174533));
+        let radAngle = (radians ? num.evaluate : (num.evaluate() * 0.0174533));
         return new Fraction(Math.tanh(radAngle))
     },
     deg: (num) => {
@@ -93,4 +93,4 @@ let trigFuncs = {
     }
 }
 
-registerNatives(trigFuncs);
+registerNativeFns(trigFuncs);

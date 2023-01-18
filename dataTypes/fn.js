@@ -10,11 +10,7 @@ export class Fn {
         this.block = block;
     }
 
-    invoke(...params) {
-        if (this.params.length !== params.length) {
-            throw new Error(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
-        }
-
+    invoke(params) {
         for (let i = 0; i < params.length; i++) {
             let variable = this.params[i];
             variable.value = params[i];
@@ -22,7 +18,7 @@ export class Fn {
             VARS.set(variable.name, variable);
         }
 
-        this.block.eval();
+        return this.block.parse();
     }
 }
 
@@ -32,11 +28,7 @@ export class AFn extends Fn {
         super("", params, block)
     }
 
-    invoke(...params) {
-        if (this.params.length !== params.length) {
-            throw new Error(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
-        }
-
+    invoke(params) {
         for (let i = 0; i < params.length; i++) {
             let variable = this.params[i];
             variable.value = params[i];
@@ -44,7 +36,7 @@ export class AFn extends Fn {
             VARS.set(variable.name, variable);
         }
 
-        this.block.eval();
+        return this.block.parse();
     }
 }
 
@@ -56,12 +48,8 @@ export class NativeFn extends Fn {
         this.afn = afn;
     }
 
-    invoke(...params) {
-        if (this.afn.length !== params.length) {
-            throw new Error(`Invalid argument count of ${params.length} for function call of '${this.name}'`);
-        }
-
-        this.afn(params);
+    invoke(params) {
+        return this.afn(...params);
     }
 }
 
@@ -75,7 +63,7 @@ export function register(fn) {
 }
 
 // registers a native function, provided with a map
-export function registerNatives(map) {
+export function registerNativeFns(map) {
 
     for (const name in map) {
         let fn = map[name];

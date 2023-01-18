@@ -1,4 +1,4 @@
-import { Collection } from "./collection.js";
+import {Collection} from "./collection.js";
 
 export class Str extends Collection {
     constructor(items = []) {
@@ -211,6 +211,14 @@ export class Str extends Collection {
     // Get the Unicode code point value at a specific index
     codePointAt(index) {
         return this.string.codePointAt(index);
+    }
+
+    add(other) {
+        if (!(other instanceof Str)) {
+            throw new TypeError("Cannot add another type to String");
+        }
+
+        return this.string.concat(other);
     }
 
     toString() {

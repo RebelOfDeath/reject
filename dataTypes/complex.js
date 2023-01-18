@@ -1,4 +1,4 @@
-import { Fraction } from "./fraction.js";
+import {Fraction} from "./fraction.js";
 
 export class Complex {
     constructor(real, imag) {
@@ -8,7 +8,7 @@ export class Complex {
 
     //adds to Complex types together
     add(other) {
-        if(!(other instanceof Complex)){
+        if (!(other instanceof Complex)) {
             other = new Complex(other)
         }
         return new Complex(
@@ -19,7 +19,7 @@ export class Complex {
 
     //subtracts two Complex types from each other
     subtract(other) {
-        if(!(other instanceof Complex)){
+        if (!(other instanceof Complex)) {
             other = new Complex(other)
         }
         return new Complex(
@@ -30,7 +30,7 @@ export class Complex {
 
     //multiplies to Complex types with each other
     multiply(other) {
-        if(!(other instanceof Complex)){
+        if (!(other instanceof Complex)) {
             other = new Complex(other)
         }
         return new Complex(
@@ -43,7 +43,7 @@ export class Complex {
 
     //divides two Complex types by each other
     divide(other) {
-        if(!(other instanceof Complex)){
+        if (!(other instanceof Complex)) {
             other = new Complex(other)
         }
         // const denom = other.real ** 2 + other.imag ** 2;
@@ -88,7 +88,7 @@ export class Complex {
 
     //returns the nth power of the complex number.
     pow(n) {
-        if(!(n instanceof Fraction)){
+        if (!(n instanceof Fraction)) {
             n = new Fraction(n)
         } // todo is this supposed to be fraction or ?
 
@@ -113,7 +113,7 @@ export class Complex {
         let real = this.real.evaluate();
         let imag = this.imag.evaluate();
         return new Fraction(
-            Math.sqrt((real^2) + (imag^2))
+            Math.sqrt((real ^ 2) + (imag ^ 2))
         )
     }
 

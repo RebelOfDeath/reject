@@ -67,11 +67,6 @@ export class Collection {
         return new Collection(filtered);
     }
 
-    //evaluate and assign the value of the Collection from a string
-    fromString(string) {
-        return eval(string);
-    }
-
     toString() {
         return `[${this.items.join(", ")}]`;
     }
@@ -115,9 +110,3 @@ assert.strictEqual(reduced, 15);
 
 const filtered = collection.filter(x => x % 2 === 0);
 assert.deepStrictEqual(filtered.items, [2, 4]);
-
-const array = collection.fromString("[1, 2, 3, 4]");
-assert.deepStrictEqual(array, [1, 2, 3, 4]);
-
-const multiDimensionalArray = collection.fromString("[1, 2, [3, 4], 5]");
-assert.deepStrictEqual(multiDimensionalArray, [1, 2, [3, 4], 5]);

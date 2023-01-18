@@ -91,7 +91,7 @@ export class Fraction {
         return this.numerator / this.denominator;
     }
 
-    eval() {
+    parse() {
         return this;
     }
 }

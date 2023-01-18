@@ -17,11 +17,11 @@ export class Var {
     }
 }
 
-export function registerNatives(map) {
+export function registerNativeConstants(map) {
 
     for (const name in map) {
         let value = map[name];
 
-        VARS.set(name, value);
+        VARS.set(name, new Var(name, value));
     }
 }

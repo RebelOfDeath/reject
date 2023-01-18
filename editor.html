@@ -11,12 +11,11 @@
     <link rel="stylesheet" href="editor.css">
 
     <!-- External libraries -->
-    <script src="https://unpkg.com/ohm-js@17.0.0-alpha.1/dist/ohm.js"></script>
     <script src="https://kit.fontawesome.com/c4273b1dc8.js" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- Language files -->
-    <script src="reject.js"></script>
+    <script src="./bundle.js"></script>
 </head>
 <body>
 <nav>
@@ -43,25 +42,17 @@
         </a>
     </div>
     <div id="credits">
-        Reject IDE 1.1.0 (Magenta) / by Efnilite
+        Reject IDE 1.2.0 / by Efnilite
     </div>
 </nav>
 
 <main>
-    <div>
-        <label>
-        <textarea autofocus placeholder="" title="Your code" id="code">
+    <textarea autofocus placeholder="" title="Your code" id="code">
 
-        </textarea>
-        </label>
-    </div>
-    <div>
-        <label>
-        <textarea readonly placeholder="" title="The console" id="console">
+    </textarea>
+    <textarea readonly placeholder="" title="The console" id="console">
 
-        </textarea>
-        </label>
-    </div>
+    </textarea>
 </main>
 
 <script>
@@ -82,7 +73,7 @@
             clearConsole();
 
             try {
-                parse($("#code").val());
+                rejectBundle($("#code").val());
             } catch (error) {
                 log(error.message);
                 console.log(error);
@@ -114,9 +105,13 @@
     }
 
     function log(x) {
-        $('#console').val((i, txt) => {
+        let console = $("#console");
+
+        console.val((i, txt) => {
             return txt + (txt === "" ? x.toString() : ("\n" + x.toString()));
         });
+
+        console.scrollTop(console[0].scrollHeight);
     }
 
 </script>
