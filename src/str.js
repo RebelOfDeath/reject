@@ -1,4 +1,7 @@
 import {Collection} from "./collection.js";
+import {VARS} from "./var.js";
+import {FUNS} from "./fn.js";
+import parseInput from "../reject.js";
 
 export class Str extends Collection {
     constructor(items = []) {
@@ -30,22 +33,22 @@ export class Str extends Collection {
 
     // Get the index of the first occurrence of a substring
     indexOf(substring) {
-        return this.items.join("").indexOf(substring);
+        return this.string.indexOf(substring);
     }
 
     // Get the index of the last occurrence of a substring
     lastIndexOf(substring) {
-        return this.items.join("").lastIndexOf(substring);
+        return this.string.lastIndexOf(substring);
     }
 
     // Check if the string starts with a specific substring
     startsWith(substring) {
-        return this.items.join("").startsWith(substring);
+        return this.string.startsWith(substring);
     }
 
     // Check if the string ends with a specific substring
     endsWith(substring) {
-        return this.items.join("").endsWith(substring);
+        return this.string.endsWith(substring);
     }
 
     // Get the substring between two indices (inclusive)
@@ -55,34 +58,34 @@ export class Str extends Collection {
 
     // Split the string into an array of substrings
     split(separator) {
-        return new Collection(this.items.join("").split(separator));
+        return new Collection(this.string.split(separator));
     }
 
     // Replace all occurrences of a substring with another string
     replace(substring, replacement) {
         return new Str(
-            this.items.join("").replace(substring, replacement).split("")
+            this.string.replace(substring, replacement).split("")
         );
     }
 
     // Remove leading and trailing whitespace from the string
     trim() {
-        return new Str(this.items.join("").trim().split(""));
+        return new Str(this.string).trim().split("");
     }
 
     // Convert the string to uppercase
     toUpperCase() {
-        return new Str(this.items.join("").toUpperCase().split(""));
+        return new Str(this.string.toUpperCase().split(""));
     }
 
     // Convert the string to lowercase
     toLowerCase() {
-        return new Str(this.items.join("").toLowerCase().split(""));
+        return new Str(this.string.toLowerCase().split(""));
     }
 
     // Convert the string to a number
     toNumber() {
-        return Number(this.items.join(""));
+        return Number(this.string);
     }
 
     // Check if the string is empty
@@ -221,7 +224,38 @@ export class Str extends Collection {
         return this.string.concat(other);
     }
 
+    fillTokens() {
+        let string = this.string;
+        const regex = /\$(([a-zA-Z_]\w*)(\(.*?\))?)/g;
+
+        for (let item of this.string.matchAll(regex)) {
+            const full = item[0];
+            const importantStuff = item[1];
+            const ident = item[2];
+
+            if (item[3] !== undefined) { // fn invocation
+                const fn = FUNS.get(ident);
+
+                if (fn === undefined) {
+                    continue;
+                }
+
+                string = string.replace(full, parseInput(importantStuff).toString());
+            } else { // var
+                const variable = VARS.get(ident);
+
+                if (variable === undefined) {
+                    continue;
+                }
+
+                string = string.replace(full, variable.value === null ? "unknown" : variable.value.toString());
+            }
+        }
+
+        return string;
+    }
+
     toString() {
-        return this.string;
+        return this.fillTokens();
     }
 }

@@ -329,7 +329,12 @@ semantics.addOperation("parse", {
     },
 
     Invocation_invoke(ident, _, xs, __) {
-        let fun = FUNS.get(ident.sourceString.trim());
+        ident = ident.sourceString.trim();
+        let fun = FUNS.get(ident);
+
+        if (fun === null || fun === undefined) {
+            throw new Error(`Unknown function: ${ident}`);
+        }
 
         return fun.invoke(xs.asIteration()
             .children

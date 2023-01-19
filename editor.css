@@ -83,6 +83,7 @@ a, a:link, a:visited, a:hover, a:active {
 #credits {
     color: var(--shade-text-colour);
 
+    -webkit-user-select: none;
     user-select: none;
     cursor: default !important;
 
@@ -142,7 +143,6 @@ textarea:focus {
 }
 
 /* ========= graphs ========= */
-/*todo mobile support*/
 #graphs {
     width: 100%;
     height: 100%;
@@ -157,6 +157,13 @@ textarea:focus {
 
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Improve mobile usage */
+@media (max-width: 768px) {
+    #graphs {
+        padding: 0;
+    }
 }
 
 #graphs-title {
