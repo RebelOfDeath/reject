@@ -188,12 +188,8 @@ export class Str extends Collection {
         return new Str(this.items.slice(start, end + 1));
     }
 
-    // TODO: we could potentially create our own regex type
     match(regex) {
-        if (!(regex instanceof RegExp)) {
-            throw new TypeError("Value must be a regular expression");
-        }
-        return this.string.match(regex);
+        return this.string.match(new RegExp(regex, "g"));
     }
 
     // Search for a substring or regular expression in the string
