@@ -1,6 +1,0 @@
-/**
- * Returns the result of converting a floating point expansion to a
- * double-double precision floating point number.
- */
-declare function eToDd(e: number[]): number[];
-export { eToDd };
