@@ -1,3 +1,5 @@
+import {VARS} from "./var.js";
+
 export class Fraction {
 
     constructor(numerator, denominator = 1) {
@@ -84,7 +86,13 @@ export class Fraction {
     }
 
     toString() {
-        return `${this.numerator}/${this.denominator}`;
+        const pretty = VARS.get("pretty_printing");
+
+        if (pretty !== undefined && pretty) {
+            return this.evaluate().toString();
+        } else {
+            return `${this.numerator}/${this.denominator}`;
+        }
     }
 
     evaluate() {
