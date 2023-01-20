@@ -63,8 +63,7 @@ export class Collection {
 
     // Filter the collection to a new Collection with only the items that pass a test function
     filter(fn) {
-        const filtered = this.items.filter(fn);
-        return new Collection(filtered);
+        return new Collection(this.items.filter(fn));
     }
 
     toString() {

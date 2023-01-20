@@ -83,6 +83,7 @@
 
         $("#run").click(() => {
             clearConsole();
+            clearGraphs();
 
             try {
                 rejectBundle($("#code").val());
@@ -109,13 +110,11 @@
 
         $("#charts").click(() => {
             showGraphs();
-
-            createCanvas();
-        })
+        });
 
         $("#graphs-close").click(() => {
             $("#graphs").css("visibility", "hidden");
-        })
+        });
     });
 
     function clearCode() {
@@ -124,6 +123,10 @@
 
     function clearConsole() {
         $("#console").val("");
+    }
+
+    function clearGraphs() {
+        $("#graphs-content").empty();
     }
 
     function log(x) {
@@ -141,7 +144,11 @@
     }
 
     function createCanvas() {
-        return $("#graphs-content").append(`<canvas role="img"></canvas>`).html();
+        const id = Math.floor(Math.random() * 1_000_000);
+
+        $("#graphs-content").append($(`<canvas id="${id}" title="" width="16" height="9" role="img"></canvas>`));
+
+        return id;
     }
 
 </script>
