@@ -2,13 +2,14 @@ import ohm from 'ohm-js';
 import {Collection} from "./src/collection.js";
 import {Fraction} from "./src/fraction.js";
 import {Complex} from "./src/complex.js";
-import {Fn, FUNS} from "./src/fn.js";
+import {AFn, Fn, FUNS} from "./src/fn.js";
 import {Var, VARS} from "./src/var.js";
 import {Str} from "./src/str.js";
 import {Matrix} from "./src/matrix.js";
 
 import "./src/builtIns/constants.js";
 import "./src/builtIns/general.js";
+import "./src/builtIns/graphs.js";
 import "./src/builtIns/stats.js";
 import "./src/builtIns/trig.js";
 
@@ -76,8 +77,8 @@ Reject {
         
     // the last resort
     Default
-        = identifier 
-        | Literal
+        = Literal 
+        | identifier
         | "(" Expression ")" -- par
     
     // =============
@@ -108,7 +109,7 @@ Reject {
     
     float = "-"? digit* "." integer+
     
-    number = integer | float
+    number = float | integer
     
     Array = "[" ListOf<Expression, ","> "]"
 
@@ -312,7 +313,11 @@ semantics.addOperation("parse", {
     },
 
     AFn_afn(_, args, __, expr) {
-
+        return new AFn(
+            args.asIteration()
+                .children
+                .map(variable => new Var(variable.sourceString.trim(), null)),
+            expr);
     },
 
     Pipe_pipe(_, x, __) {
