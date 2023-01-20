@@ -11,6 +11,10 @@ export class Fn {
     }
 
     invoke(params) {
+        if (params.length === undefined) { // if a single value is passed
+            params = [params];
+        }
+
         for (let i = 0; i < params.length; i++) {
             let variable = this.params[i];
             variable.value = params[i];
@@ -25,10 +29,14 @@ export class Fn {
 export class AFn extends Fn {
 
     constructor(params, block) {
-        super("", params, block)
+        super("", params, block);
     }
 
     invoke(params) {
+        if (params.length === undefined) { // if a single value is passed
+            params = [params];
+        }
+
         for (let i = 0; i < params.length; i++) {
             let variable = this.params[i];
             variable.value = params[i];
