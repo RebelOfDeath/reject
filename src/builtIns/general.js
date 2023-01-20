@@ -4,6 +4,7 @@ import {Collection} from "../collection.js";
 import {Complex} from '../complex.js';
 import {registerNativeFns} from "../fn.js";
 import {assert, range, repeat} from "../util.js";
+import {Str} from "../str.js";
 
 let general = {
     print: (...xs) => {
@@ -196,6 +197,11 @@ let general = {
         assert(n instanceof Fraction, "Repeat value is not a fraction");
 
         return repeat(x, n.evaluate());
+    },
+    str: (...xs) => {
+        return new Str(xs
+            .map(x => x.toString())
+            .join(""))
     }
 }
 

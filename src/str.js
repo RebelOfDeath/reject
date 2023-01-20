@@ -212,14 +212,6 @@ export class Str extends Collection {
         return this.string.codePointAt(index);
     }
 
-    add(other) {
-        if (!(other instanceof Str)) {
-            throw new TypeError("Cannot add another type to String");
-        }
-
-        return this.string.concat(other);
-    }
-
     fillTokens() {
         let string = this.string;
         const regex = /\$(([a-zA-Z_]\w*)(\(.*?\))?)/g;
