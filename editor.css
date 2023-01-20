@@ -182,6 +182,7 @@ textarea:focus {
 
 #graphs-content > canvas {
     width: 100%;
+    max-height: 80vh;
 }
 
 #graphs-close {
