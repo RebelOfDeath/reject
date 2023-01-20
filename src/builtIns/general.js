@@ -3,6 +3,7 @@ import {Matrix} from '../matrix.js'
 import {Collection} from "../collection.js";
 import {Complex} from '../complex.js';
 import {registerNativeFns} from "../fn.js";
+import {assert, range, repeat} from "../util.js";
 
 let general = {
     print: (...xs) => {
@@ -184,6 +185,17 @@ let general = {
         } else {
             throw new TypeError('Function does not support provided type');
         }
+    },
+    range: (a, b) => {
+        assert(a instanceof Fraction, "Lower bound is not a fraction");
+        assert(b instanceof Fraction, "Upper bound is not a fraction");
+
+        return range(a.evaluate(), b.evaluate());
+    },
+    repeat: (x, n) => {
+        assert(n instanceof Fraction, "Repeat value is not a fraction");
+
+        return repeat(x, n.evaluate());
     }
 }
 
