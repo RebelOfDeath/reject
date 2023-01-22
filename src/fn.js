@@ -1,4 +1,6 @@
 import {VARS} from "./var.js";
+import {isArray} from "chart.js/helpers";
+import {Return} from "./return.js";
 
 export const FUNS = new Map();
 
@@ -22,7 +24,12 @@ export class Fn {
             VARS.set(variable.name, variable);
         }
 
-        return this.block.parse();
+        // flatten to remove when, for indentation
+        const returns = this.block.parse()
+            .flat(Infinity)
+            .filter(ret => ret instanceof Return);
+
+        return returns ? returns[0].value : true;
     }
 }
 
