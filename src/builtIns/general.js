@@ -95,6 +95,8 @@ let general = {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         number = number.evaluate();
+        console.log(number);
+
         return new Fraction(Math.sqrt(number));
     },
     root: (number, n) => {

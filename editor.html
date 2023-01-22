@@ -75,6 +75,8 @@
         clearConsole();
         clearCode();
 
+        $("#code").val("# Example graph\nf_top = :(x): sqrt(1 - (|x| - 1)^2)\nf_bot = :(x): arccos(1 - |x|) - pi\n\nplot_functions(-2, 2, 0.01, f_top, f_bot)");
+
         log("Welcome to the Reject IDE!");
         log("This area is your console.");
         log("Use the 'print' function to log stuff here.");

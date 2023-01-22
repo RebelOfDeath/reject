@@ -9050,6 +9050,9 @@ var rejectBundle = (function () {
           if (denominator === 0) {
               throw new Error("Cannot divide by 0");
           }
+          if (isNaN(numerator) || isNaN(denominator)) {
+              return new Fraction(0, 1);
+          }
 
           if (arguments.length === 2) {
               // Both numerator and denominator are provided
@@ -9073,7 +9076,7 @@ var rejectBundle = (function () {
               this.numerator * otherFraction.denominator +
               otherFraction.numerator * this.denominator;
           const denominator = this.denominator * otherFraction.denominator;
-          return new Fraction(numerator, denominator).simplify();
+          return new Fraction(numerator, denominator);
       }
 
       subtract(otherFraction) {
@@ -9081,23 +9084,23 @@ var rejectBundle = (function () {
               this.numerator * otherFraction.denominator -
               otherFraction.numerator * this.denominator;
           const denominator = this.denominator * otherFraction.denominator;
-          return new Fraction(numerator, denominator).simplify();
+          return new Fraction(numerator, denominator);
       }
 
       multiply(otherFraction) {
           const numerator = this.numerator * otherFraction.numerator;
           const denominator = this.denominator * otherFraction.denominator;
-          return new Fraction(numerator, denominator).simplify();
+          return new Fraction(numerator, denominator);
       }
 
       divide(otherFraction) {
           const numerator = this.numerator * otherFraction.denominator;
           const denominator = this.denominator * otherFraction.numerator;
-          return new Fraction(numerator, denominator).simplify();
+          return new Fraction(numerator, denominator);
       }
 
       pow(otherFraction) {
-          return new Fraction(Math.pow(this.evaluate(), otherFraction.evaluate())).simplify();
+          return new Fraction(Math.pow(this.evaluate(), otherFraction.evaluate()));
       }
 
       factorial() {
@@ -9130,9 +9133,10 @@ var rejectBundle = (function () {
       toString() {
           const pretty = VARS.get("pretty_printing");
 
-          if (pretty !== undefined && pretty) {
+          if (pretty === true) {
               return this.evaluate().toString();
           } else {
+              this.simplify();
               return `${this.numerator}/${this.denominator}`;
           }
       }
@@ -13539,6 +13543,8 @@ var rejectBundle = (function () {
               throw new TypeError('Function only supports numeric type (Fraction)');
           }
           number = number.evaluate();
+          console.log(number);
+
           return new Fraction(Math.sqrt(number));
       },
       root: (number, n) => {
