@@ -187,11 +187,12 @@ let general = {
             throw new TypeError('Function does not support provided type');
         }
     },
-    range: (a, b) => {
+    range: (a, b, increment) => {
         assert(a instanceof Fraction, "Lower bound is not a fraction");
         assert(b instanceof Fraction, "Upper bound is not a fraction");
+        assert(increment instanceof Fraction, "Increment is not a fraction");
 
-        return range(a.evaluate(), b.evaluate());
+        return range(a.evaluate(), b.evaluate(), increment.evaluate());
     },
     repeat: (x, n) => {
         assert(n instanceof Fraction, "Repeat value is not a fraction");

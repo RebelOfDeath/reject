@@ -9097,9 +9097,7 @@ var rejectBundle = (function () {
       }
 
       pow(otherFraction) {
-          const numerator = this.numerator ** otherFraction.numerator;
-          const denominator = this.denominator ** otherFraction.denominator;
-          return new Fraction(numerator, denominator).simplify();
+          return new Fraction(Math.pow(this.evaluate(), otherFraction.evaluate())).simplify();
       }
 
       factorial() {
@@ -13389,17 +13387,16 @@ var rejectBundle = (function () {
    * Returns a range from a (inclusive) to b (exclusive)
    * @param a the lower bound
    * @param b the upper bound
+   * @param increment the increment.
    * @return {*[]} an array with all numbers between a (inclusive) and b (exclusive)
    */
-  function range(a, b) {
+  function range(a, b, increment = 1) {
       assertNotNull(a);
       assertNotNull(b);
-      assert(Number.isInteger(a), "Lower bound is not an integer");
-      assert(Number.isInteger(b), "Upper bound is not an integer");
       assert(a <= b, "Lower bound cannot be higher than upper bound");
 
       let arr = [];
-      for (let i = a; i < b; i++) {
+      for (let i = a; i < b; i += increment) {
           arr[arr.length] = i;
       }
 
@@ -13634,11 +13631,12 @@ var rejectBundle = (function () {
               throw new TypeError('Function does not support provided type');
           }
       },
-      range: (a, b) => {
+      range: (a, b, increment) => {
           assert(a instanceof Fraction, "Lower bound is not a fraction");
           assert(b instanceof Fraction, "Upper bound is not a fraction");
+          assert(increment instanceof Fraction, "Increment is not a fraction");
 
-          return range(a.evaluate(), b.evaluate());
+          return range(a.evaluate(), b.evaluate(), increment.evaluate());
       },
       repeat: (x, n) => {
           assert(n instanceof Fraction, "Repeat value is not a fraction");
@@ -25013,13 +25011,13 @@ var rejectBundle = (function () {
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
       },
-      plot_function: async (a, b, fn) => {
+      plot_function: async (a, b, increment, fn) => {
           assertNotNull(a);
           assertNotNull(b);
           assertNotNull(fn);
           assert(fn instanceof AFn, "Values is not an anonymous function");
 
-          const xs = range(a.evaluate(), b.evaluate() + 1);
+          const xs = range(a.evaluate(), b.evaluate() + 1, increment.evaluate());
           const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
 
           const data = {
@@ -25047,12 +25045,13 @@ var rejectBundle = (function () {
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
       },
-      plot_functions: async (a, b, ...fns) => {
+      plot_functions: async (a, b, increment, ...fns) => {
           assertNotNull(a);
           assertNotNull(b);
+          assertNotNull(increment);
           assertNotNull(fns);
 
-          const xs = range(a.evaluate(), b.evaluate() + 1);
+          const xs = range(a.evaluate(), b.evaluate() + increment.evaluate(), increment.evaluate());
 
           let datasets = [];
           for (const fn of fns) {

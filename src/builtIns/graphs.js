@@ -39,13 +39,13 @@ const graphFuns = {
 
         new Chart(document.getElementById(`${createCanvas()}`), config);
     },
-    plot_function: async (a, b, fn) => {
+    plot_function: async (a, b, increment, fn) => {
         assertNotNull(a);
         assertNotNull(b);
         assertNotNull(fn);
         assert(fn instanceof AFn, "Values is not an anonymous function");
 
-        const xs = range(a.evaluate(), b.evaluate() + 1);
+        const xs = range(a.evaluate(), b.evaluate() + 1, increment.evaluate());
         const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
 
         const data = {
@@ -73,12 +73,13 @@ const graphFuns = {
 
         new Chart(document.getElementById(`${createCanvas()}`), config);
     },
-    plot_functions: async (a, b, ...fns) => {
+    plot_functions: async (a, b, increment, ...fns) => {
         assertNotNull(a);
         assertNotNull(b);
+        assertNotNull(increment);
         assertNotNull(fns);
 
-        const xs = range(a.evaluate(), b.evaluate() + 1);
+        const xs = range(a.evaluate(), b.evaluate() + increment.evaluate(), increment.evaluate());
 
         let datasets = [];
         for (const fn of fns) {

@@ -17,17 +17,16 @@ export function getLineColour() {
  * Returns a range from a (inclusive) to b (exclusive)
  * @param a the lower bound
  * @param b the upper bound
+ * @param increment the increment.
  * @return {*[]} an array with all numbers between a (inclusive) and b (exclusive)
  */
-export function range(a, b) {
+export function range(a, b, increment = 1) {
     assertNotNull(a);
     assertNotNull(b);
-    assert(Number.isInteger(a), "Lower bound is not an integer");
-    assert(Number.isInteger(b), "Upper bound is not an integer");
     assert(a <= b, "Lower bound cannot be higher than upper bound");
 
     let arr = [];
-    for (let i = a; i < b; i++) {
+    for (let i = a; i < b; i += increment) {
         arr[arr.length] = i;
     }
 
