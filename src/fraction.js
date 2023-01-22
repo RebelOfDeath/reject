@@ -53,8 +53,8 @@ export class Fraction {
     }
 
     pow(otherFraction) {
-        const numerator = this.numerator ** otherFraction.numerator;
-        const denominator = this.denominator ** otherFraction.denominator;
+        const numerator = Math.pow(this.numerator, otherFraction.numerator);
+        const denominator = Math.pow(this.denominator, otherFraction.denominator);
         return new Fraction(numerator, denominator).simplify();
     }
 
