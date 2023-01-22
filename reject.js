@@ -6,6 +6,8 @@ import {AFn, Fn, FUNS} from "./src/fn.js";
 import {Var, VARS} from "./src/var.js";
 import {Str} from "./src/str.js";
 import {Matrix} from "./src/matrix.js";
+import {Return} from "./src/return.js";
+import {For} from "./src/for.js";
 
 import "./src/builtIns/constants.js";
 import "./src/builtIns/general.js";
@@ -354,8 +356,26 @@ semantics.addOperation("parse", {
 
     CondWhen(_, arg, block) {
         if (arg.parse() === true) {
-            block.parse();
+            return block.parse();
         }
+    },
+
+    // For = "for " ListOf<identifier, ","> "in" Expression Block
+    For(_, params, __, values, block) {
+        values = values.parse();
+
+        if (!(values instanceof Collection)) {
+            throw new TypeError("Only collections may be looped");
+        }
+
+        const loop = new For(
+            params.asIteration()
+                .children
+                .map(variable => new Var(variable.sourceString.trim(), null)),
+            values,
+            block);
+
+        loop.invoke();
     },
 
     Fn(_, ident, __, args, ___, block) {
@@ -370,6 +390,10 @@ semantics.addOperation("parse", {
 
                     return string.includes("=") ? new Var(ident, variable.children[1].children[2].parse()) : new Var(ident, null);
                 }), block));
+    },
+
+    Return(_, expr) {
+        return new Return(expr.parse());
     },
 
     // =============

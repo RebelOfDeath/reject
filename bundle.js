@@ -9361,992 +9361,6 @@ var rejectBundle = (function () {
       }
   }
 
-  const FUNS = new Map();
-
-  class Fn {
-
-      constructor(name, params = [], block = []) {
-          this.name = name;
-          this.params = params;
-          this.block = block;
-      }
-
-      invoke(params) {
-          if (params.length === undefined) { // if a single value is passed
-              params = [params];
-          }
-
-          for (let i = 0; i < params.length; i++) {
-              let variable = this.params[i];
-              variable.value = params[i];
-
-              VARS.set(variable.name, variable);
-          }
-
-          return this.block.parse();
-      }
-  }
-
-  class AFn extends Fn {
-
-      constructor(params, block) {
-          super("", params, block);
-      }
-
-      invoke(params) {
-          if (params.length === undefined) { // if a single value is passed
-              params = [params];
-          }
-
-          for (let i = 0; i < params.length; i++) {
-              let variable = this.params[i];
-              variable.value = params[i];
-
-              VARS.set(variable.name, variable);
-          }
-
-          return this.block.parse();
-      }
-  }
-
-  class NativeFn extends Fn {
-
-      constructor(name, afn) {
-          super(name);
-
-          this.afn = afn;
-      }
-
-      invoke(params) {
-          return this.afn(...params);
-      }
-  }
-
-  // registers a single function
-  function register(fn) {
-      if (fn.name.length === 0) {
-          throw new Error("Cannot register anonymous functions");
-      }
-
-      FUNS.set(fn.name, fn);
-  }
-
-  // registers a native function, provided with a map
-  function registerNativeFns(map) {
-
-      for (const name in map) {
-          let fn = map[name];
-
-          register(new NativeFn(name, fn));
-      }
-  }
-
-  class Str extends Collection {
-      constructor(items = []) {
-          if (typeof items === "string") {
-              items = items.split("");
-          }
-          super(items);
-      }
-
-      // Get the complete string as a JavaScript string
-      get string() {
-          return this.items.join("");
-      }
-
-      // Set the complete string by splitting it into an array of characters
-      set string(string) {
-          this.items = string.split("");
-      }
-
-      // Reverse the string
-      reverse() {
-          return new Str(this.items.reverse());
-      }
-
-      // Get the character at a specific index
-      charAt(index) {
-          return this.items[index];
-      }
-
-      // Get the index of the first occurrence of a substring
-      indexOf(substring) {
-          return this.string.indexOf(substring);
-      }
-
-      // Get the index of the last occurrence of a substring
-      lastIndexOf(substring) {
-          return this.string.lastIndexOf(substring);
-      }
-
-      // Check if the string starts with a specific substring
-      startsWith(substring) {
-          return this.string.startsWith(substring);
-      }
-
-      // Check if the string ends with a specific substring
-      endsWith(substring) {
-          return this.string.endsWith(substring);
-      }
-
-      // Get the substring between two indices (inclusive)
-      slice(start, end) {
-          return new Str(this.items.slice(start, end + 1));
-      }
-
-      // Split the string into an array of substrings
-      split(separator) {
-          return new Collection(this.string.split(separator));
-      }
-
-      // Replace all occurrences of a substring with another string
-      replace(substring, replacement) {
-          return new Str(
-              this.string.replace(substring, replacement).split("")
-          );
-      }
-
-      // Remove leading and trailing whitespace from the string
-      trim() {
-          return new Str(this.string).trim().split("");
-      }
-
-      // Convert the string to uppercase
-      toUpperCase() {
-          return new Str(this.string.toUpperCase().split(""));
-      }
-
-      // Convert the string to lowercase
-      toLowerCase() {
-          return new Str(this.string.toLowerCase().split(""));
-      }
-
-      // Convert the string to a number
-      toNumber() {
-          return Number(this.string);
-      }
-
-      // Check if the string is empty
-      isEmpty() {
-          return this.items.length === 0;
-      }
-
-      getCharAt(index) {
-          if (index < 0 || index >= this.items.length) {
-              throw new RangeError("Index out of bounds");
-          }
-          return this.items[index];
-      }
-
-      // Set the character at a specific index
-      setCharAt(index, char) {
-          if (index < 0 || index >= this.items.length) {
-              throw new RangeError("Index out of bounds");
-          }
-          if (typeof char !== "string" || char.length !== 1) {
-              throw new TypeError("Value must be a single character string");
-          }
-          this.items[index] = char;
-      }
-
-      // Concatenate multiple strings or String objects
-      concat(...strings) {
-          let combinedString = this.string;
-          for (const string of strings) {
-              if (string instanceof Str) {
-                  combinedString = combinedString.concat(string.string);
-              } else if (typeof string === "string") {
-                  combinedString = combinedString.concat(string);
-              } else {
-                  throw new TypeError("Value must be a string or String object");
-              }
-          }
-          return new Str(combinedString);
-      }
-
-      // Pad the start of the string with a character or string
-      padStart(length, padString = " ") {
-          if (typeof length !== "number" || length < 0) {
-              throw new TypeError("Length must be a non-negative number");
-          }
-          if (typeof padString !== "string") {
-              throw new TypeError("Pad string must be a string");
-          }
-          return new Str(this.string.padStart(length, padString));
-      }
-
-      // Pad the end of the string with a character or string
-      padEnd(length, padString = " ") {
-          if (typeof length !== "number" || length < 0) {
-              throw new TypeError("Length must be a non-negative number");
-          }
-          if (typeof padString !== "string") {
-              throw new TypeError("Pad string must be a string");
-          }
-          return new Str(this.string.padEnd(length, padString));
-      }
-
-      // Pad the start and end of the string with a character or string
-      pad(startLength, endLength = startLength, padString = " ") {
-          if (typeof startLength !== "number" || startLength < 0) {
-              throw new TypeError("Start length must be a non-negative number");
-          }
-          if (typeof endLength !== "number" || endLength < 0) {
-              throw new TypeError("End length must be a non-negative number");
-          }
-          if (typeof padString !== "string") {
-              throw new TypeError("Pad string must be a string");
-          }
-          return this.padStart(startLength, padString).padEnd(
-              endLength,
-              padString
-          );
-      }
-
-      // Repeat the string a specified number of times
-      repeat(count) {
-          if (typeof count !== "number" || count < 0) {
-              throw new TypeError("Count must be a non-negative number");
-          }
-          return new Str(this.string.repeat(count));
-      }
-
-      // Get the substring between two indices (inclusive)
-      substring(start, end) {
-          if (
-              typeof start !== "number" ||
-              start < 0 ||
-              start > this.items.length
-          ) {
-              throw new RangeError("Start index out of bounds");
-          }
-          if (typeof end !== "number" || end < 0 || end > this.items.length) {
-              throw new RangeError("End index out of bounds");
-          }
-          return new Str(this.items.slice(start, end + 1));
-      }
-
-      match(regex) {
-          return this.string.match(new RegExp(regex, "g"));
-      }
-
-      // Search for a substring or regular expression in the string
-      search(query) {
-          return this.string.search(query);
-      }
-
-      // Truncate the string to a given length and append an ellipsis if necessary
-      truncate(length, ellipsis = "...") {
-          if (this.string.length > length) {
-              return new Str(
-                  this.string.slice(0, length - ellipsis.length) + ellipsis
-              );
-          }
-          return new Str(this.string);
-      }
-
-      // Get the Unicode code point value at a specific index
-      codePointAt(index) {
-          return this.string.codePointAt(index);
-      }
-
-      add(other) {
-          if (!(other instanceof Str)) {
-              throw new TypeError("Cannot add another type to String");
-          }
-
-          return this.string.concat(other);
-      }
-
-      fillTokens() {
-          let string = this.string;
-          const regex = /\$(([a-zA-Z_]\w*)(\(.*?\))?)/g;
-
-          for (let item of this.string.matchAll(regex)) {
-              const full = item[0];
-              const importantStuff = item[1];
-              const ident = item[2];
-
-              if (item[3] !== undefined) { // fn invocation
-                  const fn = FUNS.get(ident);
-
-                  if (fn === undefined) {
-                      continue;
-                  }
-
-                  string = string.replace(full, parseInput(importantStuff).toString());
-              } else { // var
-                  const variable = VARS.get(ident);
-
-                  if (variable === undefined) {
-                      continue;
-                  }
-
-                  string = string.replace(full, variable.value === null ? "unknown" : variable.value.toString());
-              }
-          }
-
-          return string;
-      }
-
-      toString() {
-          return this.fillTokens();
-      }
-  }
-
-  class Matrix extends Collection {
-
-      // Initialize a Matrix with a 2D array of numbers or a Collection instance
-      // accounts that all rows of the matrix must be of the same length
-      // when matrix rows are not of the same length, they are filled with 0's
-      constructor(matrix) {
-          super();
-
-          if (matrix instanceof Collection) {
-              matrix = matrix.items;
-          }
-
-          const maxRowLength = Math.max(...matrix.map((row) => row.length));
-          this.items = matrix.map((row) => {
-              while (row.length < maxRowLength) {
-                  row.push(0);
-              }
-              return row;
-          });
-      }
-
-      // Transpose the Matrix (swap rows and columns)
-      transpose() {
-          const transposed = this.items[0].map((col, i) =>
-              this.items.map((row) => row[i])
-          );
-          return new Matrix(transposed);
-      }
-
-      // Multiply the Matrix by another Matrix or a scalar value
-      multiply(other) {
-          if (other instanceof Matrix) {
-              if (this.items[0].length !== other.items.length) {
-                  throw new Error("Invalid matrix dimensions for multiplication");
-              }
-
-              const product = this.items.map((row) => {
-                  return other.transpose().items.map((col) => {
-                      return row.reduce(
-                          (total, value, i) => total + value * col[i],
-                          0
-                      );
-                  });
-              });
-
-              return new Matrix(product);
-          } else {
-              const product = this.items.map((row) =>
-                  row.map((value) => value * other)
-              );
-              return new Matrix(product);
-          }
-      }
-
-      // Add the Matrix to another Matrix
-      add(other) {
-          if (
-              this.items.length !== other.items.length ||
-              this.items[0].length !== other.items[0].length
-          ) {
-              throw new Error("Invalid matrix dimensions for addition");
-          }
-
-          const sum = this.items.map((row, i) =>
-              row.map((value, j) => value + other.items[i][j])
-          );
-          return new Matrix(sum);
-      }
-
-      // Subtract another Matrix from the Matrix
-      subtract(other) {
-          if (
-              this.items.length !== other.items.length ||
-              this.items[0].length !== other.items[0].length
-          ) {
-              throw new Error("Invalid matrix dimensions for subtraction");
-          }
-
-          const difference = this.items.map((row, i) =>
-              row.map((value, j) => value - other.items[i][j])
-          );
-          return new Matrix(difference);
-      }
-
-      // Get the determinant of the Matrix (only works for square matrices)
-      determinant() {
-          if (this.items.length !== this.items[0].length) {
-              throw new Error("Matrix must be square to calculate determinant");
-          }
-
-          if (this.items.length === 2) {
-              return (
-                  this.items[0][0] * this.items[1][1] -
-                  this.items[0][1] * this.items[1][0]
-              );
-          }
-
-          let determinant = 0;
-          for (let i = 0; i < this.items[0].length; i++) {
-              const cofactor = new Matrix(
-                  this.items
-                      .slice(1)
-                      .map((row) => row.slice(0, i).concat(row.slice(i + 1)))
-              );
-              determinant +=
-                  (i % 2 === 0 ? 1 : -1) *
-                  this.items[0][i] *
-                  cofactor.determinant();
-          }
-          return determinant;
-      }
-
-      // todo add
-      pow(n) {
-
-      }
-
-      // todo add
-      factorial() {
-
-      }
-
-      // Get the number of columns in the Matrix
-      col() {
-          return this.items[0].length;
-      }
-
-      // Get the number of rows in the Matrix
-      row() {
-          return this.items.length;
-      }
-
-      // Get the dimensions of the Matrix (number of rows and columns)
-      dimensions() {
-          return {rows: this.row(), cols: this.col()};
-      }
-
-      // Transform the Matrix into a square Matrix, filling missing values with 0's
-      toSquare() {
-          const maxDimension = Math.max(this.row(), this.col());
-          const squareMatrix = new Array(maxDimension)
-              .fill(0)
-              .map(() => new Array(maxDimension).fill(0));
-          this.items.forEach((row, i) => {
-              row.forEach((value, j) => {
-                  squareMatrix[i][j] = value;
-              });
-          });
-          return new Matrix(squareMatrix);
-      }
-
-      // Get the value at a specific position in the Matrix
-      get(row, col) {
-          if (row >= this.row() || col >= this.col()) {
-              throw new Error("Invalid matrix position");
-          }
-          return this.items[row][col];
-      }
-
-      // Set the value at a specific position in the Matrix
-      set(row, col, value) {
-          if (row >= this.row() || col >= this.col()) {
-              throw new Error("Invalid matrix position");
-          }
-          this.items[row][col] = value;
-      }
-
-      // Add a row to the Matrix
-      addRow(row) {
-          if (!row) {
-              row = new Array(this.col()).fill(0);
-          }
-          if (row.length > this.col()) {
-              row = row.slice(0, this.col());
-          }
-          if (row.length < this.col()) {
-              while (row.length < this.col()) {
-                  row.push(0);
-              }
-          }
-          this.items.push(row);
-      }
-
-      // Add a column to the Matrix
-      addCol(col) {
-          if (!col) {
-              col = new Array(this.row()).fill(0);
-          }
-          if (col.length > this.row()) {
-              col = col.slice(0, this.row());
-          }
-          if (col.length < this.row()) {
-              while (col.length < this.row()) {
-                  col.push(0);
-              }
-          }
-          this.items = this.items.map((row, i) => row.concat(col[i]));
-      }
-
-      // Check if the Matrix is a square matrix
-      isSquare() {
-          return this.items.length === this.items[0].length;
-      }
-
-      // Check if the Matrix is a diagonal matrix
-      isDiagonal() {
-          if (!this.isSquare()) {
-              return false;
-          }
-          for (let i = 0; i < this.items.length; i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
-                  if (i !== j && this.items[i][j] !== 0) {
-                      return false;
-                  }
-              }
-          }
-          return true;
-      }
-
-      // Check if the Matrix is an identity matrix
-      isIdentity() {
-          if (!this.isSquare()) {
-              return false;
-          }
-          for (let i = 0; i < this.items.length; i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
-                  if (i === j && this.items[i][j] !== 1) {
-                      return false;
-                  }
-                  if (i !== j && this.items[i][j] !== 0) {
-                      return false;
-                  }
-              }
-          }
-          return true;
-      }
-
-      // Check if the Matrix is a lower triangular matrix
-      isLowerTriangular() {
-          if (!this.isSquare()) {
-              return false;
-          }
-          for (let i = 0; i < this.items.length; i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
-                  if (i < j && this.items[i][j] !== 0) {
-                      return false;
-                  }
-              }
-          }
-          return true;
-      }
-
-      // Check if the Matrix is an upper triangular matrix
-      isUpperTriangular() {
-          if (!this.isSquare()) {
-              return false;
-          }
-          for (let i = 0; i < this.items.length; i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
-                  if (i > j && this.items[i][j] !== 0) {
-                      return false;
-                  }
-              }
-          }
-          return true;
-      }
-
-      inverse() {
-          if (!this.isSquare()) {
-              throw new Error("Matrix must be square to calculate inverse");
-          }
-
-          // Check if matrix is invertible
-          const det = this.determinant();
-          if (det === 0) {
-              throw new Error("Matrix is not invertible");
-          }
-
-          // Calculate inverse using cofactor expansion
-          const inverted = this.items.map((row, i) => {
-              return row.map((value, j) => {
-                  const cofactor = new Matrix(
-                      this.items
-                          .slice(0, i)
-                          .concat(this.items.slice(i + 1))
-                          .map((row) => row.slice(0, j).concat(row.slice(j + 1)))
-                  );
-                  return (i + j) % 2 === 0
-                      ? cofactor.determinant()
-                      : -cofactor.determinant();
-              });
-          });
-          return new Matrix(inverted).multiply(1 / det);
-      }
-
-      // Calculate the rank of a matrix
-      rank() {
-          // Convert matrix to reduced row echelon form
-          const rref = this.rref();
-          let rank = 0;
-          rref.items.forEach((row) => {
-              if (!row.every((value) => value === 0)) {
-                  rank++;
-              }
-          });
-          return rank;
-      }
-
-      //rhs stands for right hand side and as a parameter represents the vector of constants
-      //on the right side of the equation represented by the matrix
-      solve(rhs) {
-          // Check if the matrix is square
-          if (!this.isSquare()) {
-              throw new Error(
-                  "Matrix must be square to solve system of equations"
-              );
-          }
-
-          // Check if the matrix is invertible
-          if (this.determinant() === 0) {
-              throw new Error(
-                  "System has no solution or an infinite number of solutions"
-              );
-          }
-
-          // Calculate the inverse of the matrix
-          const inverse = this.inverse();
-
-          // Multiply the inverse by the right-hand side to get the solution
-          const solution = inverse.multiply(rhs);
-
-          return solution;
-      }
-
-      equals(other) {
-          if (
-              this.items.length !== other.items.length ||
-              this.items[0].length !== other.items[0].length
-          ) {
-              return false;
-          }
-          return this.items.every((row, i) =>
-              row.every((value, j) => value === other.items[i][j])
-          );
-      }
-
-      isSymmetric() {
-          if (!this.isSquare()) {
-              throw new Error("Matrix must be square to check symmetry");
-          }
-          return this.equals(this.transpose());
-      }
-
-      isSkewSymmetric() {
-          // Check if the matrix is square
-          if (!this.isSquare()) {
-              return false;
-          }
-
-          // Check if the matrix is equal to the negation of its transpose
-          const transpose = this.transpose();
-          const skewSymmetric = this.items.every((row, i) =>
-              row.every((value, j) => value === -transpose.items[i][j])
-          );
-          return skewSymmetric;
-      }
-
-      isOrthogonal() {
-          // Check if the matrix is square
-          if (!this.isSquare()) {
-              return false;
-          }
-
-          // Check if the determinant of the matrix is 1 or -1
-          if (this.determinant() !== 1 && this.determinant() !== -1) {
-              return false;
-          }
-
-          // Check if the columns of the matrix are mutually orthonormal
-          for (let i = 0; i < this.items[0].length; i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
-                  if (i !== j) {
-                      const columnI = new Matrix([
-                          this.items.map((row) => row[i]),
-                      ]);
-                      const columnJ = new Matrix([
-                          this.items.map((row) => row[j]),
-                      ]);
-                      if (
-                          columnI.transpose().multiply(columnJ).determinant() !==
-                          0
-                      ) {
-                          return false;
-                      }
-                  }
-              }
-          }
-
-          return true;
-      }
-
-      toString() {
-          return `{${this.items.join(", ")}}`;
-      }
-  }
-
-  assert$1.deepStrictEqual(new Matrix([
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9]
-  ]).items, [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
-  ]);
-
-  assert$1.notDeepStrictEqual(new Matrix([
-      [1, 2, 3],
-      [4, 5]
-  ]), [
-      [1, 2, 3],
-      [4, 5, 0],
-  ]);
-
-  assert$1.deepStrictEqual(new Matrix([
-      [1, 2, 3],
-      [4, 5, 6]]
-  ).items, [
-      [1, 2, 3],
-      [4, 5, 6],
-  ]);
-
-  try {
-      new Matrix([
-          [1, 2, 3],
-          [4, "a", 6],
-      ]);
-  } catch (error) {
-      assert$1.strictEqual(error.message, "Matrix must contain only numeric values");
-  }
-
-
-  /*
-
-  TODO: implement the following statistical functions for the matrix class
-
-  1. mean
-  2. median
-  3. mode
-  4. variance
-  5. standardDeviation
-  6. covariance
-  7. correlation
-  8. percentile
-  9. zScore
-  10. tTest
-  11. anova
-
-  */
-
-  let constants = {
-      pi: new Fraction(355, 113),
-      e: new Fraction(Math.E),
-      pretty_printing: false
-  };
-
-  registerNativeConstants(constants);
-
-  let general = {
-      print: (...xs) => {
-          log(xs
-              .map(x => x.toString())
-              .join(" "));
-          return true;
-      },
-      sgn: (num) => {
-          if (!(num instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          num = num.evaluate();
-          return num === 0 ? new Fraction(0) : new Fraction(Math.sign(num));
-      },
-      floor: (num) => {
-          if (!(num instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          num = num.evaluate();
-          return new Fraction(Math.floor(num));
-      },
-      ceil: (num) => {
-          if (!(num instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          num = num.evaluate();
-          return new Fraction(Math.ceil(num));
-      },
-      round: (num) => {
-          if (!(num instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          num = num.evaluate();
-          return new Fraction(Math.round(num));
-      },
-      ln: (num) => {
-          if (!(num instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          return new Fraction(Math.log(num.evaluate()));
-      },
-      log: (num, base = 10) => {
-          if (!((num instanceof Fraction) && (base === 10 || base instanceof Fraction))) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          num = num.evaluate();
-          return new Fraction(Math.log(num) / (base === 10 ? Math.log(10) : Math.log(base.evaluate())));
-      },
-      max: (num1, ...rest) => {
-          if (!(num1 instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-
-          let max = num1.evaluate();
-          for (let elem in rest) {
-              if (!(elem instanceof Fraction)) {
-                  throw new TypeError('Function only supports numeric type (Fraction)');
-              }
-              max = (elem.evaluate() > max ? elem.evaluate() : max);
-          }
-          return new Fraction(max);
-      },
-      min: (num1, ...rest) => {
-          if (!(num1 instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-
-          let min = num1.evaluate();
-          for (let elem in rest) {
-              if (!(elem instanceof Fraction)) {
-                  throw new TypeError('Function only supports numeric type (Fraction)');
-              }
-              min = (elem.evaluate() < min ? elem.evaluate() : min);
-          }
-          return new Fraction(min);
-      },
-      mod: (number, divisor) => {
-          if (!(number instanceof Fraction && divisor instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          number = number.evaluate();
-          divisor = divisor.evaluate();
-          return new Fraction(number % divisor);
-      },
-      sqrt: (number) => {
-          if (!(number instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          number = number.evaluate();
-          return new Fraction(Math.sqrt(number));
-      },
-      root: (number, n) => {
-          if (!(number instanceof Fraction && n instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          number = number.evaluate();
-          n = n.evaluate();
-
-          return new Fraction(Math.pow(number, 1 / n));
-      },
-      exp: (number, n = Math.E) => {
-          if (!(number instanceof Fraction && (n instanceof Fraction || n === Math.E))) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          number = number.evaluate();
-          n = (n === Math.E ? Math.E : n.evaluate());
-          return new Fraction(Math.pow(n, number))
-      },
-      det: (matrix) => {
-          if (!(matrix instanceof Matrix)) {
-              throw new TypeError('Function only supports matrices');
-          }
-          return new Fraction(matrix.determinant())
-      },
-      gcd: (num1, num2) => {
-          if (!(num1 instanceof Fraction && num2 instanceof Fraction)) {
-              throw new TypeError('Function only supports matrices');
-          }
-          let x = Math.abs(num1.evaluate());
-          let y = Math.abs(num2.evaluate());
-
-          while (y) {
-              let t = y;
-              y = x % y;
-              x = t;
-          }
-
-          return new Fraction(x)
-      },
-      lcm: (num1, num2) => {
-          let gcd = general.gcd(num1, num2);
-          return new Fraction((num1.evaluate() * num2.evaluate()) / gcd);
-      },
-      sum: (num1, ...rest) => {
-          if (!(num1 instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          let sum = num1.evaluate();
-          for (let elem in rest) {
-              if (!(elem instanceof Fraction)) {
-                  throw new TypeError('Function only supports numeric type (Fraction)');
-              }
-              sum = sum + elem.evaluate();
-          }
-          return new Fraction(sum);
-      },
-      discriminant: (a, b, c) => {
-          if (!(a instanceof Fraction && b instanceof Fraction && c instanceof Fraction)) {
-              throw new TypeError('Function only supports numeric type (Fraction)');
-          }
-          a = a.evaluate();
-          b = b.evaluate();
-          c = c.evaluate();
-          return new Fraction((b ^ 2) - (4 * a * c));
-      },
-      poly2: (a, b, c) => {
-          let D = general.D(a, b, c).evaluate();
-          a = a.evaluate();
-          b = b.evaluate();
-          c = c.evaluate();
-
-          if (D < 0) {
-              throw new Error("Discriminant value below 0")
-          } else if (D === 0) {
-              return new Fraction((-b) / (2 * a))
-          } else {
-              let sqrtD = Math.sqrt(D);
-              return new Collection([(-b + sqrtD) / (2 * a), (-b - sqrtD) / (2 * a)])
-          }
-      },
-      abs: (elem) => {
-          if (elem instanceof Fraction) {
-              return elem.abs();
-          } else if (elem instanceof Collection) {
-              return new Fraction(elem.length());
-          } else if (elem instanceof Complex) {
-              return new Fraction(elem.length())
-          } else {
-              throw new TypeError('Function does not support provided type');
-          }
-      }
-  };
-
-  registerNativeFns(general);
-
   /*!
    * @kurkle/color v0.3.2
    * https://github.com/kurkle/color#readme
@@ -13523,6 +12537,1122 @@ var rejectBundle = (function () {
   function styleChanged(style, prevStyle) {
       return prevStyle && JSON.stringify(style) !== JSON.stringify(prevStyle);
   }
+
+  class Return {
+      constructor(value) {
+          this.value = value;
+      }
+  }
+
+  const FUNS = new Map();
+
+  class Fn {
+
+      constructor(name, params = [], block = []) {
+          this.name = name;
+          this.params = params;
+          this.block = block;
+      }
+
+      invoke(params) {
+          if (params.length === undefined) { // if a single value is passed
+              params = [params];
+          }
+
+          for (let i = 0; i < params.length; i++) {
+              let variable = this.params[i];
+              variable.value = params[i];
+
+              VARS.set(variable.name, variable);
+          }
+
+          // flatten to remove when, for indentation
+          const returns = this.block.parse()
+              .flat(Infinity)
+              .filter(ret => ret instanceof Return);
+
+          return returns ? returns[0].value : true;
+      }
+  }
+
+  class AFn extends Fn {
+
+      constructor(params, block) {
+          super("", params, block);
+      }
+
+      invoke(params) {
+          if (params.length === undefined) { // if a single value is passed
+              params = [params];
+          }
+
+          for (let i = 0; i < params.length; i++) {
+              let variable = this.params[i];
+              variable.value = params[i];
+
+              VARS.set(variable.name, variable);
+          }
+
+          return this.block.parse();
+      }
+  }
+
+  class NativeFn extends Fn {
+
+      constructor(name, afn) {
+          super(name);
+
+          this.afn = afn;
+      }
+
+      invoke(params) {
+          return this.afn(...params);
+      }
+  }
+
+  // registers a single function
+  function register(fn) {
+      if (fn.name.length === 0) {
+          throw new Error("Cannot register anonymous functions");
+      }
+
+      FUNS.set(fn.name, fn);
+  }
+
+  // registers a native function, provided with a map
+  function registerNativeFns(map) {
+
+      for (const name in map) {
+          let fn = map[name];
+
+          register(new NativeFn(name, fn));
+      }
+  }
+
+  class Str extends Collection {
+      constructor(items = []) {
+          if (typeof items === "string") {
+              items = items.split("");
+          }
+          super(items);
+      }
+
+      // Get the complete string as a JavaScript string
+      get string() {
+          return this.items.join("");
+      }
+
+      // Set the complete string by splitting it into an array of characters
+      set string(string) {
+          this.items = string.split("");
+      }
+
+      // Reverse the string
+      reverse() {
+          return new Str(this.items.reverse());
+      }
+
+      // Get the character at a specific index
+      charAt(index) {
+          return this.items[index];
+      }
+
+      // Get the index of the first occurrence of a substring
+      indexOf(substring) {
+          return this.string.indexOf(substring);
+      }
+
+      // Get the index of the last occurrence of a substring
+      lastIndexOf(substring) {
+          return this.string.lastIndexOf(substring);
+      }
+
+      // Check if the string starts with a specific substring
+      startsWith(substring) {
+          return this.string.startsWith(substring);
+      }
+
+      // Check if the string ends with a specific substring
+      endsWith(substring) {
+          return this.string.endsWith(substring);
+      }
+
+      // Get the substring between two indices (inclusive)
+      slice(start, end) {
+          return new Str(this.items.slice(start, end + 1));
+      }
+
+      // Split the string into an array of substrings
+      split(separator) {
+          return new Collection(this.string.split(separator));
+      }
+
+      // Replace all occurrences of a substring with another string
+      replace(substring, replacement) {
+          return new Str(
+              this.string.replace(substring, replacement).split("")
+          );
+      }
+
+      // Remove leading and trailing whitespace from the string
+      trim() {
+          return new Str(this.string).trim().split("");
+      }
+
+      // Convert the string to uppercase
+      toUpperCase() {
+          return new Str(this.string.toUpperCase().split(""));
+      }
+
+      // Convert the string to lowercase
+      toLowerCase() {
+          return new Str(this.string.toLowerCase().split(""));
+      }
+
+      // Convert the string to a number
+      toNumber() {
+          return Number(this.string);
+      }
+
+      // Check if the string is empty
+      isEmpty() {
+          return this.items.length === 0;
+      }
+
+      getCharAt(index) {
+          if (index < 0 || index >= this.items.length) {
+              throw new RangeError("Index out of bounds");
+          }
+          return this.items[index];
+      }
+
+      // Set the character at a specific index
+      setCharAt(index, char) {
+          if (index < 0 || index >= this.items.length) {
+              throw new RangeError("Index out of bounds");
+          }
+          if (typeof char !== "string" || char.length !== 1) {
+              throw new TypeError("Value must be a single character string");
+          }
+          this.items[index] = char;
+      }
+
+      // Concatenate multiple strings or String objects
+      concat(...strings) {
+          let combinedString = this.string;
+          for (const string of strings) {
+              if (string instanceof Str) {
+                  combinedString = combinedString.concat(string.string);
+              } else if (typeof string === "string") {
+                  combinedString = combinedString.concat(string);
+              } else {
+                  throw new TypeError("Value must be a string or String object");
+              }
+          }
+          return new Str(combinedString);
+      }
+
+      // Pad the start of the string with a character or string
+      padStart(length, padString = " ") {
+          if (typeof length !== "number" || length < 0) {
+              throw new TypeError("Length must be a non-negative number");
+          }
+          if (typeof padString !== "string") {
+              throw new TypeError("Pad string must be a string");
+          }
+          return new Str(this.string.padStart(length, padString));
+      }
+
+      // Pad the end of the string with a character or string
+      padEnd(length, padString = " ") {
+          if (typeof length !== "number" || length < 0) {
+              throw new TypeError("Length must be a non-negative number");
+          }
+          if (typeof padString !== "string") {
+              throw new TypeError("Pad string must be a string");
+          }
+          return new Str(this.string.padEnd(length, padString));
+      }
+
+      // Pad the start and end of the string with a character or string
+      pad(startLength, endLength = startLength, padString = " ") {
+          if (typeof startLength !== "number" || startLength < 0) {
+              throw new TypeError("Start length must be a non-negative number");
+          }
+          if (typeof endLength !== "number" || endLength < 0) {
+              throw new TypeError("End length must be a non-negative number");
+          }
+          if (typeof padString !== "string") {
+              throw new TypeError("Pad string must be a string");
+          }
+          return this.padStart(startLength, padString).padEnd(
+              endLength,
+              padString
+          );
+      }
+
+      // Repeat the string a specified number of times
+      repeat(count) {
+          if (typeof count !== "number" || count < 0) {
+              throw new TypeError("Count must be a non-negative number");
+          }
+          return new Str(this.string.repeat(count));
+      }
+
+      // Get the substring between two indices (inclusive)
+      substring(start, end) {
+          if (
+              typeof start !== "number" ||
+              start < 0 ||
+              start > this.items.length
+          ) {
+              throw new RangeError("Start index out of bounds");
+          }
+          if (typeof end !== "number" || end < 0 || end > this.items.length) {
+              throw new RangeError("End index out of bounds");
+          }
+          return new Str(this.items.slice(start, end + 1));
+      }
+
+      match(regex) {
+          return this.string.match(new RegExp(regex, "g"));
+      }
+
+      // Search for a substring or regular expression in the string
+      search(query) {
+          return this.string.search(query);
+      }
+
+      // Truncate the string to a given length and append an ellipsis if necessary
+      truncate(length, ellipsis = "...") {
+          if (this.string.length > length) {
+              return new Str(
+                  this.string.slice(0, length - ellipsis.length) + ellipsis
+              );
+          }
+          return new Str(this.string);
+      }
+
+      // Get the Unicode code point value at a specific index
+      codePointAt(index) {
+          return this.string.codePointAt(index);
+      }
+
+      fillTokens() {
+          let string = this.string;
+          const regex = /\$(([a-zA-Z_]\w*)(\(.*?\))?)/g;
+
+          for (let item of this.string.matchAll(regex)) {
+              const full = item[0];
+              const importantStuff = item[1];
+              const ident = item[2];
+
+              if (item[3] !== undefined) { // fn invocation
+                  const fn = FUNS.get(ident);
+
+                  if (fn === undefined) {
+                      continue;
+                  }
+
+                  string = string.replace(full, parseInput(importantStuff).toString());
+              } else { // var
+                  const variable = VARS.get(ident);
+
+                  if (variable === undefined) {
+                      continue;
+                  }
+
+                  string = string.replace(full, variable.value === null ? "unknown" : variable.value.toString());
+              }
+          }
+
+          return string;
+      }
+
+      toString() {
+          return this.fillTokens();
+      }
+  }
+
+  class Matrix extends Collection {
+
+      // Initialize a Matrix with a 2D array of numbers or a Collection instance
+      // accounts that all rows of the matrix must be of the same length
+      // when matrix rows are not of the same length, they are filled with 0's
+      constructor(matrix) {
+          super();
+
+          if (matrix instanceof Collection) {
+              matrix = matrix.items;
+          }
+
+          const maxRowLength = Math.max(...matrix.map((row) => row.length));
+          this.items = matrix.map((row) => {
+              while (row.length < maxRowLength) {
+                  row.push(0);
+              }
+              return row;
+          });
+      }
+
+      // Transpose the Matrix (swap rows and columns)
+      transpose() {
+          const transposed = this.items[0].map((col, i) =>
+              this.items.map((row) => row[i])
+          );
+          return new Matrix(transposed);
+      }
+
+      // Multiply the Matrix by another Matrix or a scalar value
+      multiply(other) {
+          if (other instanceof Matrix) {
+              if (this.items[0].length !== other.items.length) {
+                  throw new Error("Invalid matrix dimensions for multiplication");
+              }
+
+              const product = this.items.map((row) => {
+                  return other.transpose().items.map((col) => {
+                      return row.reduce(
+                          (total, value, i) => total + value * col[i],
+                          0
+                      );
+                  });
+              });
+
+              return new Matrix(product);
+          } else {
+              const product = this.items.map((row) =>
+                  row.map((value) => value * other)
+              );
+              return new Matrix(product);
+          }
+      }
+
+      // Add the Matrix to another Matrix
+      add(other) {
+          if (
+              this.items.length !== other.items.length ||
+              this.items[0].length !== other.items[0].length
+          ) {
+              throw new Error("Invalid matrix dimensions for addition");
+          }
+
+          const sum = this.items.map((row, i) =>
+              row.map((value, j) => value + other.items[i][j])
+          );
+          return new Matrix(sum);
+      }
+
+      // Subtract another Matrix from the Matrix
+      subtract(other) {
+          if (
+              this.items.length !== other.items.length ||
+              this.items[0].length !== other.items[0].length
+          ) {
+              throw new Error("Invalid matrix dimensions for subtraction");
+          }
+
+          const difference = this.items.map((row, i) =>
+              row.map((value, j) => value - other.items[i][j])
+          );
+          return new Matrix(difference);
+      }
+
+      // Get the determinant of the Matrix (only works for square matrices)
+      determinant() {
+          if (this.items.length !== this.items[0].length) {
+              throw new Error("Matrix must be square to calculate determinant");
+          }
+
+          if (this.items.length === 2) {
+              return (
+                  this.items[0][0] * this.items[1][1] -
+                  this.items[0][1] * this.items[1][0]
+              );
+          }
+
+          let determinant = 0;
+          for (let i = 0; i < this.items[0].length; i++) {
+              const cofactor = new Matrix(
+                  this.items
+                      .slice(1)
+                      .map((row) => row.slice(0, i).concat(row.slice(i + 1)))
+              );
+              determinant +=
+                  (i % 2 === 0 ? 1 : -1) *
+                  this.items[0][i] *
+                  cofactor.determinant();
+          }
+          return determinant;
+      }
+
+      // todo add
+      pow(n) {
+
+      }
+
+      // todo add
+      factorial() {
+
+      }
+
+      // Get the number of columns in the Matrix
+      col() {
+          return this.items[0].length;
+      }
+
+      // Get the number of rows in the Matrix
+      row() {
+          return this.items.length;
+      }
+
+      // Get the dimensions of the Matrix (number of rows and columns)
+      dimensions() {
+          return {rows: this.row(), cols: this.col()};
+      }
+
+      // Transform the Matrix into a square Matrix, filling missing values with 0's
+      toSquare() {
+          const maxDimension = Math.max(this.row(), this.col());
+          const squareMatrix = new Array(maxDimension)
+              .fill(0)
+              .map(() => new Array(maxDimension).fill(0));
+          this.items.forEach((row, i) => {
+              row.forEach((value, j) => {
+                  squareMatrix[i][j] = value;
+              });
+          });
+          return new Matrix(squareMatrix);
+      }
+
+      // Get the value at a specific position in the Matrix
+      get(row, col) {
+          if (row >= this.row() || col >= this.col()) {
+              throw new Error("Invalid matrix position");
+          }
+          return this.items[row][col];
+      }
+
+      // Set the value at a specific position in the Matrix
+      set(row, col, value) {
+          if (row >= this.row() || col >= this.col()) {
+              throw new Error("Invalid matrix position");
+          }
+          this.items[row][col] = value;
+      }
+
+      // Add a row to the Matrix
+      addRow(row) {
+          if (!row) {
+              row = new Array(this.col()).fill(0);
+          }
+          if (row.length > this.col()) {
+              row = row.slice(0, this.col());
+          }
+          if (row.length < this.col()) {
+              while (row.length < this.col()) {
+                  row.push(0);
+              }
+          }
+          this.items.push(row);
+      }
+
+      // Add a column to the Matrix
+      addCol(col) {
+          if (!col) {
+              col = new Array(this.row()).fill(0);
+          }
+          if (col.length > this.row()) {
+              col = col.slice(0, this.row());
+          }
+          if (col.length < this.row()) {
+              while (col.length < this.row()) {
+                  col.push(0);
+              }
+          }
+          this.items = this.items.map((row, i) => row.concat(col[i]));
+      }
+
+      // Check if the Matrix is a square matrix
+      isSquare() {
+          return this.items.length === this.items[0].length;
+      }
+
+      // Check if the Matrix is a diagonal matrix
+      isDiagonal() {
+          if (!this.isSquare()) {
+              return false;
+          }
+          for (let i = 0; i < this.items.length; i++) {
+              for (let j = 0; j < this.items[0].length; j++) {
+                  if (i !== j && this.items[i][j] !== 0) {
+                      return false;
+                  }
+              }
+          }
+          return true;
+      }
+
+      // Check if the Matrix is an identity matrix
+      isIdentity() {
+          if (!this.isSquare()) {
+              return false;
+          }
+          for (let i = 0; i < this.items.length; i++) {
+              for (let j = 0; j < this.items[0].length; j++) {
+                  if (i === j && this.items[i][j] !== 1) {
+                      return false;
+                  }
+                  if (i !== j && this.items[i][j] !== 0) {
+                      return false;
+                  }
+              }
+          }
+          return true;
+      }
+
+      // Check if the Matrix is a lower triangular matrix
+      isLowerTriangular() {
+          if (!this.isSquare()) {
+              return false;
+          }
+          for (let i = 0; i < this.items.length; i++) {
+              for (let j = 0; j < this.items[0].length; j++) {
+                  if (i < j && this.items[i][j] !== 0) {
+                      return false;
+                  }
+              }
+          }
+          return true;
+      }
+
+      // Check if the Matrix is an upper triangular matrix
+      isUpperTriangular() {
+          if (!this.isSquare()) {
+              return false;
+          }
+          for (let i = 0; i < this.items.length; i++) {
+              for (let j = 0; j < this.items[0].length; j++) {
+                  if (i > j && this.items[i][j] !== 0) {
+                      return false;
+                  }
+              }
+          }
+          return true;
+      }
+
+      inverse() {
+          if (!this.isSquare()) {
+              throw new Error("Matrix must be square to calculate inverse");
+          }
+
+          // Check if matrix is invertible
+          const det = this.determinant();
+          if (det === 0) {
+              throw new Error("Matrix is not invertible");
+          }
+
+          // Calculate inverse using cofactor expansion
+          const inverted = this.items.map((row, i) => {
+              return row.map((value, j) => {
+                  const cofactor = new Matrix(
+                      this.items
+                          .slice(0, i)
+                          .concat(this.items.slice(i + 1))
+                          .map((row) => row.slice(0, j).concat(row.slice(j + 1)))
+                  );
+                  return (i + j) % 2 === 0
+                      ? cofactor.determinant()
+                      : -cofactor.determinant();
+              });
+          });
+          return new Matrix(inverted).multiply(1 / det);
+      }
+
+      // Calculate the rank of a matrix
+      rank() {
+          // Convert matrix to reduced row echelon form
+          const rref = this.rref();
+          let rank = 0;
+          rref.items.forEach((row) => {
+              if (!row.every((value) => value === 0)) {
+                  rank++;
+              }
+          });
+          return rank;
+      }
+
+      //rhs stands for right hand side and as a parameter represents the vector of constants
+      //on the right side of the equation represented by the matrix
+      solve(rhs) {
+          // Check if the matrix is square
+          if (!this.isSquare()) {
+              throw new Error(
+                  "Matrix must be square to solve system of equations"
+              );
+          }
+
+          // Check if the matrix is invertible
+          if (this.determinant() === 0) {
+              throw new Error(
+                  "System has no solution or an infinite number of solutions"
+              );
+          }
+
+          // Calculate the inverse of the matrix
+          const inverse = this.inverse();
+
+          // Multiply the inverse by the right-hand side to get the solution
+          const solution = inverse.multiply(rhs);
+
+          return solution;
+      }
+
+      equals(other) {
+          if (
+              this.items.length !== other.items.length ||
+              this.items[0].length !== other.items[0].length
+          ) {
+              return false;
+          }
+          return this.items.every((row, i) =>
+              row.every((value, j) => value === other.items[i][j])
+          );
+      }
+
+      isSymmetric() {
+          if (!this.isSquare()) {
+              throw new Error("Matrix must be square to check symmetry");
+          }
+          return this.equals(this.transpose());
+      }
+
+      isSkewSymmetric() {
+          // Check if the matrix is square
+          if (!this.isSquare()) {
+              return false;
+          }
+
+          // Check if the matrix is equal to the negation of its transpose
+          const transpose = this.transpose();
+          const skewSymmetric = this.items.every((row, i) =>
+              row.every((value, j) => value === -transpose.items[i][j])
+          );
+          return skewSymmetric;
+      }
+
+      isOrthogonal() {
+          // Check if the matrix is square
+          if (!this.isSquare()) {
+              return false;
+          }
+
+          // Check if the determinant of the matrix is 1 or -1
+          if (this.determinant() !== 1 && this.determinant() !== -1) {
+              return false;
+          }
+
+          // Check if the columns of the matrix are mutually orthonormal
+          for (let i = 0; i < this.items[0].length; i++) {
+              for (let j = 0; j < this.items[0].length; j++) {
+                  if (i !== j) {
+                      const columnI = new Matrix([
+                          this.items.map((row) => row[i]),
+                      ]);
+                      const columnJ = new Matrix([
+                          this.items.map((row) => row[j]),
+                      ]);
+                      if (
+                          columnI.transpose().multiply(columnJ).determinant() !==
+                          0
+                      ) {
+                          return false;
+                      }
+                  }
+              }
+          }
+
+          return true;
+      }
+
+      toString() {
+          return `{${this.items.join(", ")}}`;
+      }
+  }
+
+  assert$1.deepStrictEqual(new Matrix([
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9]
+  ]).items, [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+  ]);
+
+  assert$1.notDeepStrictEqual(new Matrix([
+      [1, 2, 3],
+      [4, 5]
+  ]), [
+      [1, 2, 3],
+      [4, 5, 0],
+  ]);
+
+  assert$1.deepStrictEqual(new Matrix([
+      [1, 2, 3],
+      [4, 5, 6]]
+  ).items, [
+      [1, 2, 3],
+      [4, 5, 6],
+  ]);
+
+  try {
+      new Matrix([
+          [1, 2, 3],
+          [4, "a", 6],
+      ]);
+  } catch (error) {
+      assert$1.strictEqual(error.message, "Matrix must contain only numeric values");
+  }
+
+
+  /*
+
+  TODO: implement the following statistical functions for the matrix class
+
+  1. mean
+  2. median
+  3. mode
+  4. variance
+  5. standardDeviation
+  6. covariance
+  7. correlation
+  8. percentile
+  9. zScore
+  10. tTest
+  11. anova
+
+  */
+
+  class For {
+      constructor(params, values, block) {
+          this.params = params;
+          this.values = values;
+          this.block = block;
+      }
+
+      invoke() {
+          for (let i = 0; i < this.values.items.length; i++) {
+              const value = this.values.items[i];
+
+              console.log(value);
+
+              // set vars
+              for (let j = 0; j < this.params.length; j++) {
+                  let variable = this.params[j];
+                  variable.value = this.params.length === 1 ? value : value.items[j];
+
+                  // console.log(variable.name, value);
+
+                  VARS.set(variable.name, variable);
+              }
+
+              this.block.parse();
+          }
+      }
+  }
+
+  let constants = {
+      pi: new Fraction(355, 113),
+      e: new Fraction(Math.E),
+      pretty_printing: false
+  };
+
+  registerNativeConstants(constants);
+
+  const colours = ["A", "B", "C", "D", "E", "F"];
+
+  /**
+   * Returns a random bright line colour.
+   *
+   * @return {string} a random bright line colour.
+   */
+  function getLineColour() {
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+          color += colours[Math.floor(Math.random() * colours.length)];
+      }
+      return color;
+  }
+
+  /**
+   * Returns a range from a (inclusive) to b (exclusive)
+   * @param a the lower bound
+   * @param b the upper bound
+   * @return {*[]} an array with all numbers between a (inclusive) and b (exclusive)
+   */
+  function range(a, b) {
+      assertNotNull(a);
+      assertNotNull(b);
+      assert(Number.isInteger(a), "Lower bound is not an integer");
+      assert(Number.isInteger(b), "Upper bound is not an integer");
+      assert(a <= b, "Lower bound cannot be higher than upper bound");
+
+      let arr = [];
+      for (let i = a; i < b; i++) {
+          arr[arr.length] = i;
+      }
+
+      return arr;
+  }
+
+  /**
+   * Repeats x n amount of times.
+   *
+   * @param   x
+   *          The item to repeat.
+   *
+   * @param   n
+   *          The amount of times to repeat it.
+   *
+   * @returns {*[]} the array with the repeated x value.
+   */
+  function repeat(x, n) {
+      assertNotNull(x);
+      assert(Number.isInteger(n), "Repeat value is not an integer");
+
+      let arr = [];
+      doTimes(() => {
+          arr[arr.length] = x;
+      }, n);
+
+      return arr;
+  }
+
+  /**
+   * Perform an anonymous function n times.
+   *
+   * @param afn
+   * @param n
+   */
+  function doTimes(afn, n) {
+      for (let i = 0; i < n; i++) {
+          afn.apply();
+      }
+  }
+
+  function assert(predicate, error) {
+      if (!predicate) {
+          throw new Error(error);
+      }
+  }
+
+  function assertNotNull(x) {
+      if (x === null || x === undefined) {
+          throw new Error("Value is undefined");
+      }
+  }
+
+  let general = {
+      print: (...xs) => {
+          log(xs
+              .map(x => x.toString())
+              .join(" "));
+          return true;
+      },
+      sgn: (num) => {
+          if (!(num instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          num = num.evaluate();
+          return num === 0 ? new Fraction(0) : new Fraction(Math.sign(num));
+      },
+      floor: (num) => {
+          if (!(num instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          num = num.evaluate();
+          return new Fraction(Math.floor(num));
+      },
+      ceil: (num) => {
+          if (!(num instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          num = num.evaluate();
+          return new Fraction(Math.ceil(num));
+      },
+      round: (num) => {
+          if (!(num instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          num = num.evaluate();
+          return new Fraction(Math.round(num));
+      },
+      ln: (num) => {
+          if (!(num instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          return new Fraction(Math.log(num.evaluate()));
+      },
+      log: (num, base = 10) => {
+          if (!((num instanceof Fraction) && (base === 10 || base instanceof Fraction))) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          num = num.evaluate();
+          return new Fraction(Math.log(num) / (base === 10 ? Math.log(10) : Math.log(base.evaluate())));
+      },
+      max: (num1, ...rest) => {
+          if (!(num1 instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+
+          let max = num1.evaluate();
+          for (let elem in rest) {
+              if (!(elem instanceof Fraction)) {
+                  throw new TypeError('Function only supports numeric type (Fraction)');
+              }
+              max = (elem.evaluate() > max ? elem.evaluate() : max);
+          }
+          return new Fraction(max);
+      },
+      min: (num1, ...rest) => {
+          if (!(num1 instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+
+          let min = num1.evaluate();
+          for (let elem in rest) {
+              if (!(elem instanceof Fraction)) {
+                  throw new TypeError('Function only supports numeric type (Fraction)');
+              }
+              min = (elem.evaluate() < min ? elem.evaluate() : min);
+          }
+          return new Fraction(min);
+      },
+      mod: (number, divisor) => {
+          if (!(number instanceof Fraction && divisor instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          number = number.evaluate();
+          divisor = divisor.evaluate();
+          return new Fraction(number % divisor);
+      },
+      sqrt: (number) => {
+          if (!(number instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          number = number.evaluate();
+          return new Fraction(Math.sqrt(number));
+      },
+      root: (number, n) => {
+          if (!(number instanceof Fraction && n instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          number = number.evaluate();
+          n = n.evaluate();
+
+          return new Fraction(Math.pow(number, 1 / n));
+      },
+      exp: (number, n = Math.E) => {
+          if (!(number instanceof Fraction && (n instanceof Fraction || n === Math.E))) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          number = number.evaluate();
+          n = (n === Math.E ? Math.E : n.evaluate());
+          return new Fraction(Math.pow(n, number))
+      },
+      det: (matrix) => {
+          if (!(matrix instanceof Matrix)) {
+              throw new TypeError('Function only supports matrices');
+          }
+          return new Fraction(matrix.determinant())
+      },
+      gcd: (num1, num2) => {
+          if (!(num1 instanceof Fraction && num2 instanceof Fraction)) {
+              throw new TypeError('Function only supports matrices');
+          }
+          let x = Math.abs(num1.evaluate());
+          let y = Math.abs(num2.evaluate());
+
+          while (y) {
+              let t = y;
+              y = x % y;
+              x = t;
+          }
+
+          return new Fraction(x)
+      },
+      lcm: (num1, num2) => {
+          let gcd = general.gcd(num1, num2);
+          return new Fraction((num1.evaluate() * num2.evaluate()) / gcd);
+      },
+      sum: (num1, ...rest) => {
+          if (!(num1 instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          let sum = num1.evaluate();
+          for (let elem in rest) {
+              if (!(elem instanceof Fraction)) {
+                  throw new TypeError('Function only supports numeric type (Fraction)');
+              }
+              sum = sum + elem.evaluate();
+          }
+          return new Fraction(sum);
+      },
+      discriminant: (a, b, c) => {
+          if (!(a instanceof Fraction && b instanceof Fraction && c instanceof Fraction)) {
+              throw new TypeError('Function only supports numeric type (Fraction)');
+          }
+          a = a.evaluate();
+          b = b.evaluate();
+          c = c.evaluate();
+          return new Fraction((b ^ 2) - (4 * a * c));
+      },
+      poly2: (a, b, c) => {
+          let D = general.D(a, b, c).evaluate();
+          a = a.evaluate();
+          b = b.evaluate();
+          c = c.evaluate();
+
+          if (D < 0) {
+              throw new Error("Discriminant value below 0")
+          } else if (D === 0) {
+              return new Fraction((-b) / (2 * a))
+          } else {
+              let sqrtD = Math.sqrt(D);
+              return new Collection([(-b + sqrtD) / (2 * a), (-b - sqrtD) / (2 * a)])
+          }
+      },
+      abs: (elem) => {
+          if (elem instanceof Fraction) {
+              return elem.abs();
+          } else if (elem instanceof Collection) {
+              return new Fraction(elem.length());
+          } else if (elem instanceof Complex) {
+              return new Fraction(elem.length())
+          } else {
+              throw new TypeError('Function does not support provided type');
+          }
+      },
+      range: (a, b) => {
+          assert(a instanceof Fraction, "Lower bound is not a fraction");
+          assert(b instanceof Fraction, "Upper bound is not a fraction");
+
+          return range(a.evaluate(), b.evaluate());
+      },
+      repeat: (x, n) => {
+          assert(n instanceof Fraction, "Repeat value is not a fraction");
+
+          return repeat(x, n.evaluate());
+      },
+      str: (...xs) => {
+          return new Str(xs
+              .map(x => x.toString())
+              .join(""))
+      }
+  };
+
+  registerNativeFns(general);
 
   /*!
    * Chart.js v4.2.0
@@ -24848,54 +24978,6 @@ var rejectBundle = (function () {
   Chart$1.register(...registerables);
   var Chart = Chart$1;
 
-  const colours = ["A", "B", "C", "D", "E", "F"];
-
-  /**
-   * Returns a random bright line colour.
-   *
-   * @return {string} a random bright line colour.
-   */
-  function getLineColour() {
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-          color += colours[Math.floor(Math.random() * colours.length)];
-      }
-      return color;
-  }
-
-  /**
-   * Returns a range from a (inclusive) to b (exclusive)
-   * @param a the lower bound
-   * @param b the upper bound
-   * @return {*[]} an array with all numbers between a (inclusive) and b (exclusive)
-   */
-  function range(a, b) {
-      assertNotNull(a);
-      assertNotNull(b);
-      assert(Number.isInteger(a), "Lower bound is not an integer");
-      assert(Number.isInteger(b), "Upper bound is not an integer");
-      assert(a <= b, "Lower bound cannot be higher than upper bound");
-
-      let arr = [];
-      for (let i = a; i < b; i++) {
-          arr[arr.length] = i;
-      }
-
-      return arr;
-  }
-
-  function assert(predicate, error) {
-      if (!predicate) {
-          throw new Error(error);
-      }
-  }
-
-  function assertNotNull(x) {
-      if (x === null || x === undefined) {
-          throw new Error("Value is undefined");
-      }
-  }
-
   const line = "rgb(159,49,49)";
   const bg = "rgba(155,155,155,0.5)";
 
@@ -25445,8 +25527,26 @@ Reject {
 
       CondWhen(_, arg, block) {
           if (arg.parse() === true) {
-              block.parse();
+              return block.parse();
           }
+      },
+
+      // For = "for " ListOf<identifier, ","> "in" Expression Block
+      For(_, params, __, values, block) {
+          values = values.parse();
+
+          if (!(values instanceof Collection)) {
+              throw new TypeError("Only collections may be looped");
+          }
+
+          const loop = new For(
+              params.asIteration()
+                  .children
+                  .map(variable => new Var(variable.sourceString.trim(), null)),
+              values,
+              block);
+
+          loop.invoke();
       },
 
       Fn(_, ident, __, args, ___, block) {
@@ -25461,6 +25561,10 @@ Reject {
 
                       return string.includes("=") ? new Var(ident, variable.children[1].children[2].parse()) : new Var(ident, null);
                   }), block));
+      },
+
+      Return(_, expr) {
+          return new Return(expr.parse());
       },
 
       // =============
