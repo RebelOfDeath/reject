@@ -1,5 +1,5 @@
 <div align="center">
-<h3>📚 Reject Editor</h3>
+<h3>📚 Reject</h3>
 <strong><a href="https://rebelofdeath.github.io/reject/editor">Editor</a> | <a href="https://github.com/RebelOfDeath/reject/wiki">Get started</a> | <a href="https://github.com/RebelOfDeath/reject">Source</a> | by <a href="https://github.com/Efnilite">Efnilite</a> & <a href="https://github.com/RebelOfDeath">RebelOfDeath</a> </strong>
 <br><br>
 </div>
