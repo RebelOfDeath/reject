@@ -38,6 +38,8 @@ const graphFuns = {
         };
 
         new Chart(document.getElementById(`${createCanvas()}`), config);
+
+        return true;
     },
     plot_function: async (a, b, increment, fn) => {
         assertNotNull(a);
@@ -72,6 +74,8 @@ const graphFuns = {
         };
 
         new Chart(document.getElementById(`${createCanvas()}`), config);
+
+        return true;
     },
     plot_functions: async (a, b, increment, ...fns) => {
         assertNotNull(a);
@@ -114,6 +118,8 @@ const graphFuns = {
         };
 
         new Chart(document.getElementById(`${createCanvas()}`), config);
+        
+        return true;
     }
 }
 

@@ -194,12 +194,12 @@ let general = {
         assert(b instanceof Fraction, "Upper bound is not a fraction");
         assert(increment instanceof Fraction, "Increment is not a fraction");
 
-        return range(a.evaluate(), b.evaluate(), increment.evaluate());
+        return new Collection(range(a.evaluate(), b.evaluate(), increment.evaluate()));
     },
     repeat: (x, n) => {
         assert(n instanceof Fraction, "Repeat value is not a fraction");
 
-        return repeat(x, n.evaluate());
+        return new Collection(repeat(x, n.evaluate()));
     },
     str: (...xs) => {
         return new Str(xs
