@@ -9076,7 +9076,7 @@ var rejectBundle = (function () {
               this.numerator * otherFraction.denominator +
               otherFraction.numerator * this.denominator;
           const denominator = this.denominator * otherFraction.denominator;
-          return new Fraction(numerator, denominator);
+          return new Fraction(numerator, denominator).simplify();
       }
 
       subtract(otherFraction) {
@@ -9084,19 +9084,19 @@ var rejectBundle = (function () {
               this.numerator * otherFraction.denominator -
               otherFraction.numerator * this.denominator;
           const denominator = this.denominator * otherFraction.denominator;
-          return new Fraction(numerator, denominator);
+          return new Fraction(numerator, denominator).simplify();
       }
 
       multiply(otherFraction) {
           const numerator = this.numerator * otherFraction.numerator;
           const denominator = this.denominator * otherFraction.denominator;
-          return new Fraction(numerator, denominator);
+          return new Fraction(numerator, denominator).simplify();
       }
 
       divide(otherFraction) {
           const numerator = this.numerator * otherFraction.denominator;
           const denominator = this.denominator * otherFraction.numerator;
-          return new Fraction(numerator, denominator);
+          return new Fraction(numerator, denominator).simplify();
       }
 
       pow(otherFraction) {
@@ -13394,14 +13394,20 @@ var rejectBundle = (function () {
    * @param increment the increment.
    * @return {*[]} an array with all numbers between a (inclusive) and b (exclusive)
    */
-  function range(a, b, increment = 1) {
+  function range(a, b, increment = new Fraction(1)) {
       assertNotNull(a);
       assertNotNull(b);
-      assert(a <= b, "Lower bound cannot be higher than upper bound");
+      assert(a instanceof Fraction, "Lower bound must be a Fraction");
+      assert(b instanceof Fraction, "Upper bound must be a Fraction");
+      assert(increment instanceof Fraction, "Increment must be a Fraction");
+      assert(a.evaluate() <= b.evaluate(), "Lower bound cannot be higher than upper bound");
 
       let arr = [];
-      for (let i = a; i < b; i += increment) {
-          arr[arr.length] = i;
+      // the amount of times the loop will run
+      const count = (b.evaluate() - a.evaluate()) / increment.evaluate();
+
+      for (let i = 0; i < count; i++) {
+          arr[i] = a.add(increment.multiply(new Fraction(i)));
       }
 
       return arr;
@@ -13642,12 +13648,12 @@ var rejectBundle = (function () {
           assert(b instanceof Fraction, "Upper bound is not a fraction");
           assert(increment instanceof Fraction, "Increment is not a fraction");
 
-          return range(a.evaluate(), b.evaluate(), increment.evaluate());
+          return new Collection(range(a.evaluate(), b.evaluate(), increment.evaluate()));
       },
       repeat: (x, n) => {
           assert(n instanceof Fraction, "Repeat value is not a fraction");
 
-          return repeat(x, n.evaluate());
+          return new Collection(repeat(x, n.evaluate()));
       },
       str: (...xs) => {
           return new Str(xs
@@ -24990,7 +24996,7 @@ var rejectBundle = (function () {
           assert(arr instanceof Collection, "Values is not a collection");
 
           const ys = arr.items.map(x => x.evaluate());
-          const xs = range(0, ys.length);
+          const xs = range(new Fraction(0), new Fraction(ys.length));
 
           const data = {
               labels: xs,
@@ -25016,6 +25022,8 @@ var rejectBundle = (function () {
           };
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
+
+          return true;
       },
       plot_function: async (a, b, increment, fn) => {
           assertNotNull(a);
@@ -25023,7 +25031,7 @@ var rejectBundle = (function () {
           assertNotNull(fn);
           assert(fn instanceof AFn, "Values is not an anonymous function");
 
-          const xs = range(a.evaluate(), b.evaluate() + 1, increment.evaluate());
+          const xs = range(a, b.add(increment), increment).map(x => x.evaluate());
           const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
 
           const data = {
@@ -25050,6 +25058,8 @@ var rejectBundle = (function () {
           };
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
+
+          return true;
       },
       plot_functions: async (a, b, increment, ...fns) => {
           assertNotNull(a);
@@ -25057,7 +25067,7 @@ var rejectBundle = (function () {
           assertNotNull(increment);
           assertNotNull(fns);
 
-          const xs = range(a.evaluate(), b.evaluate() + increment.evaluate(), increment.evaluate());
+          const xs = range(a, b.add(increment), increment).map(x => x.evaluate());
 
           let datasets = [];
           for (const fn of fns) {
@@ -25092,6 +25102,8 @@ var rejectBundle = (function () {
           };
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
+          
+          return true;
       }
   };
 

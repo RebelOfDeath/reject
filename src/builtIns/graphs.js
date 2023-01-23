@@ -12,7 +12,7 @@ const graphFuns = {
         assert(arr instanceof Collection, "Values is not a collection");
 
         const ys = arr.items.map(x => x.evaluate());
-        const xs = range(0, ys.length);
+        const xs = range(new Fraction(0), new Fraction(ys.length));
 
         const data = {
             labels: xs,
@@ -47,7 +47,7 @@ const graphFuns = {
         assertNotNull(fn);
         assert(fn instanceof AFn, "Values is not an anonymous function");
 
-        const xs = range(a.evaluate(), b.evaluate() + 1, increment.evaluate());
+        const xs = range(a, b.add(increment), increment).map(x => x.evaluate());
         const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
 
         const data = {
@@ -83,7 +83,7 @@ const graphFuns = {
         assertNotNull(increment);
         assertNotNull(fns);
 
-        const xs = range(a.evaluate(), b.evaluate() + increment.evaluate(), increment.evaluate());
+        const xs = range(a, b.add(increment), increment).map(x => x.evaluate());
 
         let datasets = [];
         for (const fn of fns) {

@@ -1,3 +1,5 @@
+import {Fraction} from "./fraction.js";
+
 const colours = ["A", "B", "C", "D", "E", "F"];
 
 /**
@@ -20,14 +22,20 @@ export function getLineColour() {
  * @param increment the increment.
  * @return {*[]} an array with all numbers between a (inclusive) and b (exclusive)
  */
-export function range(a, b, increment = 1) {
+export function range(a, b, increment = new Fraction(1)) {
     assertNotNull(a);
     assertNotNull(b);
-    assert(a <= b, "Lower bound cannot be higher than upper bound");
+    assert(a instanceof Fraction, "Lower bound must be a Fraction");
+    assert(b instanceof Fraction, "Upper bound must be a Fraction");
+    assert(increment instanceof Fraction, "Increment must be a Fraction");
+    assert(a.evaluate() <= b.evaluate(), "Lower bound cannot be higher than upper bound");
 
     let arr = [];
-    for (let i = a; i < b; i += increment) {
-        arr[arr.length] = i;
+    // the amount of times the loop will run
+    const count = (b.evaluate() - a.evaluate()) / increment.evaluate();
+
+    for (let i = 0; i < count; i++) {
+        arr[i] = a.add(increment.multiply(new Fraction(i)));
     }
 
     return arr;

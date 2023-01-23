@@ -32,7 +32,7 @@ export class Fraction {
             this.numerator * otherFraction.denominator +
             otherFraction.numerator * this.denominator;
         const denominator = this.denominator * otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     subtract(otherFraction) {
@@ -40,19 +40,19 @@ export class Fraction {
             this.numerator * otherFraction.denominator -
             otherFraction.numerator * this.denominator;
         const denominator = this.denominator * otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     multiply(otherFraction) {
         const numerator = this.numerator * otherFraction.numerator;
         const denominator = this.denominator * otherFraction.denominator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     divide(otherFraction) {
         const numerator = this.numerator * otherFraction.denominator;
         const denominator = this.denominator * otherFraction.numerator;
-        return new Fraction(numerator, denominator);
+        return new Fraction(numerator, denominator).simplify();
     }
 
     pow(otherFraction) {
