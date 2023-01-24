@@ -20,8 +20,8 @@ export class Fraction {
                 this.numerator = numerator;
                 this.denominator = 1;
             } else {
-                this.numerator = numerator * Math.pow(10, numerator.toString().split(".")[1].length);
-                this.denominator = Math.pow(10, numerator.toString().split(".")[1].length);
+                this.numerator = numerator * Math.pow(10, numerator.toFixed(20).split(".")[1].length);
+                this.denominator = Math.pow(10, numerator.toFixed(20).split(".")[1].length);
                 this.simplify();
             }
         }

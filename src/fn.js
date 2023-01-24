@@ -1,5 +1,4 @@
 import {VARS} from "./var.js";
-import {isArray} from "chart.js/helpers";
 import {Return} from "./return.js";
 
 export const FUNS = new Map();
@@ -29,7 +28,7 @@ export class Fn {
             .flat(Infinity)
             .filter(ret => ret instanceof Return);
 
-        return returns ? returns[0].value : true;
+        return returns !== null ? returns[0].value : true;
     }
 }
 
