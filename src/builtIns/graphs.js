@@ -41,42 +41,6 @@ const graphFuns = {
 
         return true;
     },
-    plot_function: async (a, b, increment, fn) => {
-        assertNotNull(a);
-        assertNotNull(b);
-        assertNotNull(fn);
-        assert(fn instanceof AFn, "Values is not an anonymous function");
-
-        const xs = range(a, b.add(increment), increment).map(x => x.evaluate());
-        const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
-
-        const data = {
-            labels: xs,
-            datasets: [{
-                label: `${fn.block.sourceString.trim()}`,
-                data: ys,
-                borderColor: line,
-                backgroundColor: bg
-            }]
-        };
-
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        };
-
-        new Chart(document.getElementById(`${createCanvas()}`), config);
-
-        return true;
-    },
     plot_functions: async (a, b, increment, ...fns) => {
         assertNotNull(a);
         assertNotNull(b);
@@ -89,7 +53,15 @@ const graphFuns = {
         for (const fn of fns) {
             assert(fn instanceof AFn, "Values is not an anonymous function");
 
-            const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
+            const ys = xs.map(x => {
+                try {
+                    return fn.invoke(
+                        new Fraction(x))
+                        .evaluate();
+                } catch (error) {
+                    return null;
+                }
+            });
 
             datasets[datasets.length] = {
                 label: `${fn.block.sourceString.trim()}`,

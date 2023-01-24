@@ -24,11 +24,15 @@ export class Fn {
         }
 
         // flatten to remove when, for indentation
-        const returns = this.block.parse()
-            .flat(Infinity)
-            .filter(ret => ret instanceof Return);
+        try {
+            const returns = this.block.parse()
+                .flat(Infinity)
+                .filter(ret => ret instanceof Return);
 
-        return returns !== null ? returns[0].value : true;
+            return returns !== null ? returns[0].value : true;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
 
@@ -50,7 +54,11 @@ export class AFn extends Fn {
             VARS.set(variable.name, variable);
         }
 
-        return this.block.parse();
+        try {
+            return this.block.parse();
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
 

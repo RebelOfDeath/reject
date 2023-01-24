@@ -9048,7 +9048,7 @@ var rejectBundle = (function () {
 
       constructor(numerator, denominator = 1) {
           if (denominator === 0) {
-              throw new Error("Cannot divide by 0");
+              throw new Error("Cannot divide by 0 in initiator");
           }
           if (isNaN(numerator) || isNaN(denominator)) {
               return new Fraction(0, 1);
@@ -9392,11 +9392,16 @@ var rejectBundle = (function () {
           }
 
           // flatten to remove when, for indentation
-          const returns = this.block.parse()
-              .flat(Infinity)
-              .filter(ret => ret instanceof Return);
+          try {
+              const returns = this.block.parse()
+                  .flat(Infinity)
+                  .filter(ret => ret instanceof Return);
 
-          return returns !== null ? returns[0].value : true;
+              return returns !== null ? returns[0].value : true;
+          } catch (error) {
+              log(error.message);
+              throw new Error(error.message);
+          }
       }
   }
 
@@ -9418,7 +9423,12 @@ var rejectBundle = (function () {
               VARS.set(variable.name, variable);
           }
 
-          return this.block.parse();
+          try {
+              return this.block.parse();
+          } catch (error) {
+              log(error.message);
+              throw new Error(error.message);
+          }
       }
   }
 
@@ -25025,42 +25035,6 @@ var rejectBundle = (function () {
 
           return true;
       },
-      plot_function: async (a, b, increment, fn) => {
-          assertNotNull(a);
-          assertNotNull(b);
-          assertNotNull(fn);
-          assert(fn instanceof AFn, "Values is not an anonymous function");
-
-          const xs = range(a, b.add(increment), increment).map(x => x.evaluate());
-          const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
-
-          const data = {
-              labels: xs,
-              datasets: [{
-                  label: `${fn.block.sourceString.trim()}`,
-                  data: ys,
-                  borderColor: line,
-                  backgroundColor: bg
-              }]
-          };
-
-          const config = {
-              type: 'line',
-              data: data,
-              options: {
-                  responsive: true,
-                  plugins: {
-                      legend: {
-                          display: false
-                      }
-                  }
-              }
-          };
-
-          new Chart(document.getElementById(`${createCanvas()}`), config);
-
-          return true;
-      },
       plot_functions: async (a, b, increment, ...fns) => {
           assertNotNull(a);
           assertNotNull(b);
@@ -25073,7 +25047,15 @@ var rejectBundle = (function () {
           for (const fn of fns) {
               assert(fn instanceof AFn, "Values is not an anonymous function");
 
-              const ys = xs.map(x => fn.invoke(new Fraction(x)).evaluate());
+              const ys = xs.map(x => {
+                  try {
+                      return fn.invoke(
+                          new Fraction(x))
+                          .evaluate();
+                  } catch (error) {
+                      return null;
+                  }
+              });
 
               datasets[datasets.length] = {
                   label: `${fn.block.sourceString.trim()}`,

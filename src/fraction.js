@@ -4,7 +4,7 @@ export class Fraction {
 
     constructor(numerator, denominator = 1) {
         if (denominator === 0) {
-            throw new Error("Cannot divide by 0");
+            throw new Error("Cannot divide by 0 in initiator");
         }
         if (isNaN(numerator) || isNaN(denominator)) {
             return new Fraction(0, 1);
