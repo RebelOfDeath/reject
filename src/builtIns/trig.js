@@ -1,6 +1,8 @@
 import {Fraction} from "../fraction.js";
 import {registerNativeFns} from "../fn.js";
 
+// todo explain magic numbers
+
 let trigFuncs = {
     cos: (angle, radian = true) => {
         if (!(angle instanceof Fraction)) {
