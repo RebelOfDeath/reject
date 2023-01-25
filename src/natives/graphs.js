@@ -1,8 +1,8 @@
-import {AFn, registerNativeFns} from "../fn.js";
+import {AFn, registerNativeFns} from "../element/fn.js";
 import Chart from 'chart.js/auto';
-import {assert, assertNotNull, getLineColour, range} from "../util.js";
-import {Collection} from "../collection.js";
-import {Fraction} from "../fraction.js";
+import {assert, assertNotNull, getLineColour, range} from "../element/util.js";
+import {Collection} from "../types/collection.js";
+import {Fraction} from "../types/fraction.js";
 
 const line = "rgb(159,49,49)";
 const bg = "rgba(155,155,155,0.5)";

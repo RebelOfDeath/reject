@@ -1,5 +1,5 @@
-import {Fraction} from "../fraction.js";
-import {registerNativeFns} from "../fn.js";
+import {Fraction} from "../types/fraction.js";
+import {registerNativeFns} from "../element/fn.js";
 
 // todo explain magic numbers
 

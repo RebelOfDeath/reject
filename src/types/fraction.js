@@ -1,4 +1,4 @@
-import {VARS} from "./var.js";
+import {VARS} from "../element/var.js";
 
 export class Fraction {
 

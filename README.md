@@ -24,7 +24,7 @@ git clone https://github.com/rebelofdeath/reject
 
 **Adding new JS files**
 
-If you have JS files that aren't mentioned in any `import` statement in `reject.js` or the default JS files, they won't be included in the bundle. To add them to the bundle, simply import them in `reject.js`, like below. [Example](https://github.com/RebelOfDeath/reject/blob/main/reject.js#L12)
+If you have JS files that aren't mentioned in any `import` statement in `reject.js` or the default JS files, they won't be included in the bundle. To add them to the bundle, simply import them in `reject.js`, like below. [Example](https://github.com/RebelOfDeath/reject/blob/main/reject.js#L12).
 
 ```
 import "./src/thing.js";

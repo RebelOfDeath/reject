@@ -2,7 +2,7 @@
   "name": "reject",
   "version": "1.0.0",
   "description": "A programming language designed for math geeks",
-  "main": "reject.js",
+  "main": "src/reject.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -9399,7 +9399,6 @@ var rejectBundle = (function () {
 
               return returns !== null ? returns[0].value : true;
           } catch (error) {
-              log(error.message);
               throw new Error(error.message);
           }
       }
@@ -9426,7 +9425,6 @@ var rejectBundle = (function () {
           try {
               return this.block.parse();
           } catch (error) {
-              log(error.message);
               throw new Error(error.message);
           }
       }
@@ -25090,6 +25088,8 @@ var rejectBundle = (function () {
   };
 
   registerNativeFns(graphFuns);
+
+  // todo explain magic numbers
 
   let trigFuncs = {
       cos: (angle, radian = true) => {

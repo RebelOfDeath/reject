@@ -1,10 +1,10 @@
-import {Fraction} from "../fraction.js";
-import {Matrix} from '../matrix.js'
-import {Collection} from "../collection.js";
-import {Complex} from '../complex.js';
-import {registerNativeFns} from "../fn.js";
-import {assert, range, repeat} from "../util.js";
-import {Str} from "../str.js";
+import {Fraction} from "../types/fraction.js";
+import {Matrix} from '../types/matrix.js'
+import {Collection} from "../types/collection.js";
+import {Complex} from '../types/complex.js';
+import {registerNativeFns} from "../element/fn.js";
+import {assert, range, repeat} from "../element/util.js";
+import {Str} from "../types/str.js";
 
 let general = {
     print: (...xs) => {

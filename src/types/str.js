@@ -1,6 +1,6 @@
 import {Collection} from "./collection.js";
-import {VARS} from "./var.js";
-import {FUNS} from "./fn.js";
+import {VARS} from "../element/var.js";
+import {FUNS} from "../element/fn.js";
 import parseInput from "../reject.js";
 
 export class Str extends Collection {

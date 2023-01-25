@@ -1,4 +1,4 @@
-import {Fraction} from "./fraction.js";
+import {Fraction} from "../types/fraction.js";
 
 const colours = ["A", "B", "C", "D", "E", "F"];
 

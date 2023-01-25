@@ -1,5 +1,5 @@
-import {Fraction} from "../fraction.js";
-import {registerNativeConstants} from "../var.js";
+import {Fraction} from "../types/fraction.js";
+import {registerNativeConstants} from "../element/var.js";
 
 let constants = {
     pi: new Fraction(355, 113),

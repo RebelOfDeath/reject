@@ -1,19 +1,19 @@
 import ohm from 'ohm-js';
-import {Collection} from "./src/collection.js";
-import {Fraction} from "./src/fraction.js";
-import {Complex} from "./src/complex.js";
-import {AFn, Fn, FUNS} from "./src/fn.js";
-import {Var, VARS} from "./src/var.js";
-import {Str} from "./src/str.js";
-import {Matrix} from "./src/matrix.js";
-import {Return} from "./src/return.js";
-import {For} from "./src/for.js";
+import {Collection} from "./types/collection.js";
+import {Fraction} from "./types/fraction.js";
+import {Complex} from "./types/complex.js";
+import {AFn, Fn, FUNS} from "./element/fn.js";
+import {Var, VARS} from "./element/var.js";
+import {Str} from "./types/str.js";
+import {Matrix} from "./types/matrix.js";
+import {Return} from "./element/return.js";
+import {For} from "./element/for.js";
 
-import "./src/builtIns/constants.js";
-import "./src/builtIns/general.js";
-import "./src/builtIns/graphs.js";
-import "./src/builtIns/stats.js";
-import "./src/builtIns/trig.js";
+import "./natives/constants.js";
+import "./natives/general.js";
+import "./natives/graphs.js";
+import "./natives/stats.js";
+import "./natives/trig.js";
 
 console.log("Loading grammar");
 
