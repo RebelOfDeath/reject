@@ -10,3 +10,32 @@ This repo is the home of the Reject language and online editor. Reject is a dyna
 - Easy to learn and use
 - Extensive mathematical functions
 - Multiple useful (in math, at least) types, like imaginary numbers and matrices
+
+### Contributing/building locally
+If you want to contribute to Reject, try it out offline or modify some elements for yourself, you can do so by following the following steps. For contributing, forking this project will allow you to create PRs.
+
+**Cloning to your local machine**
+
+Use git clone or your IDE to clone the project to a local folder. 
+
+```
+git clone https://github.com/rebelofdeath/reject
+```
+
+**Adding new JS files**
+
+If you have JS files that aren't mentioned in any `import` statement in `reject.js` or the default JS files, they won't be included in the bundle. To add them to the budnle, simply import them in `reject.js`, like so.
+
+```
+import "./src/thing.js";
+```
+
+**Building and running**
+
+Building the project requires you to have [Rollup](https://rollupjs.org/introduction/#installation) installed. To build it, enter the below command. This will compile all JS files mentioned in the `reject.js` file to a bundle, which can be shipped with the website. 
+
+```
+rollup --config rollup.config.js
+```
+
+After performing this command, you can open editor.html, and you're done!
