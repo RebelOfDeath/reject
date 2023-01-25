@@ -32,7 +32,7 @@ import "./src/thing.js";
 
 **Building and running**
 
-Building the project requires you to have [Rollup](https://rollupjs.org/introduction/#installation) installed. To build it, enter the below command. This will compile all JS files mentioned in the `reject.js` file to a bundle, which can be shipped with the website. 
+Building the project requires you to have [Rollup](https://rollupjs.org/introduction/#installation) installed. To build it, enter the below command. This will compile all mentioned JS files (see above warning!) to a bundle, which can be shipped with the website. 
 
 ```
 rollup --config rollup.config.js
