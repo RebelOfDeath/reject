@@ -25031,6 +25031,8 @@ var rejectBundle = (function () {
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
 
+          log("Generating graph... Open the Generated Graphs menu to see the graph.");
+
           return true;
       },
       plot_functions: async (a, b, increment, ...fns) => {
@@ -25082,7 +25084,9 @@ var rejectBundle = (function () {
           };
 
           new Chart(document.getElementById(`${createCanvas()}`), config);
-          
+
+          log("Generating graph... Open the Generated Graphs menu to see the graph.");
+
           return true;
       }
   };
