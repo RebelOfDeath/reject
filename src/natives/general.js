@@ -103,7 +103,6 @@ let general = {
             throw new TypeError('Function only supports numeric type (Fraction)');
         }
         number = number.evaluate();
-        console.log(number);
 
         return new Fraction(Math.sqrt(number));
     },
@@ -213,9 +212,7 @@ let general = {
         assert(afn instanceof AFn, "Predicate is not an anonymous function");
         assert(coll instanceof Collection, "Collection is not a collection");
 
-        return coll.filter(x => {
-            afn.invoke(x);
-        });
+        return coll.filter(x => afn.invoke(x));
     },
     not: (x) => {
         assert(typeof x === "boolean", "Argument is not a boolean");

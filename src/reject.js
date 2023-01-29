@@ -221,7 +221,6 @@ semantics.addOperation("parse", {
                 }
             case "!=":
                 if (x instanceof Fraction && y instanceof Fraction) {
-                    console.log(x.evaluate(), y.evaluate());
                     return x.evaluate() !== y.evaluate();
                 } else if (x instanceof Complex && y instanceof Complex) {
                     return x.real !== y.real && x.imag !== y.imag;

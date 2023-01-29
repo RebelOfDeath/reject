@@ -10178,14 +10178,10 @@ var rejectBundle = (function () {
           for (let i = 0; i < this.values.items.length; i++) {
               const value = this.values.items[i];
 
-              console.log(value);
-
               // set vars
               for (let j = 0; j < this.params.length; j++) {
                   let variable = this.params[j];
                   variable.value = this.params.length === 1 ? value : value.items[j];
-
-                  // console.log(variable.name, value);
 
                   VARS.set(variable.name, variable);
               }
@@ -10388,7 +10384,6 @@ var rejectBundle = (function () {
               throw new TypeError('Function only supports numeric type (Fraction)');
           }
           number = number.evaluate();
-          console.log(number);
 
           return new Fraction(Math.sqrt(number));
       },
@@ -10498,9 +10493,7 @@ var rejectBundle = (function () {
           assert(afn instanceof AFn, "Predicate is not an anonymous function");
           assert(coll instanceof Collection, "Collection is not a collection");
 
-          return coll.filter(x => {
-              afn.invoke(x);
-          });
+          return coll.filter(x => afn.invoke(x));
       },
       not: (x) => {
           assert(typeof x === "boolean", "Argument is not a boolean");
@@ -25421,7 +25414,6 @@ Reject {
                   }
               case "!=":
                   if (x instanceof Fraction && y instanceof Fraction) {
-                      console.log(x.evaluate(), y.evaluate());
                       return x.evaluate() !== y.evaluate();
                   } else if (x instanceof Complex && y instanceof Complex) {
                       return x.real !== y.real && x.imag !== y.imag;
