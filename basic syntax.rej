@@ -52,11 +52,13 @@ matrix = {{1, 1, 1}, {2, 2, 2}, {3, 3, 3}} # this is a defintion of a matrix whi
 
 complex_abs = |z(3, 2)| #this is an example of a syntactic sugar for calling the abs value function on a collection or Number type
 # the syntax for using this is |Value| where this is equal to calling abs(Value)
-for x in verdeling:
+for x in verdeling {
 	print("x = $x")
+}
 	
-when x == 10:
+when x == 10 {
 	print("According to my calculations, x is 10!")
+}
 
 is_even = even(10)
 is_odd = odd(10)

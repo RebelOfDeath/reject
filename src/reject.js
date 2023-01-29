@@ -63,9 +63,6 @@ Reject {
         | Logical
         
     Logical = Logical logicOp Expression -- logic
-        | LogicalNot
-        
-    LogicalNot = "!" ~spaces LogicalNot -- not
         | AFn
 
     AFn = ":(" ListOf<identifier, ","> "): " Expression -- afn
@@ -308,10 +305,6 @@ semantics.addOperation("parse", {
             case "or":
                 return x || y;
         }
-    },
-
-    LogicalNot_not(_, x) {
-        return !x.parse();
     },
 
     AFn_afn(_, args, __, expr) {

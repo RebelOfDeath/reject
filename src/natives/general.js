@@ -2,11 +2,19 @@ import {Fraction} from "../types/fraction.js";
 import {Matrix} from '../types/matrix.js'
 import {Collection} from "../types/collection.js";
 import {Complex} from '../types/complex.js';
-import {registerNativeFns} from "../element/fn.js";
+import {AFn, registerNativeFns} from "../element/fn.js";
 import {assert, range, repeat} from "../element/util.js";
 import {Str} from "../types/str.js";
 
 let general = {
+    even(x) {
+        assert(x instanceof Fraction, "Argument is not a fraction");
+
+        return x.evaluate() % 2 === 0;
+    },
+    uneven(x) {
+        return !general.even(x);
+    },
     print: (...xs) => {
         log(xs
             .map(x => x.toString())
@@ -200,6 +208,24 @@ let general = {
         assert(n instanceof Fraction, "Repeat value is not a fraction");
 
         return new Collection(repeat(x, n.evaluate()));
+    },
+    filter: (afn, coll) => {
+        assert(afn instanceof AFn, "Predicate is not an anonymous function");
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        return coll.filter(x => {
+            afn.invoke(x);
+        });
+    },
+    not: (x) => {
+        assert(typeof x === "boolean", "Argument is not a boolean");
+
+        return !x;
+    },
+    num: (x) => {
+        assert(x instanceof Str, "Argument is not a string");
+
+        return new Fraction(Number.parseFloat(x));
     },
     str: (...xs) => {
         return new Str(xs

@@ -10292,6 +10292,14 @@ var rejectBundle = (function () {
   }
 
   let general = {
+      even(x) {
+          assert(x instanceof Fraction, "Argument is not a fraction");
+
+          return x.evaluate() % 2 === 0;
+      },
+      uneven(x) {
+          return !general.even(x);
+      },
       print: (...xs) => {
           log(xs
               .map(x => x.toString())
@@ -10485,6 +10493,24 @@ var rejectBundle = (function () {
           assert(n instanceof Fraction, "Repeat value is not a fraction");
 
           return new Collection(repeat(x, n.evaluate()));
+      },
+      filter: (afn, coll) => {
+          assert(afn instanceof AFn, "Predicate is not an anonymous function");
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          return coll.filter(x => {
+              afn.invoke(x);
+          });
+      },
+      not: (x) => {
+          assert(typeof x === "boolean", "Argument is not a boolean");
+
+          return !x;
+      },
+      num: (x) => {
+          assert(x instanceof Str, "Argument is not a string");
+
+          return new Fraction(Number.parseFloat(x));
       },
       str: (...xs) => {
           return new Str(xs
@@ -25237,9 +25263,6 @@ Reject {
         | Logical
         
     Logical = Logical logicOp Expression -- logic
-        | LogicalNot
-        
-    LogicalNot = "!" ~spaces LogicalNot -- not
         | AFn
 
     AFn = ":(" ListOf<identifier, ","> "): " Expression -- afn
@@ -25482,10 +25505,6 @@ Reject {
               case "or":
                   return x || y;
           }
-      },
-
-      LogicalNot_not(_, x) {
-          return !x.parse();
       },
 
       AFn_afn(_, args, __, expr) {

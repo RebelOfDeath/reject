@@ -50,8 +50,8 @@ x = 4 * 3/5, y = (6 * 23) / 4
 
 # Logical
 (true and true) == true
-(!true or true) == true
-(!!!true) == true
+(not(true) or true) == true
+(not(not(true))) == true
 ((true and true) or false) == true
 
 # Anonymous functions
