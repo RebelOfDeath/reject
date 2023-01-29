@@ -59,7 +59,7 @@ Reject {
         
     Exponentiation
         = Exponentiation "^" Logical -- exp
-        | Exponentiation ~spaces "!" -- fac // adding a space causes x! to be confused with x !=, so for now this'll have to do
+        | Exponentiation ~space "!" -- fac // adding a space causes x! to be confused with x !=, so for now this'll have to do
         | Logical
         
     Logical = Logical logicOp Expression -- logic
