@@ -214,6 +214,47 @@ let general = {
 
         return coll.filter(x => afn.invoke(x));
     },
+    map: (afn, coll) => {
+        assert(afn instanceof AFn, "Predicate is not an anonymous function");
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        return coll.map(x => afn.invoke(x));
+    },
+    reduce: (afn, initialValue, coll) => {
+        assert(afn instanceof AFn, "Predicate is not an anonymous function");
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        return coll.reduce(x => afn.invoke(x), initialValue);
+    },
+    get: (coll, index) => {
+        assert(index instanceof Fraction, "Index is not a fraction");
+        assert(index.simplify().denominator === 1, "Index is not a whole number");
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        const value = coll.get(Math.floor(index.evaluate()));
+        return (value === null || value === undefined) ? false : value;
+    },
+    set: (coll, index, value) => {
+        assert(index instanceof Fraction, "Index is not a fraction");
+        assert(index.simplify().denominator === 1, "Index is not a whole number");
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        index = Math.floor(index.evaluate());
+
+        const previous = coll.get(index);
+        coll.set(index, value);
+        return previous !== null && previous !== undefined;
+    },
+    append: (coll, item) => {
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        return coll.append(item);
+    },
+    insert: (coll, index, item) => {
+        assert(coll instanceof Collection, "Collection is not a collection");
+
+        return coll.insert(index, item);
+    },
     not: (x) => {
         assert(typeof x === "boolean", "Argument is not a boolean");
 
@@ -228,6 +269,9 @@ let general = {
         return new Str(xs
             .map(x => x.toString())
             .join(""))
+    },
+    z: (real, imaginary) => {
+        return new Complex(real, imaginary);
     }
 }
 

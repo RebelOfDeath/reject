@@ -6,11 +6,15 @@ export class Collection {
     // Add an item to the end of the collection
     append(item) {
         this.items.push(item);
+
+        return this;
     }
 
     // Insert an item at a specific index
     insert(index, item) {
         this.items.splice(index, 0, item);
+
+        return this;
     }
 
     // Remove an item from the collection
@@ -19,6 +23,7 @@ export class Collection {
         if (index !== -1) {
             this.items.splice(index, 1);
         }
+        return this;
     }
 
     // Find the index of an item in the collection
@@ -52,8 +57,7 @@ export class Collection {
     }
 
     map(fn) {
-        const mapped = this.items.map(fn);
-        return new Collection(mapped);
+        return this.items.map(fn);
     }
 
     // Reduce the collection to a single value by applying a function to each item in the collection
@@ -63,7 +67,7 @@ export class Collection {
 
     // Filter the collection to a new Collection with only the items that pass a test function
     filter(fn) {
-        return new Collection(this.items.filter(fn));
+        return this.items.filter(fn);
     }
 
     toString() {

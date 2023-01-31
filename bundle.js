@@ -8914,11 +8914,15 @@ var rejectBundle = (function () {
       // Add an item to the end of the collection
       append(item) {
           this.items.push(item);
+
+          return this;
       }
 
       // Insert an item at a specific index
       insert(index, item) {
           this.items.splice(index, 0, item);
+
+          return this;
       }
 
       // Remove an item from the collection
@@ -8927,6 +8931,7 @@ var rejectBundle = (function () {
           if (index !== -1) {
               this.items.splice(index, 1);
           }
+          return this;
       }
 
       // Find the index of an item in the collection
@@ -8960,8 +8965,7 @@ var rejectBundle = (function () {
       }
 
       map(fn) {
-          const mapped = this.items.map(fn);
-          return new Collection(mapped);
+          return this.items.map(fn);
       }
 
       // Reduce the collection to a single value by applying a function to each item in the collection
@@ -8971,7 +8975,7 @@ var rejectBundle = (function () {
 
       // Filter the collection to a new Collection with only the items that pass a test function
       filter(fn) {
-          return new Collection(this.items.filter(fn));
+          return this.items.filter(fn);
       }
 
       toString() {
@@ -10495,6 +10499,47 @@ var rejectBundle = (function () {
 
           return coll.filter(x => afn.invoke(x));
       },
+      map: (afn, coll) => {
+          assert(afn instanceof AFn, "Predicate is not an anonymous function");
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          return coll.map(x => afn.invoke(x));
+      },
+      reduce: (afn, initialValue, coll) => {
+          assert(afn instanceof AFn, "Predicate is not an anonymous function");
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          return coll.reduce(x => afn.invoke(x), initialValue);
+      },
+      get: (coll, index) => {
+          assert(index instanceof Fraction, "Index is not a fraction");
+          assert(index.simplify().denominator === 1, "Index is not a whole number");
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          const value = coll.get(Math.floor(index.evaluate()));
+          return (value === null || value === undefined) ? false : value;
+      },
+      set: (coll, index, value) => {
+          assert(index instanceof Fraction, "Index is not a fraction");
+          assert(index.simplify().denominator === 1, "Index is not a whole number");
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          index = Math.floor(index.evaluate());
+
+          const previous = coll.get(index);
+          coll.set(index, value);
+          return previous !== null && previous !== undefined;
+      },
+      append: (coll, item) => {
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          return coll.append(item);
+      },
+      insert: (coll, index, item) => {
+          assert(coll instanceof Collection, "Collection is not a collection");
+
+          return coll.insert(index, item);
+      },
       not: (x) => {
           assert(typeof x === "boolean", "Argument is not a boolean");
 
@@ -10509,6 +10554,9 @@ var rejectBundle = (function () {
           return new Str(xs
               .map(x => x.toString())
               .join(""))
+      },
+      z: (real, imaginary) => {
+          return new Complex(real, imaginary);
       }
   };
 
@@ -25256,6 +25304,9 @@ Reject {
         | Logical
         
     Logical = Logical logicOp Expression -- logic
+        | LogicalNot
+
+    LogicalNot = "!" ~space Logical -- not
         | AFn
 
     AFn = ":(" ListOf<identifier, ","> "): " Expression -- afn
@@ -25497,6 +25548,10 @@ Reject {
               case "or":
                   return x || y;
           }
+      },
+
+      LogicalNot_not(_, x) {
+          return !(x.parse());
       },
 
       AFn_afn(_, args, __, expr) {
