@@ -27,16 +27,15 @@ x = z(3, 4) # is the reassignment of the complex number (3 + 4i) to the variable
 # function in reject are pass by value
 fun my_fun(x, y) { 
 	x += 2 #adds 2 to the current passed value of x
-	par = x #the variable par is a local scope variable equal to the current value of x
+	par = x
 	x = par + y 
-	x, y = y, x #the right hand side (rhs) precedence of reject allows the simultaneous assignment of multiple variables, here the current values of x and y are swapped
-	
+
 	#if no return statement is given the last evaluated value assigned to a variable will be returned
 	#if no local scope variables have been defined and only modifications have been made to global variables the returned value will be null i.e. boolean 0 = false
 	return x^2 # this returns the value of x to the power of 2 from the function
 }
 
-g(x) = :(x): 3 * (x^2) * 100	# this is the definition of a lambda type, whre the variables inside between the parantheses in :(): are the parameters of the function much alike the function definition
+g = :(x): 3 * (x^2) * 100	# this is the definition of a lambda type, whre the variables inside between the parantheses in :(): are the parameters of the function much alike the function definition
 # the expression which is then comes after these is evaluated and returned after the values have been provided
 #both lambdas and functions can be called by using the following syntax -> FunctionName(Parameters)
 
@@ -62,7 +61,7 @@ when x == 10 {
 }
 
 is_even = even(10)
-is_odd = odd(10)
+is_odd = uneven(10)
 modulo = mod(21, 10) # = 1
 
 verdeling = filter(even(x), verdeling) # filter based on predicate
@@ -72,13 +71,10 @@ verdeling = filter(:(x): even(x) ? true : false, verdeling)
 n = 100
 p = 1/6
 
-binom_verdeling = binomcdf(n, p, k) 
 askdfjaslkdfjsa = binomcdf(n, p, :(x): x) # x will be plotted (ig?)
 #the last statement returns a new data type, function_def which can
 #then be utilized to draw graphs of the respective functions
 #this data type in itself is an encapculation of the function type and
 #more specfically the anonymous (lambda) function.
 
-plot_bars(values, l, r, h, dx)
-plot_bars(values, dx) # l, r and h are inferred from values
-plot_bars(values) # dx is inferred from values
+plot_functions(values, g)
