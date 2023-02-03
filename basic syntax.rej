@@ -25,7 +25,7 @@ x = z(3, 4) # is the reassignment of the complex number (3 + 4i) to the variable
 
 # the following is the definition of a function with the name my_fun and the parameters x and y, with y having a default value of 2
 # function in reject are pass by value
-fun my_fun(x, y = 2):
+fun my_fun(x, y) { 
 	x += 2 #adds 2 to the current passed value of x
 	par = x #the variable par is a local scope variable equal to the current value of x
 	x = par + y 
@@ -34,6 +34,7 @@ fun my_fun(x, y = 2):
 	#if no return statement is given the last evaluated value assigned to a variable will be returned
 	#if no local scope variables have been defined and only modifications have been made to global variables the returned value will be null i.e. boolean 0 = false
 	return x^2 # this returns the value of x to the power of 2 from the function
+}
 
 g(x) = :(x): 3 * (x^2) * 100	# this is the definition of a lambda type, whre the variables inside between the parantheses in :(): are the parameters of the function much alike the function definition
 # the expression which is then comes after these is evaluated and returned after the values have been provided
