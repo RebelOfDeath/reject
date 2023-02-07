@@ -57,17 +57,17 @@ export class Collection {
     }
 
     map(fn) {
-        return this.items.map(fn);
+        return new Collection(this.items.map(fn));
     }
 
     // Reduce the collection to a single value by applying a function to each item in the collection
     reduce(fn, initialValue) {
-        return this.items.reduce(fn, initialValue);
+        return new Collection(this.items.reduce(fn, initialValue));
     }
 
     // Filter the collection to a new Collection with only the items that pass a test function
     filter(fn) {
-        return this.items.filter(fn);
+        return new Collection(this.items.filter(fn));
     }
 
     toString() {
