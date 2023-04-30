@@ -33,7 +33,7 @@ export class Matrix extends Collection {
     // Multiply the Matrix by another Matrix or a scalar value
     multiply(other) {
         if (other instanceof Matrix) {
-            if (this.items[0].length !== other.items.length) {
+            if (this.items[0].length() !== other.length()) {
                 throw new Error("Invalid matrix dimensions for multiplication");
             }
 
@@ -58,8 +58,8 @@ export class Matrix extends Collection {
     // Add the Matrix to another Matrix
     add(other) {
         if (
-            this.items.length !== other.items.length ||
-            this.items[0].length !== other.items[0].length
+            this.length() !== other.length() ||
+            this.items[0].length() !== other.items[0].length()
         ) {
             throw new Error("Invalid matrix dimensions for addition");
         }
@@ -73,8 +73,8 @@ export class Matrix extends Collection {
     // Subtract another Matrix from the Matrix
     subtract(other) {
         if (
-            this.items.length !== other.items.length ||
-            this.items[0].length !== other.items[0].length
+            this.length() !== other.length() ||
+            this.items[0].length() !== other.items[0].length()
         ) {
             throw new Error("Invalid matrix dimensions for subtraction");
         }
@@ -87,11 +87,11 @@ export class Matrix extends Collection {
 
     // Get the determinant of the Matrix (only works for square matrices)
     determinant() {
-        if (this.items.length !== this.items[0].length) {
+        if (this.length() !== this.items[0].length()) {
             throw new Error("Matrix must be square to calculate determinant");
         }
 
-        if (this.items.length === 2) {
+        if (this.length() === 2) {
             return (
                 this.items[0][0] * this.items[1][1] -
                 this.items[0][1] * this.items[1][0]
@@ -99,7 +99,7 @@ export class Matrix extends Collection {
         }
 
         let determinant = 0;
-        for (let i = 0; i < this.items[0].length; i++) {
+        for (let i = 0; i < this.items[0].length(); i++) {
             const cofactor = new Matrix(
                 this.items
                     .slice(1)
@@ -125,12 +125,12 @@ export class Matrix extends Collection {
 
     // Get the number of columns in the Matrix
     col() {
-        return this.items[0].length;
+        return this.items[0].length();
     }
 
     // Get the number of rows in the Matrix
     row() {
-        return this.items.length;
+        return this.length();
     }
 
     // Get the dimensions of the Matrix (number of rows and columns)
@@ -202,7 +202,7 @@ export class Matrix extends Collection {
 
     // Check if the Matrix is a square matrix
     isSquare() {
-        return this.items.length === this.items[0].length;
+        return this.length() === this.items[0].length();
     }
 
     // Check if the Matrix is a diagonal matrix
@@ -210,8 +210,8 @@ export class Matrix extends Collection {
         if (!this.isSquare()) {
             return false;
         }
-        for (let i = 0; i < this.items.length; i++) {
-            for (let j = 0; j < this.items[0].length; j++) {
+        for (let i = 0; i < this.length(); i++) {
+            for (let j = 0; j < this.items[0].length(); j++) {
                 if (i !== j && this.items[i][j] !== 0) {
                     return false;
                 }
@@ -225,8 +225,8 @@ export class Matrix extends Collection {
         if (!this.isSquare()) {
             return false;
         }
-        for (let i = 0; i < this.items.length; i++) {
-            for (let j = 0; j < this.items[0].length; j++) {
+        for (let i = 0; i < this.length(); i++) {
+            for (let j = 0; j < this.items[0].length(); j++) {
                 if (i === j && this.items[i][j] !== 1) {
                     return false;
                 }
@@ -243,8 +243,8 @@ export class Matrix extends Collection {
         if (!this.isSquare()) {
             return false;
         }
-        for (let i = 0; i < this.items.length; i++) {
-            for (let j = 0; j < this.items[0].length; j++) {
+        for (let i = 0; i < this.length(); i++) {
+            for (let j = 0; j < this.items[0].length(); j++) {
                 if (i < j && this.items[i][j] !== 0) {
                     return false;
                 }
@@ -258,8 +258,8 @@ export class Matrix extends Collection {
         if (!this.isSquare()) {
             return false;
         }
-        for (let i = 0; i < this.items.length; i++) {
-            for (let j = 0; j < this.items[0].length; j++) {
+        for (let i = 0; i < this.length(); i++) {
+            for (let j = 0; j < this.items[0].length(); j++) {
                 if (i > j && this.items[i][j] !== 0) {
                     return false;
                 }
@@ -330,15 +330,13 @@ export class Matrix extends Collection {
         const inverse = this.inverse();
 
         // Multiply the inverse by the right-hand side to get the solution
-        const solution = inverse.multiply(rhs);
-
-        return solution;
+        return inverse.multiply(rhs);
     }
 
     equals(other) {
         if (
-            this.items.length !== other.items.length ||
-            this.items[0].length !== other.items[0].length
+            this.length() !== other.length() ||
+            this.items[0].length() !== other.items[0].length()
         ) {
             return false;
         }
@@ -362,10 +360,9 @@ export class Matrix extends Collection {
 
         // Check if the matrix is equal to the negation of its transpose
         const transpose = this.transpose();
-        const skewSymmetric = this.items.every((row, i) =>
+        return this.items.every((row, i) =>
             row.every((value, j) => value === -transpose.items[i][j])
         );
-        return skewSymmetric;
     }
 
     isOrthogonal() {
@@ -380,8 +377,8 @@ export class Matrix extends Collection {
         }
 
         // Check if the columns of the matrix are mutually orthonormal
-        for (let i = 0; i < this.items[0].length; i++) {
-            for (let j = 0; j < this.items[0].length; j++) {
+        for (let i = 0; i < this.items[0].length(); i++) {
+            for (let j = 0; j < this.items[0].length(); j++) {
                 if (i !== j) {
                     const columnI = new Matrix([
                         this.items.map((row) => row[i]),
