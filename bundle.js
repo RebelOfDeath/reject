@@ -9744,7 +9744,7 @@ var rejectBundle = (function () {
       // Multiply the Matrix by another Matrix or a scalar value
       multiply(other) {
           if (other instanceof Matrix) {
-              if (this.items[0].length !== other.length()) {
+              if (this.items[0].length() !== other.length()) {
                   throw new Error("Invalid matrix dimensions for multiplication");
               }
 
@@ -9785,7 +9785,7 @@ var rejectBundle = (function () {
       subtract(other) {
           if (
               this.length() !== other.length() ||
-              this.items[0].length !== other.items[0].length
+              this.items[0].length() !== other.items[0].length()
           ) {
               throw new Error("Invalid matrix dimensions for subtraction");
           }
@@ -9810,7 +9810,7 @@ var rejectBundle = (function () {
           }
 
           let determinant = 0;
-          for (let i = 0; i < this.items[0].length; i++) {
+          for (let i = 0; i < this.items[0].length(); i++) {
               const cofactor = new Matrix(
                   this.items
                       .slice(1)
@@ -9913,7 +9913,7 @@ var rejectBundle = (function () {
 
       // Check if the Matrix is a square matrix
       isSquare() {
-          return this.length() === this.items[0].length;
+          return this.length() === this.items[0].length();
       }
 
       // Check if the Matrix is a diagonal matrix
@@ -9922,7 +9922,7 @@ var rejectBundle = (function () {
               return false;
           }
           for (let i = 0; i < this.length(); i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
+              for (let j = 0; j < this.items[0].length(); j++) {
                   if (i !== j && this.items[i][j] !== 0) {
                       return false;
                   }
@@ -9937,7 +9937,7 @@ var rejectBundle = (function () {
               return false;
           }
           for (let i = 0; i < this.length(); i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
+              for (let j = 0; j < this.items[0].length(); j++) {
                   if (i === j && this.items[i][j] !== 1) {
                       return false;
                   }
@@ -9955,7 +9955,7 @@ var rejectBundle = (function () {
               return false;
           }
           for (let i = 0; i < this.length(); i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
+              for (let j = 0; j < this.items[0].length(); j++) {
                   if (i < j && this.items[i][j] !== 0) {
                       return false;
                   }
@@ -9970,7 +9970,7 @@ var rejectBundle = (function () {
               return false;
           }
           for (let i = 0; i < this.length(); i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
+              for (let j = 0; j < this.items[0].length(); j++) {
                   if (i > j && this.items[i][j] !== 0) {
                       return false;
                   }
@@ -10041,15 +10041,13 @@ var rejectBundle = (function () {
           const inverse = this.inverse();
 
           // Multiply the inverse by the right-hand side to get the solution
-          const solution = inverse.multiply(rhs);
-
-          return solution;
+          return inverse.multiply(rhs);
       }
 
       equals(other) {
           if (
               this.length() !== other.length() ||
-              this.items[0].length !== other.items[0].length
+              this.items[0].length() !== other.items[0].length()
           ) {
               return false;
           }
@@ -10090,8 +10088,8 @@ var rejectBundle = (function () {
           }
 
           // Check if the columns of the matrix are mutually orthonormal
-          for (let i = 0; i < this.items[0].length; i++) {
-              for (let j = 0; j < this.items[0].length; j++) {
+          for (let i = 0; i < this.items[0].length(); i++) {
+              for (let j = 0; j < this.items[0].length(); j++) {
                   if (i !== j) {
                       const columnI = new Matrix([
                           this.items.map((row) => row[i]),

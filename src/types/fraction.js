@@ -1,4 +1,4 @@
-import {VARS} from "../element/var.js";
+import {Var, VARS} from "../element/var.js";
 
 export class Fraction {
 
@@ -87,9 +87,9 @@ export class Fraction {
     }
 
     toString() {
-        const pretty = VARS.get("pretty_printing");
+        const pretty = VARS.get("pretty_printing") ?? new Var("", false);
 
-        if (pretty === true) {
+        if (pretty.value === true) {
             return this.evaluate().toString();
         } else {
             this.simplify();
