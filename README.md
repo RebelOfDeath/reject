@@ -4,7 +4,7 @@
 <br><br>
 </div>
 
-This repo is the home of the Reject language and online editor. Reject is a dynamic, functional and indentation-based scripting language built for mathematical calculations or programs. Being easy to understand by design makes it easy for anyone, even those without prior programming experience, to pick up this language. It's primary purpose is to serve as a fast way to quickly calculate something. Of course, that isn't the limit of what it can do. Feel free to find the limit yourself in the Editor.
+This repo is the home of the Reject language and online editor. Reject is a dynamic and functional scripting language built for mathematical calculations or programs. Being easy to understand by design makes it easy for anyone, even those without prior programming experience, to pick up this language. It's primary purpose is to serve as a fast way to quickly calculate something. Of course, that isn't the limit of what it can do. Feel free to find the limit yourself in the Editor.
 
 ### Features
 - Easy to learn and use
@@ -24,7 +24,7 @@ git clone https://github.com/rebelofdeath/reject
 
 **Adding new JS files**
 
-If you have JS files that aren't mentioned in any `import` statement in `reject.js` or the default JS files, they won't be included in the bundle. To add them to the bundle, simply import them in `reject.js`, like below. [Example](https://github.com/RebelOfDeath/reject/blob/main/reject.js#L12).
+If you have JS files that aren't mentioned in any `import` statement in `reject.js` or the default JS files, they won't be included in the bundle. To add them to the bundle, simply import them in `reject.js`, like below. [Example](https://github.com/RebelOfDeath/reject/blob/main/src/reject.js#L12).
 
 ```
 import "./src/thing.js";
